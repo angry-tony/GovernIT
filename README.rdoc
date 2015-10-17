@@ -13,6 +13,6 @@
   4. Load the data into the database: Set a valid email for the administrator in the file located in "InvestIT/db/seeds.rb", line 19. Save the file with the changes. Run 'rake db:seed' or 'bundle exec rake db:seed' (if the first one triggers a version conflict)
   5. Activate your account and start using InvestIT: Run 'rails s' to start the application server and start using InvestIT.
 
-https://zenodo.org/badge/doi/10.5281/zenodo.8475.svg
+  <a href="https://zenodo.org/badge/latestdoi/18809/governit/GovernIT"><img src="https://zenodo.org/badge/18809/governit/GovernIT.svg" alt="10.5281/zenodo.32194"></a>
 
 
