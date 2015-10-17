@@ -1,0 +1,612 @@
+<style>
+
+span.info
+{
+	color:#AAA;
+	margin-left:35px;
+	font-size:13px;
+}
+
+span.title
+{
+	font-weight:bold;
+	font-size:15px;
+}
+
+table
+{
+	font-size: 12px;
+	border: solid 1px #333;
+	padding: 2px;
+}
+
+tr
+{
+	border: solid 1px #333;
+	padding: 2px;
+}
+
+td
+{
+	border: solid 1px #333;
+	font-size: 11px;
+	font-style: italic;
+	padding: 2px;
+}
+
+th
+{
+	border: solid 1px #333;
+	background-color: #EEE;
+	padding: 2px;
+	text-align: center;
+}
+
+td.centered
+{
+	text-align: center;
+}
+
+</style>
+
+<script>
+
+var riskEscs; // Escenarios de evaluación de riesgos
+var goalEscs; // Escenarios de evaluación de objetivos
+var itProcs; // Procesos de TI
+var porcentajes;
+
+$( document ).ready(function() {
+
+	// Obtiene la completitud de los escenarios, para sólo cargarlos una vez:
+	$.get('./get_porcentaje_escenarios', function(data)
+	{
+		porcentajes = data;
+	});
+
+	// Obtiene los escenarios desde el inicio, para sólo cargarlos una vez:
+	$.get('./get_risk_escenarios', function(data)
+	{
+		riskEscs = data;
+	});
+
+	$.get('./get_goal_escenarios', function(data)
+	{
+		goalEscs = data;
+	});
+
+	// Obtiene los procesos ordenados, para sólo cargarlos una vez:
+	$.get('./get_it_processes', function(data)
+	{
+		itProcs = data;
+	});
+
+	// Crear nuevo mapa:
+	$(".new_esc").click(function(){
+		// Despliega el div de creación, si no está desplegado ya:
+		var anterior = document.getElementById("div_create");
+		var html;
+		if (anterior == null) 
+		{
+			html = '<div class="alert alert-info" id="div_create" style="color:#333;background-color:white;border:solid 1px #cacaca;height:160px;padding:0;">'+
+						'<div style="width:100%;height:25px;border-bottom:solid 1px #cacaca;font-size:12px;text-align:center;background-color:#f5f5f5;" id="divHeader">'+
+							'<div style="float:left;width:25%;height:25px;border-right:solid 1px #cacaca;padding:3px;">'+
+								'1. Risk Assessment Scenario'+
+							'</div>'+
+							'<div style="float:left;width:25%;height:25px;border-right:solid 1px #cacaca;padding:3px;">'+
+								'2. Goal Assessment Scenario'+
+							'</div>'+
+							'<div style="float:left;width:50%;height:25px;padding:3px;">'+
+								'3. Additional Scenario Information'+
+							'</div>'+
+						'</div>'+
+						'<div>'+
+							'<div style="width:100%;height:110px;">'+
+								'<div style="float:left;width:25%;height:110px;border-right:solid 1px #cacaca;padding-top:15px;">'+
+									'<center>'+
+									'<img src="/assets/red_chain.png" id="imgRisk" title="Select a risk assessment scenario" style="cursor:pointer;">'+
+									'</center>'+
+								'</div>'+
+								'<div style="float:left;width:25%;height:110px;border-right:solid 1px #cacaca;padding-top:15px;">'+
+									'<center>'+
+									'<img src="/assets/red_chain.png" id="imgGoal" title="Select a goal assessment scenario" style="cursor:pointer;">'+
+									'</center>'+
+								'</div>'+
+								'<div style="float:left;width:50%;height:110px;padding:15px;">'+
+									'<label style="font-weight:normal;font-size:12px;width:90px;">Name:</label>'+
+									'<input type="text" style="font-size:12px;width:60%;" id="nameEsc" placeholder="--Indicate a name to identify the prioritization scenario"><br>'+
+									'<label style="font-weight:normal;font-size:12px;width:90px;">Risks Weight:</label>'+
+									'<input type="text" placeholder=" 0-100" style="font-size:12px;width:40px;" id="wRisk"><br>'+
+									'<label style="font-weight:normal;font-size:12px;width:90px;">Goals Weight:</label>'+
+									'<input type="text" placeholder=" 0-100" style="font-size:12px;width:40px;" id="wGoal"><br>'+
+									'<div id="new_actions"><img src="/assets/trash.png" align="right" style="cursor:pointer;" title="Discard" id="delete">'+
+									'<img src="/assets/save.png" align="right" style="cursor:pointer;margin-right:10px;" title="Save" id="save"></div>'+
+								'</div>'+
+							'</div>'+
+							'<div style="width:100%;height:25px;font-size:12px;text-align:center;color:#a94442;">'+
+								'<div style="float:left;width:25%;height:25px;border-right:solid 1px #cacaca;padding:3px;" id="divSel1">'+
+									'<i>Nothing selected</i>'+
+								'</div>'+
+								'<div style="float:left;width:25%;height:25px;border-right:solid 1px #cacaca;padding:3px;" id="divSel2">'+
+									'<i>Nothing selected</i>'+
+								'</div>'+
+								'<div style="float:left;width:50%;height:25px;padding:3px;">'+
+								'</div>'+
+							'</div>'+
+						'</div>'+
+					'</div>';
+
+				// Lo agrega justo después del titulo:
+			$(html).insertAfter("#head");
+		};
+	});
+
+	
+
+});
+
+// DESCARTAR NUEVO ESCENARIO DE PRIORIZACION:
+$(document).on('click', "img#delete", function() {
+	// Borra el div de creacion:
+	$("#div_create").remove();
+});
+
+
+// GUARDAR NUEVO ESCENARIO DE PRIORIZACION:
+$(document).on('click', "img#save", function() {
+	// Obtiene los parametros del escenario:
+	var riskE = $("#idRisk").val();
+	var goalE = $("#idGoal").val();
+	var nameE = $("#nameEsc").val();
+	var wRisk = $("#wRisk").val();
+	var wGoal = $("#wGoal").val();
+
+	if (riskE == null) {riskE = ''};
+	if (goalE == null) {goalE = ''};
+
+
+	// Verifica la validez de los parámetros:
+	if (riskE == '' || goalE == '' || nameE == '' || wRisk == '' || wGoal == '') 
+	{
+		// Error:
+		// Elimina los bordes y color de fondo:
+		$("#divHeader").css({'border-color': '#ebccd1',
+                              'background-color': '#f2dede',
+                              'color': '#a94442'});
+
+	} 
+	else
+	{
+		// OK:
+		// Envia una peticion AJAX para crear el escenario de priorización
+		$("#new_actions").html('<span style="color:blue;"><img src="<%= LOADING_GIF %>">  Creating and prioritizing scenario (may take a few seconds)......</span>');
+
+    	$.post('./add_escenario', {'riskE' : riskE, 'goalE' : goalE, 'nameE' : nameE, 'wRisk' : wRisk, 'wGoal' : wGoal}, function(data)
+    	{
+    		if (data != null) 
+    		{
+    			// Creado con éxito, remueve el div de creación, y lo agrega en el listado:
+    			$("#div_create").remove();
+    			// Genera el div del escenario:
+    			var idEsc = 'sort' + data.id;
+    			var nameRiskE = ''; var nameGoalEsc = ''; var porcRisk; var porcGoal;
+    			// Asigna los nombres de los escenarios:
+    			for (var i = 0; i < riskEscs.length; i++) 
+    			{
+    				if (riskEscs[i].id == riskE) 
+    				{
+    					nameRiskE = riskEscs[i].name;
+    					break;
+    				};
+    			};
+
+    			for (var i = 0; i < goalEscs.length; i++) 
+    			{
+    				if (goalEscs[i].id == goalE) 
+    				{
+    					nameGoalE = goalEscs[i].name;
+    					break;
+    				};
+    			};
+
+    			// Obtiene los porcentajes:
+    			var tipoTemp; var idTemp; var porcTemp;
+    			for (var i = 0; i < porcentajes.length; i++) 
+    			{
+    				tipoTemp = porcentajes[i].split("|")[0];
+    				idTemp = porcentajes[i].split("|")[1];
+    				porcTemp = porcentajes[i].split("|")[2];
+
+    				// Risk:
+    				if (tipoTemp == 'RISK' && idTemp == riskE) 
+    				{
+    					porcRisk = porcTemp;
+    					continue;
+    				};
+
+    				// Goal:
+    				if (tipoTemp == 'GOAL' && idTemp == goalE) 
+    				{
+    					porcGoal = porcTemp
+    					continue;
+    				};
+
+    			};
+
+    			var html = '<p>'+
+		   					'<img src="/assets/sort.png" style="margin-right:6px;cursor:pointer;" id="'+
+		   					idEsc+'" class="sort" '+
+		   					'title="Show prioritization results">'+
+		   					'<span class="title">Scenario: '+ data.name +' ['+ data.fecha_ejecucion +']</span>'+
+		   					'<span style="color:green;font-weight:bold;">' +' SAVED!</span><br>'+
+		   					'<span class="info"><i>[Completed: '+porcRisk+' %] Risk Assessment Scenario: '+nameRiskE+' '+
+		   					', Risks Weight: '+data.risksWeight+ '</i></span><br>'+
+		   					'<span class="info"><i>[Completed: '+porcGoal+' %] Goal Assessment Scenario: '+nameGoalE+''+
+		   					', Goals Weight: '+data.goalsWeight+'</i></span><br></p>';
+
+
+		   		// Remueve el aviso de no escenarios, si existe:
+		   		if (document.getElementById("noEscenarios") != null) 
+		   		{
+		   			$("#noEscenarios").remove();
+		   			$('<hr id="title">').insertAfter("#head");
+		   		};
+
+		   		$(html).insertAfter("#title");
+    		} 
+    		else
+    		{
+    			// Error:
+    			// Reconstruye las acciones:
+    			$("#new_actions").html('<img src="/assets/trash.png" align="right" style="cursor:pointer;" title="Discard" id="delete">'+
+									'<img src="/assets/save.png" align="right" style="cursor:pointer;margin-right:10px;" title="Save" id="save">');
+				// Elimina los bordes y color de fondo:
+				$("#divHeader").css({'border-color': '#ebccd1',
+                		             'background-color': '#f2dede',
+                        		     'color': '#a94442'});
+    		};
+
+    	});
+	};
+
+	
+
+
+});
+
+// PRIORIZAR:
+$(document).on('click', "img.sort", function() {
+	// Obtiene el id del escenario de priorización:
+	var idEsc = this.id.replace("sort","").trim();
+	var html = '';
+
+	// Desactiva el click en las demás imagenes de sort:
+	$(".sort").prop("disabled", true);
+	// Pone el gif de loading:
+	$("#sort"+idEsc).attr('src', '<%= LOADING_GIF %>');
+	//$("#loading").html('');
+
+	// Obtiene la importancia de los riesgos:
+	$.post('./get_priorization_stats_html', {'idEsc' : idEsc}, function(data)
+    {
+    	if (data.length > 0) 
+    	{
+    	  // Elimina la imagen del cargando...
+    	  $("#sort"+idEsc).attr('src', '/assets/sort.png');
+    	  
+    	  // Genera el titulo:
+		  html+= '<h2 style="width:100%;text-align:center;">Results: <span>'+data[0]+'</span></h2>';
+		  // Genera el encabezado de la tabla:
+
+		  // Calcula los rangos de la escalas, para mostrar como información:
+		  var escalaRisk = parseInt(data[1]); // 70
+		  var escalaGoal = parseInt(data[2]); // 30
+		  // La formula es: limite inferior: 0, limite superior: porcentaje/100 * 5
+		  escalaRisk = (escalaRisk / 100) * 5;
+		  escalaGoal = (escalaGoal / 100) * 5;
+
+
+		  html+= '<center><table style="font-size:12px;">'+
+		           '<tr>'+
+		             '<th>Process ID</th>'+
+		             '<th>Description</th>'+
+		             '<th>Risks Importance <br> ('+data[1]+'%)<br><span style="font-size:10px;color:blue;font-style:italic;">[ Scale: 0 - '+ escalaRisk+' ]</span></th>'+
+		             '<th>IT Goals Importance <br> ('+data[2]+'%)<br><span style="font-size:10px;color:blue;font-style:italic;">[ Scale: 0 - '+ escalaGoal+' ]</span></th>'+
+		             '<th>Global Importance<br><span style="font-size:10px;color:blue;font-style:italic;">[ Scale: 0 - 5 ]</span></th>'+
+		             '<th>Order</th>'+
+		           '</tr>';
+
+           var riskI; var goalI; var totalI; var idProceso; var descProceso;
+		  // Genera el contenido html, para mostrar el resultado:
+		  for (var i = 3; i < data.length; i++) 
+		  {
+		  	idProceso = data[i].split("|")[0];
+		  	descProceso = data[i].split("|")[1];
+		  	riskI = data[i].split("|")[2];
+		  	goalI = data[i].split("|")[3];
+		  	totalI = data[i].split("|")[4];
+
+		  	html+= '<tr>'+
+			           '<td class="centered">'+idProceso+'</td>'+
+			           '<td>'+descProceso+'</td>'+
+			           '<td class="centered">'+riskI+'</td>'+
+			           '<td class="centered">'+goalI+'</td>'+
+			           '<td class="centered">'+totalI+'</td>'+
+			           '<td class="centered">'+(i-2)+'</td>'+
+		           '</tr>';
+		  };
+
+		  html+= '</table></center>';
+
+		  // Inserta el contenido html:
+		  $("#dialogSort").html(html);
+		  // Abre el dialogo:
+		  $("#dialogSort").dialog("option", "width", 900);
+		  // Asigna el titulo al dialogo:
+		  $("#dialogSort").dialog('option', 'title', 'Prioritization Results');
+		  $("#dialogSort").dialog("option", "height", 700);
+		  $("#dialogSort").dialog("option", "resizable", false);
+		  // Pasa el id de la implicacion, como parametro al dialogo:
+		  $("#dialogSort").dialog("open");    
+
+    	} 
+    	else
+    	{
+    		// ERROR
+    	};
+
+    	// Activa el click en las demás imagenes de sort:
+		$(".sort").prop("disabled", false);
+   	});
+
+	
+});
+
+
+// SELECCIONAR ESCENARIO DE EVALUACIÓN DE RIESGOS:
+$(document).on('click', "img#imgRisk", function() {
+	// Genera el contenido html:
+	var html= '<span style="color:green;">Only available for selection, scenarios with a completeness of 100%</span><br>'; 
+	var porc = '0';
+	var ultimos = [];
+
+	for (var i = 0; i < riskEscs.length; i++) 
+	{
+		// porcentajes: RISK|id_escenario|porcentaje
+		// Obtiene su porcentaje de completitud:
+		for (var j = 0; j < porcentajes.length; j++) 
+		{
+			if ( (riskEscs[i].id == porcentajes[j].split("|")[1]) && (porcentajes[j].split("|")[0] == 'RISK'))  
+			{
+				porc = porcentajes[j].split("|")[2];
+				break;
+			};
+			
+		};
+
+
+		// Sólo genera un radiobutton, si el porcentaje es 100%:
+		if (porc == '100.0') 
+		{
+			html+= '<input type="radio" name="riskSelected" value="'+ riskEscs[i].id +'">  ' + riskEscs[i].name + '<br>';
+		} 
+		else
+		{
+			ultimos.push(riskEscs[i].name + '|' + porc);
+		};
+	};
+
+
+	// Muestra los que no pueden ser seleccionados:
+	for (var i = 0; i < ultimos.length; i++) 
+	{
+		html+= '<span style="color:#aaa;" title="Not available"><img src="/assets/private.png" style="margin-right:5px;">' + ultimos[i].split("|")[0] + ' - Completeness: '+ ultimos[i].split("|")[1] +'% </span><br>';
+		
+	};
+
+
+
+
+	// Inserta el contenido html:
+	$("#dialog").html(html);
+	// Abre el dialogo:
+	$("#dialog").dialog("option", "width", 600);
+	// Asigna el titulo al dialogo:
+	$("#dialog").dialog('option', 'title', 'Risk Assessment Scenario');
+	$("#dialog").dialog("option", "height", 340);
+	$("#dialog").dialog("option", "resizable", false);
+	// Pasa el id de la implicacion, como parametro al dialogo:
+    $("#dialog").dialog("open");
+});
+
+// SELECCIONAR ESCENARIO DE EVALUACIÓN DE OBJETIVOS:
+$(document).on('click', "img#imgGoal", function() {
+	// Genera el contenido html:
+	var html= '<span style="color:green;">Only available for selection, scenarios with a completeness of 100%</span><br>'; 
+	var porc = '0';
+	var ultimos = [];
+	for (var i = 0; i < goalEscs.length; i++) 
+	{
+		// porcentajes: GOAL|id_escenario|porcentaje
+		// Obtiene su porcentaje de completitud:
+		for (var j = 0; j < porcentajes.length; j++) 
+		{
+			if ( (goalEscs[i].id == porcentajes[j].split("|")[1]) && (porcentajes[j].split("|")[0] == 'GOAL')) 
+			{
+				porc = porcentajes[j].split("|")[2];
+				break;
+			};
+			
+		};
+
+		// Sólo genera un radiobutton, si el porcentaje es 100%:
+		if (porc == '100.0') 
+		{
+			html+= '<input type="radio" name="goalSelected" value="'+ goalEscs[i].id +'">  ' + goalEscs[i].name + '<br>';
+		} 
+		else
+		{
+			ultimos.push(goalEscs[i].name + "|" + porc);
+		};
+
+		
+	};
+
+	// Muestra los NO seleccionables:
+	for (var i = 0; i < ultimos.length; i++) 
+	{
+		html+= '<span style="color:#aaa;" title="Not available"><img src="/assets/private.png" style="margin-right:5px;">' + ultimos[i].split("|")[0] + ' - Completeness: '+ ultimos[i].split("|")[1] +'% </span><br>';
+		
+	};
+	// Inserta el contenido html:
+	$("#dialog").html(html);
+	// Abre el dialogo:
+	$("#dialog").dialog("option", "width", 600);
+	// Asigna el titulo al dialogo:
+	$("#dialog").dialog('option', 'title', 'Goal Assessment Scenario');
+	$("#dialog").dialog("option", "height", 340);
+	$("#dialog").dialog("option", "resizable", false);
+	// Pasa el id de la implicacion, como parametro al dialogo:
+    $("#dialog").dialog("open");
+});
+
+$(function () {
+  $("#dialog").dialog({
+    autoOpen: false,
+    modal: true,
+    buttons: {
+      "Accept": function(){
+      	var risk = document.getElementsByName("riskSelected");
+      	var selected; var html = '';
+      	// Verifica si el dialogo tiene información de riesgos u objetivos:
+      	if (risk.length > 0) 
+      	{
+      		// Estamos en riesgos:
+      		selected = $('input[name=riskSelected]:radio:checked').val();
+      		if (selected != null) 
+      		{
+      			// Pasa el valor ID-NOMBRE, al div de selección:
+	      		for (var i = 0; i < riskEscs.length; i++) 
+	      		{
+	      			if (riskEscs[i].id == selected) 
+	      			{
+	      				html = '<i><span style="color:green;">' + 
+	      				riskEscs[i].name + '</span></i><input type="text" hidden id="idRisk" value="'+riskEscs[i].id+'">';
+	      				$("#divSel1").html(html);
+	      				break;
+	      			};
+	      			
+	      		};
+	      		// Cambia la imagen, a la de selección:
+	      		$("#imgRisk").attr("src", "/assets/green_chain.png");
+      		};
+      	} 
+      	else
+      	{
+      		// Estamos en objetivos:
+      		selected = $('input[name=goalSelected]:radio:checked').val();
+      		// Pasa el valor ID-NOMBRE, al div de selección:
+      		if (selected != null) 
+      		{
+      			for (var i = 0; i < goalEscs.length; i++) 
+	      		{
+	      			if (goalEscs[i].id == selected) 
+	      			{
+	      				html = '<i><span style="color:green;">' + 
+	      				goalEscs[i].name + '</span></i><input type="text" hidden id="idGoal" value="'+goalEscs[i].id+'">';
+	      				$("#divSel2").html(html);
+	      				break;
+	      			};
+	      			
+	      		};
+	      		// Cambia la imagen, a la de selección:
+	      		$("#imgGoal").attr("src", "/assets/green_chain.png");
+	      	};
+      		
+      	};
+
+        $(this).dialog("close");
+      },
+      "Cancel": function () {
+        $(this).dialog("close");
+      }
+    },
+  });
+});
+
+
+// Dialogo de priorización
+$(function () {
+  $("#dialogSort").dialog({
+    autoOpen: false,
+    modal: true,
+    buttons: {
+      "Accept": function(){
+      	// Activa de nuevo todas las opciones para priorizar:
+      	$(".sort").prop("disabled", false);
+      	// Reinicia el contenido:
+      	$("#dialogSort").html("");
+        $(this).dialog("close");
+      },
+      "Cancel": function () {
+      	$(".sort").prop("disabled", false);
+      	// Reinicia el contenido:
+      	$("#dialogSort").html("");
+        $(this).dialog("close");
+      }
+    },
+  });
+});
+
+</script>
+
+<div>
+	<ol class="breadcrumb">
+		<li><%= link_to "Home", main_app.inicio_inicio_path %></li>
+		<li class="active">[<%= @empresa.name %>] IT Governance - Prioritization Scenarios</li>
+	</ol>
+</div>
+
+
+
+<!-- Escenarios de Priorización -->
+<div>
+	<div>
+		<h2 id="head">
+			<span style="margin:0 10px 0 0;color:#333;font-size:22px;cursor:pointer;" class="new_esc">[+]</span>Prioritization Scenarios: <span id="loading"></span>
+		</h2>
+		<% if @escenarios.size == 0 %>
+		<div class="alert alert-info" id="noEscenarios">
+		There are no prioritization scenarios in the system, related to the enterprise: <%= @empresa.name %>.
+		</div>		
+		<% else %>
+		<hr id="title">
+		   <% @escenarios.each do |esc| %>	
+
+			    <% escTemp = @escenarios.select{|e| (e.risk_escenario.id == esc.risk_escenario.id) && (e.goal_escenario.id == esc.goal_escenario.id)} %>
+			    <% @escenarios = @escenarios - escTemp%>
+
+			   <% escTemp.each_with_index do |e, index| %>
+			   <% idEsc = 'sort' << e.id.to_s %>
+			   <p <% if index > 0 %> style="margin-left:35px;" <% end %> >
+			   	<img src="/assets/sort.png" style="margin-right:6px;cursor:pointer;" id="<%= idEsc %>" class="sort" title="Show prioritization results">
+			   	<span class="title">Scenario: <%= e.name %> [<%= e.fecha_ejecucion %>]</span><br>
+			   	<% porcRiesgos = getPorcentajeRiesgos(e.risk_escenario) %>
+			   	<% porcObjs = getPorcentajeObjetivos(e.goal_escenario) %>
+			   	<span class="info"><i>[Completeness: <%= porcRiesgos %> %] Risks Assessment Scenario: <%= e.risk_escenario.name %>, Risks Weight: <%= esc.risksWeight.to_s %></i></span><br>
+			   	<span class="info"><i>[Completeness: <%= porcObjs %> %] Goals Assessment Scenario: <%= e.goal_escenario.name %>, Goals Weight: <%= e.goalsWeight.to_s %></i></span><br>
+			   </p>
+			   <% end %>
+		   
+		   <% end %>
+		<% end %>
+	</div>
+</div>
+
+<!-- Dialogo para evaluar el nivel de riesgo -->
+<div id="dialog">
+</div>
+
+<!-- Dialogo para mostrar los resultados de la priorización -->
+<div id="dialogSort">
+</div>

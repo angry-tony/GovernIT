@@ -1,0 +1,181 @@
+<% if @empresa.nil? %>
+<div class="alert alert-danger">
+	<p>No se encontró la empresa seleccionada.</p>
+</div>
+
+<div class="btn-group">
+  <button type="button" class="btn btn-default" onclick="location.href='../inicio/inicio'">Inicio</button>
+</div>
+
+<% else %>
+
+<script>
+
+$( document ).ready(function() {
+
+	// Crear nuevo mapa:
+	$(".new_esc").click(function(){
+		// Despliega el div de creación, si no está desplegado ya:
+		var anterior = document.getElementById("div_create");
+		var html;
+		if (anterior == null) 
+		{
+			html = '<div class="alert alert-info" id="div_create" style="color:#333;background-color:#f5f5f5;border:solid 1px #cacaca;height:60px;">'+
+						'<div style="width:100%;">'+
+							'<div style="width:60%;float:left;">'+
+								'<label style="font-weight:normal;margin-right:4px;">Nombre del escenario:</label>'+
+								'<input type="text" style="width:60%;" id="nameEsc">'+
+							'</div>'+
+							'<div style="width:15%;float:left;">'+
+								'<label style="font-weight:normal;margin-right:4px;">Peso Riesgos:</label>'+
+								'<input type="text" style="width:40%;" id="wRisks" placeholder=" 0-100">'+
+							'</div>'+
+							'<div style="width:15%;float:left;">'+
+								'<label style="font-weight:normal;margin-right:4px;">Peso Objetivos:</label>'+
+								'<input type="text" style="width:40%;" id="wGoals" placeholder=" 0-100">'+
+							'</div>'+
+							'<div style="width:10%;float:left;">'+
+								'<img src="/assets/trash.png" align="right" style="cursor:pointer;" class="del" title="Descartar">'+
+			     				'<img src="/assets/save.png" align="right" style="cursor:pointer;margin-right:15px;" class="add" title="Guardar">'+
+							'</div>'+
+						'</div>'+
+					'</div>';
+
+			// Lo agrega justo después del titulo:
+			$(html).insertAfter("#title");
+		};
+	});
+
+
+
+});
+
+
+// GUARDAR MAPA DE DECISIÓN:
+$(document).on('click', "img.add", function() {
+	var name = $("#nameEsc").val();
+	var risks = $("#wRisks").val();
+	var goals = $("#wGoals").val();
+	var html; var error = false;
+	// Si alguna de las 4 es vacío, o los pesos no son numéricos no deja guardar:
+	if (name == '' || risks == '' || goals == '') 
+	{
+		error = true;
+	};
+
+
+	if (error) 
+	{
+		// Elimina los bordes y color de fondo:
+		$("#div_create").css({'border-color': 'none',
+                              'background-color': 'none',
+                              'color': 'none'});
+
+		$("#div_create").attr("class", "alert alert-danger");
+	} 
+	else
+	{
+		// Crea el escenario via AJAX:
+	    $.post('./add_priorization_esc', {'name' : name, 'wrisk' : risks, 'wgoals' : goals}, function(data)
+    	{
+    		if (data.id != null) 
+    		{
+    			// Creado con éxito, remueve el div de creación, y lo agrega en el listado:
+    			$("#div_create").remove();
+    			var idEsc = 'img' + data.id;
+    			html = 	'<p>'+
+		   					'<img src="/assets/edit.png" style="margin-right:6px;cursor:pointer;" id="'+ idEsc +'" class="edit"'+
+		   					'title="Configurar escenario de priorización"> '+
+		   					'[ Riesgos: '+ data.risksWeight +'%, Objetivos: '+ data.goalsWeight +'% ] - ' + data.name
+		   					'<span style="color:green;font-weight:bold;">' +' GUARDADO!</span>'+
+		   				'</p>';
+
+		   		// Remueve el aviso de no mapas, si existe:
+		   		if (document.getElementById("noEscenarios") != null) 
+		   		{
+		   			$("#noEscenarios").remove();
+		   		};
+
+		   		$(html).insertAfter("#title");
+    		} 
+    		else
+    		{
+    			// ERROR:
+    			// Elimina los bordes y color de fondo:
+				$("#div_create").css({'border-color': 'none',
+		                              'background-color': 'none',
+		                              'color': 'none'});
+
+				$("#div_create").attr("class", "alert alert-danger");
+    		};
+    	});
+
+	};
+});
+
+// DESCARTAR MAPA DE DECISIÓN:
+$(document).on('click', "img.del", function() {
+	// Elimina el div de creacion:
+	$("#div_create").remove();
+});
+
+// EDITAR MAPA DE DECISIÓN:
+$(document).on('click', "img.edit", function() {
+	// Obtiene el id del mapa:
+	var idEsc = this.id;
+	idEsc = idEsc.replace("img","").trim();
+	// lo pasa al input hidden:
+	$("#formIdEsc").val(idEsc);
+	// Y envia el formulario:
+	$("#edit_form").submit();
+});
+
+
+
+</script>
+
+
+<div>
+	<ol class="breadcrumb">
+		<li><%= link_to "Inicio", main_app.inicio_inicio_path %></li>
+		<li class="active">[<%= @empresa.name %>] Gobierno de TI - Escenarios de Priorización</li>
+	</ol>
+</div>
+
+<% if flash[:notice] %>
+<div class="alert alert-info">
+	<p><%= flash[:notice] %></p>
+</div>
+<% end %>
+
+
+<!-- Escenarios de Priorización -->
+<div>
+	<div>
+		<h2 id="title">
+			<span style="margin:0 10px 0 0;color:#333;font-size:22px;cursor:pointer;" class="new_esc">[+]</span>Escenarios de Priorización:
+		</h2>
+		<% if @escenarios.size == 0 %>
+		<div class="alert alert-info" id="noEscenarios">
+		No hay escenarios de priorización en el sistema, para la empresa: <%= @empresa.name %>.
+		</div>
+		<% else %>
+		   <% @escenarios.each do |esc| %>
+		   <% idEsc = 'img' << esc.id.to_s %>
+		   <p>
+		   	<img src="/assets/edit.png" style="margin-right:6px;cursor:pointer;" id="<%= idEsc %>" class="edit" title="Configurar escenario de priorización">
+		   	<% info = '[ Riesgos: ' << esc.risksWeight.to_s << '%, Objetivos: ' << esc.goalsWeight.to_s << '% ] - ' << esc.name %>
+		   	<%= info %>
+		   </p>
+		   <% end %>
+		<% end %>
+	</div>
+</div>
+
+
+<% # Form hidden, para tratar la edición: %>
+<%= form_tag( "../eEE/priorization/risks" , method: "post", id: "edit_form") do %>
+<input type="text" name="idEsc" id="formIdEsc" hidden readonly>
+<% end %>
+
+<% end %> 

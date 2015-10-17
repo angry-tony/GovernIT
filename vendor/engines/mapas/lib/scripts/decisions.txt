@@ -1,0 +1,32 @@
+¿Cuál es el modelo operativo deseable de la organización?|Principios de TI
+¿Cómo soportará TI el Modelo Operativo?|Principios de TI
+Definir los comportamientos deseables de TI en el negocio, de los profesionales de TI y de los usuarios|Principios de TI
+¿Cómo se van a financiar las TI?|Principios de TI
+Definir y educar ejecutivos acerca de la estrategia de TI|Principios de TI
+Definir principios de cada dominio de arquitectura|Arquitectura de TI
+Definir y garantizar la organización lógica de datos, aplicaciones e infraestructura|Arquitectura de TI
+Definir políticas, relaciones y opciones técnicas para lograr la estandarización e integración de negocios y técnica deseada|Arquitectura de TI
+¿Cuáles procesos deben ser apoyados con TI?|Arquitectura de TI
+¿Qué información guía estos procesos y cómo debe esta información ser integrada?|Arquitectura de TI
+¿Qué capacidades técnicas deberían ser estandarizadas a lo largo de la organización para soportar TI eficientemente y facilitar la estandarización e integración de procesos?|Arquitectura de TI
+¿Qué actividades deben ser estandarizadas a lo largo de la organización?|Arquitectura de TI
+¿Qué elecciones tecnológicas guiarán la forma en que la organización ataca iniciativas de TI?|Arquitectura de TI
+¿Qué servicios de infraestructura son críticos para el logro de los objetivos estratégicos de la organización?|Infraestructura
+¿Qué servicios de infraestructura  deberían ser implementados a lo largo de la organización y que niveles de servicio requieren?|Infraestructura
+¿Cómo se deben costear los servicios de infraestructura?|Infraestructura
+¿Cuál es plan de actualización de la infraestructura tecnológica?|Infraestructura
+¿Qué servicios de infraestructura deben ser tercerizados?|Infraestructura
+Especificar las necesidades de compra o desarrollo de aplicaciones.|Aplicaciones de TI
+Coordinar demanda/portafolio TI|Aplicaciones de TI
+Entrenar y capacitar|Aplicaciones de TI
+Manejar el cambio|Aplicaciones de TI
+¿Cuáles son las oportunidades de mercado y negocio para nuevas aplicaciones de negocio?|Aplicaciones de TI
+¿Cómo se va a evaluar el éxito de los experimentos/aplicaciones?|Aplicaciones de TI
+¿Cómo se evalúa la pertinencia de una excepción arquitectural?|Aplicaciones de TI
+¿Quién es el dueño de los resultados de cada proyecto?|Aplicaciones de TI
+¿Quién se encargará de instaurar el manejo del cambio necesario para asegurar valor?|Aplicaciones de TI
+Escoger cuáles iniciativas financiar|Inversión y Priorización
+Definir criterios para reconciliar diferentes necesidades de inversión de TI local y global|Inversión y Priorización
+¿Qué cambios o mejoras en procesos son estratégicos para la organización?|Inversión y Priorización
+¿Cuál es la distribución en el portafolio de TI actual y en el objetivo? ¿Son estos portafolios consistentes con los objetivos estratégicos de la organización?|Inversión y Priorización
+¿Cuál es la importancia relativa de inversiones transversales contra inversiones locales? ¿Está esta importancia reflejada en las prácticas actuales de inversión?|Inversión y Priorización'

@@ -1,0 +1,58 @@
+<%
+
+myDec = decision
+myDivs = divs # Número de <td>, por los arquetipos
+hijos = darHijosD(myDec)
+myLvl = lvl
+
+%>
+
+<% # Renderiza la decision: %>
+
+<tr>
+	<% if myLvl > 0 # Debe enfatizar la jerarquia: %>
+	    <% margen = myLvl * 15 %> 
+		<td style="background-color:#f5f5f5;border:solid 1px #cacaca;">
+			<img src="/assets/right.png" style="margin-left:<%= margen %>px;"> <%= myDec.description %>
+		</td>
+	<% else %>
+		<td style="background-color:#f5f5f5;border:solid 1px #cacaca;"><%= myDec.description %></td>
+	<% end %>
+
+	<% for i in 1..myDivs # i: ID del arquetipo %>
+	<% seleccionadas = @details.select { |d|  d.governance_decision.id == myDec.id && d.decision_archetype.id == i }     %>
+	<% idCell = 'cell_' << myDec.id.to_s << '_' << i.to_s %>
+	<% idSpan = 'span_' << myDec.id.to_s << '_' << i.to_s %>
+	<% idInput = 'input_' << myDec.id.to_s << '_' << i.to_s %>
+	<% ids = '' %>
+	<td class="cell_map" id="<%= idCell %>">
+		<span id="<%= idSpan %>" class="cell_span" style="color:#428bca;cursor:pointer;margin:3px 0 3px 0;text-align:center;font-size:11px;">
+		</span>
+		<% seleccionadas.each do |sel| %>
+		<p class="cell"><i>- <%= sel.governance_structure.name %></i></p>
+		<% 
+		if ids == '' 
+			ids += sel.governance_structure.id.to_s
+		else
+			ids+= '|' + sel.governance_structure.id.to_s
+		end
+
+		%>
+		
+
+		<% end %>
+		<input id="<%= idInput %>" name="<%= idInput %>" readonly hidden value="<%= ids %>">
+	</td>
+	<% end %>
+</tr>
+
+<% # Renderiza los hijos: %>
+
+<% if hijos.size > 0 %>
+<% myLvl = lvl + 1 %>
+
+	<% hijos.each do |h| %>
+		<%= render :partial => 'table_dec', :locals => {:decision => h, :divs => myDivs, :lvl => myLvl} %>
+	<% end %>
+
+<% end %>

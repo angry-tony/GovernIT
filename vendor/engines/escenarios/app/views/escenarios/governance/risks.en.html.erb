@@ -1,0 +1,383 @@
+<style>
+
+input.invCheck
+{
+	width:18px;
+	height:20px;
+	margin:0px 3px 0px 0px;
+	padding:0px;
+	vertical-align:-6px;
+	display: none;
+}
+
+p.mapTitle
+{
+	color: green;
+	margin: 0px;
+}
+
+span.riskListed
+{
+	font-size: 12px;
+	font-weight:bold;
+	margin-left: 20px;
+	color: #AAA;
+	font-style: italic;
+}
+
+span.msg
+{
+  color:blue;font-size:14px;font-weight:bold;
+}
+
+
+</style>
+
+<script>
+
+$( document ).ready(function() {
+
+    var structures;
+	// Obtiene las estructuras desde el inicio, para sólo cargarlas una vez:
+	$.get('./get_structures', function(data)
+	{
+		structures = data;
+	});
+
+	// Crear nuevo mapa:
+	$(".new_esc").click(function(){
+		// Despliega el div de creación, si no está desplegado ya:
+		var anterior = document.getElementById("div_create");
+		var html;
+		if (anterior == null) 
+		{
+			html = '<div class="alert alert-info" id="div_create" style="color:#333;background-color:#f5f5f5;border:solid 1px #cacaca;height:60px;">'+
+					'<div style="width:100%;height:100%;">'+
+						'<div style="width:45%;float:left;">'+
+							"<label style='font-weight:normal;margin-right:4px;'>Scenario's name:</label>"+
+							'<input type="text" id="nameEsc" style="width:60%;">'+
+						'</div>'+
+						'<div style="width:45%;float:left;">'+
+							'<label style="font-weight:normal;margin-right:4px;">Governance Structure (who creates the scenario):</label>'+
+							'<select id="estEsc" style="width:50%;">'+
+							  '<option disabled selected value="N">Select...</option>';
+
+							  for (var i = 0; i < structures.length; i++) 
+							  {
+							  	html+= '<option value="'+ structures[i].id +'">'+ structures[i].name +'</option>';
+							  };
+
+							html+= '</select>'+
+						'</div>'+
+						'<div style="width:10%;float:left;">'+
+							'<img src="/assets/trash.png" align="right" style="cursor:pointer;" class="del" title="Discard">'+
+		     				'<img src="/assets/save.png" align="right" style="cursor:pointer;margin-right:15px;" class="add" title="Save">'+
+						'</div>'+
+					'</div>'+
+				'</div>';
+
+				// Lo agrega justo después del titulo:
+			$(html).insertAfter("#title");
+		};
+	});
+
+
+
+});
+
+
+// GUARDAR ESCENARIO DE RIESGO:
+$(document).on('click', "img.add", function() {
+	var name = $("#nameEsc").val();
+	var est = $("#estEsc option:selected").val();
+	var estName = $("#estEsc option:selected").text();
+
+	var html;
+	// Si alguna de las 2 es vacío, no deja guardar:
+	if (name == '' || est == 'N') 
+	{
+		// Elimina los bordes y color de fondo:
+		$("#div_create").css({'border-color': 'none',
+                              'background-color': 'none',
+                              'color': 'none'});
+
+		$("#div_create").attr("class", "alert alert-danger");
+	} 
+	else
+	{
+		// Crea el mapa via AJAX:
+	    $.post('./add_risk_escenario', {'name' : name, 'est' : est}, function(data)
+    	{
+    		if (data.id != null) 
+    		{
+    			// Creado con éxito, remueve el div de creación, y lo agrega en el listado:
+    			$("#div_create").remove();
+    			var idEsc = 'img' + data.id;
+    			html = 	'<p style="margin-bottom:13px;"><input type="checkbox" class="invCheck" id="chk'+ idEsc +'">'+
+		   					'<img src="/assets/edit.png" style="margin-right:6px;cursor:pointer;" id="'+ idEsc +'" class="edit"'+
+		   					'title="Edit risk assessment scenario"> '+
+		   					'[' + estName +'] - '+ data.name + ' ' + 
+		   					'<span style="color:green;font-weight:bold;">' +' SAVED!</span>'+
+		   				'</p>';
+
+		   		// Remueve el aviso de no mapas, si existe:
+		   		if (document.getElementById("noEscenarios") != null) 
+		   		{
+		   			$("#noEscenarios").remove();
+		   			// Agrega el div de opciones:
+		   			var html2 = '<div class="btn-group" style="width:100%;margin-bottom:15px;" id="opciones">'+
+			  						'<button type="button" class="btn btn-default" style="width:15%;" id="consolidate">'+
+			  						'Consolidate scenarios</button></div>';
+
+			  		$(html2).insertAfter("#title");
+		   		};
+
+		   		$(html).insertAfter("#opciones");
+    		} 
+    		else
+    		{
+    			// ERROR:
+    			// Elimina los bordes y color de fondo:
+				$("#div_create").css({'border-color': 'none',
+		                              'background-color': 'none',
+		                              'color': 'none'});
+
+				$("#div_create").attr("class", "alert alert-danger");
+    		};
+    	});
+
+	};
+});
+
+// DESCARTAR ESCENARIO DE RIESGO:
+$(document).on('click', "img.del", function() {
+	// Elimina el div de creacion:
+	$("#div_create").remove();
+});
+
+// EDITAR ESCENARIO DE RIESGO:
+$(document).on('click', "img.edit", function() {
+	// Obtiene el id del mapa:
+	var idEsc = this.id;
+	idEsc = idEsc.replace("img","").trim();
+	// lo pasa al input hidden:
+	$("#formIdEsc").val(idEsc);
+	// Y envia el formulario:
+	$("#edit_form").submit();
+});
+
+// CONSOLIDAR ESCENARIOS (FASE INICIAL):
+$(document).on('click', "button#consolidate", function() {
+	// Se elimina aq si mismo y al boton de importar:
+	$("#"+this.id).remove();
+	$("#import").remove();
+	// Obtiene la informacion de los escenarios que conforman el consolidado, para checkearlos de una vez:
+	$.get('./get_consolidate_info', {'idEmp' : '<%= @empresa.id %>'}, function(data)
+    {
+    	if (data != 'EMPTY') 
+    	{
+    		// Si hay un consolidado, checkea los escenarios que lo componen:
+    		var partes = data.split("|");
+    		for (var i = 0; i < partes.length; i++) 
+    		{
+    			$("#chk"+partes[i]).prop("checked", true);
+    		};
+    	};
+
+    	// Muestra los checkboxes, y muta en 2 botones de consolidar - aceptar
+		$(".invCheck").show();
+		// Botones de consolidar y cancelar:
+		var html = '<button type="button" class="btn btn-default" style="width:15%;" id="confirm">Confirm</button>'+
+		           '<button type="button" class="btn btn-default" style="width:15%;" id="cancel">Cancel</button><br><br>' +
+		           '<p style="color:#3c763d;font-weight:bold;" >Select at least 2 scenarios to build a consolidated: </p>';
+		// Los ubica en el mismo container de opciones:
+		$("#opciones").html(html);
+
+    }, 'text');
+
+});
+
+// CANCELAR CONSOLIDACIÓN:
+$(document).on('click', "button#cancel", function() {
+	
+	// Esconde los checkboxes
+	$(".invCheck").hide();
+	// Reinicia los checboxes:
+	$(".invCheck").prop("checked", false);
+
+
+	// Reinicia el boton de la fase 1:
+	var html = '<button type="button" class="btn btn-default" style="width:15%;" id="consolidate">Consolidate Scenarios</button>';
+	// Agrega el boton de importar escenarios si es necesario
+	if ('<%= @mapas.size %>' != '0') 
+	{
+		html+= '<button type="button" class="btn btn-default" style="width:15%;" id="import">Import Scenarios</button>';
+	};
+	// Los ubica en el mismo container de opciones:
+	$("#opciones").html(html);
+
+});
+
+// CONFIRMAR CONSOLIDACION:
+$(document).on('click', "button#confirm", function() {
+	// Obtiene los inputs seleccionados, y va guardando el id en un texto:
+	var cont = 0;
+	var checked = false;
+	var str = '';
+	var s1 = '';
+	$(".invCheck").each(function(){
+		checked = $(this).prop("checked");
+        if (checked) 
+        {
+          cont+= 1;	
+          s1 = $(this).attr("id").replace("chk","").trim();
+          // Si está checkeado, lo agrega al string especial:
+          if (str == '') 
+          {
+          	str = s1;
+          } 
+          else
+          {
+          	str+= '|' + s1;
+          };
+        };
+    });
+
+    // Si hay mas de una escenario seleccionado, procede, si no no hace nada:
+    if (cont > 1) 
+    {
+    	// Pasa el valor del string especial al input y envia el formulario:
+    	$("#formConsolidated").val(str);
+    	$("#consolidate_form").submit();
+    };
+
+});
+
+// IMPORTAR ESCENARIOS:
+$(document).on('click', "button#import", function() {
+
+	$("#dialogImport").dialog("option", "width", 700);
+	$("#dialogImport").dialog("option", "height", 400);
+	$("#dialogImport").dialog("option", "resizable", false);
+	$("#dialogImport").dialog("open");
+});
+
+
+
+
+</script>
+
+<script>
+
+$(function() {
+  $( "#dialogImport" ).dialog({
+    autoOpen: false,
+    resizable: false,
+    modal: true,
+    buttons: {
+      "Importar Escenario": function() 
+      {
+        $(this).dialog( "close" );
+        // Pasa el valor del imput seleccionado y envia el formulario:
+        var selected = $('input[name=mapSelected]:radio:checked').val();
+        // Si hubo seleccion, envia el formulario:
+        if (selected != null) 
+        {
+    		$("#formImported").val(selected);
+    		$("#import_form").submit();
+        }
+        else
+        {
+        	$('#import').blur();
+        };
+    	
+      },
+      "Cancelar": function () {
+        $(this).dialog("close");
+        $('#import').blur();
+      }
+    }
+  });
+});
+
+</script>
+
+<div>
+	<ol class="breadcrumb">
+		<li><%= link_to "Home", main_app.inicio_inicio_path %></li>
+		<li class="active">[<%= @empresa.name %>] IT Governance - Risk Assessment Scenarios</li>
+	</ol>
+</div>
+
+
+<!-- Escenarios de evaluación de riesgos -->
+<div>
+	<div>
+		<h2 id="title">
+			<span style="margin:0 10px 0 0;color:#333;font-size:22px;cursor:pointer;" class="new_esc">[+]</span>Risk Assessment Scenarios:
+		</h2>
+		
+		<% if @escs.size == 0 %>
+		<div class="alert alert-info" id="noEscenarios">
+		There are no risk assessment scenarios in the system, related to the enterprise: <%= @empresa.name %>.
+		</div>
+		<% else %>
+			<div class="btn-group" style="width:100%;margin-bottom:15px;" id="opciones">
+			  <button type="button" class="btn btn-default" style="width:15%;" id="consolidate">Consolidate Scenarios</button>
+			  <% if @mapas.size > 0 %>
+			  	<button type="button" class="btn btn-default" style="width:15%;" id="import">Import Scenarios</button>
+			  <% end %>
+			</div>
+
+		   <% @escs.each do |esc| %>
+		   <% idEsc = 'img' << esc.id.to_s %>
+		   <% idChk = 'chk' << esc.id.to_s %>
+		   <p style="margin-bottom:13px;">
+		   	
+		   	
+		   	<% if (esc.governance_structure.nil?) && (esc.decision_map_id.nil?) # Consolidado %>
+		   	<img src="/assets/view.png" style="margin-right:6px;cursor:pointer;" id="<%= idEsc %>" class="edit" title="Show consolidated scenario">
+		   	<% compuestoPor = esc.consolidate_info.split("|").size.to_s %>
+				[CONSOLIDATED] - <%= esc.name %> - [Consolidated from <%= compuestoPor  %>/<%= (@escs.size - 1).to_s %> risk assessment scenarios]
+		   	<% elsif (esc.governance_structure.nil?) && (!esc.decision_map_id.nil?) # Generado de un mapa de decision %>
+		   	<input type="checkbox" class="invCheck" id="<%= idChk %>">
+		   	<img src="/assets/edit.png" style="margin-right:6px;cursor:pointer;" id="<%= idEsc %>" class="edit" title="Edit risk assessment scenarios">
+		   		[System generated] - <%= esc.name %> 
+		   	<% else # Creado manualmente %>
+		   	<input type="checkbox" class="invCheck" id="<%= idChk %>">
+		   	<img src="/assets/edit.png" style="margin-right:6px;cursor:pointer;" id="<%= idEsc %>" class="edit" title="Edit risk assessment scenarios">
+		   		[<%= esc.governance_structure.name %>] - <%= esc.name %> 
+		   	<% end %>
+
+		   </p>
+		   <% end %>
+		<% end %>
+	</div>
+</div>
+
+<!-- Dialogo para evaluar el nivel de riesgo -->
+<div id="dialogImport" title="Import Risk Assessment Scenarios" style="display:none;">
+	<span class="msg">Select a decision map, to import it's related risks in a risk assessment scenario:</span><br><br>
+	<% @mapas.each_with_index do |mapa, index| %>
+		<p class="mapTitle"><input type="radio" name="mapSelected" value="<%= mapa.id %>">   <%= mapa.name %> - <%= mapa.description %></p>
+		<span class="riskListed">Related Risks: <%= @riesgos[index].size.to_s %></span><br>
+	<% end %>
+</div>
+
+
+<% # Form hidden, para tratar la edición: %>
+<%= form_tag( "./risk_escenario" , method: "post", id: "edit_form") do %>
+<input type="text" name="idEsc" id="formIdEsc" hidden readonly>
+<% end %>
+
+<% # Form hidden, para tratar la consolidación: %>
+<%= form_tag( "./consolidate_risks" , method: "post", id: "consolidate_form") do %>
+<input type="text" name="consolidated" id="formConsolidated" hidden readonly>
+<% end %>
+
+<% # Form hidden, para tratar la importacion: %>
+<%= form_tag( "./import_escenario" , method: "post", id: "import_form") do %>
+<input type="text" name="imported" id="formImported" hidden readonly>
+<% end %>
+
+

@@ -1,0 +1,55 @@
+<style>
+
+label.normal
+{
+	font-weight: normal;
+}
+
+.expand
+{
+	width: 70%;
+}
+
+</style>
+
+<div style="width:100%;height:10px;">
+</div>
+
+<hr>
+
+<div style="width:100%;min-height:300px;margin-bottom:10px;">
+	<div style="width:35%;float:left;min-height:300px;">
+	</div>
+
+	<div style="width:30%;float:left;border:solid 1px #DDD;min-height:300px;padding:10px;text-align:center;">
+		<h2>Forgot your password?</h2>
+
+		<%= form_for(resource, :as => resource_name, :url => password_path(resource_name), :html => { :method => :post }) do |f| %>
+		  <%= devise_error_messages! %>
+
+		  <div>
+		  	<%= f.label :email, :class => "normal" %>
+		  	<br />
+		    <%= f.email_field :email, :autofocus => true, :class => "expand" %>
+		  </div>
+		  
+		  <br>
+
+		  <div>
+		  	<%= f.submit "Send instructions" %>
+		  </div>
+
+		  <br>
+		<% end %>
+
+		<%= render "devise/shared/links" %>
+	</div>
+
+	<div style="width:35%;float:left;min-height:300px;">
+	</div>
+</div>
+
+
+
+<hr>
+

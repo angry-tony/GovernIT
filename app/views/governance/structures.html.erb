@@ -1,0 +1,875 @@
+<script>
+
+// CAMBIO AL SELECCIONAR EL TIPO, PARA RESTRINGIR LA SELECCIÓN:
+$(document).on('change', "select.selTipo", function() 
+{
+	// Obtiene el id:
+	var id = this.id.replace("tipo_", "").trim();
+	var tipo = $("#tipo_"+id).val();
+
+	var html = '<option selected disabled>Seleccione...</option>'+
+			   '<option value="<%= PERFIL_EST_1 %>"><%= PERFIL_EST_1 %></option>'+
+			   '<option value="<%= PERFIL_EST_2 %>"><%= PERFIL_EST_2 %></option>'+
+			   '<option value="<%= PERFIL_EST_3 %>"><%= PERFIL_EST_3 %></option>';
+
+	// Dependiendo del tipo, construye el contenido para seleccionar el perfil:
+	switch(tipo) 
+	{
+    case '<%= ROL %>': // No puede tener el 5
+	    html +=  '<option value="<%= PERFIL_EST_4 %>"><%= PERFIL_EST_4 %></option>'+
+	             '<option value="<%= PERFIL_EST_6 %>"><%= PERFIL_EST_6 %></option>';
+        break;
+    case '<%= COMITE %>': // No puede tener ni el 4 ni el 6
+        html +=  '<option value="<%= PERFIL_EST_5 %>"><%= PERFIL_EST_5 %></option>';
+        break;
+    case '<%= UNIDAD_DE_NEGOCIO %>': // No puede tener el 4
+        html += '<option value="<%= PERFIL_EST_5 %>"><%= PERFIL_EST_5 %></option>'+
+				'<option value="<%= PERFIL_EST_6 %>"><%= PERFIL_EST_6 %></option>';
+        break;
+    } // Fin: Switch
+
+    html+= '<option value="<%= PERFIL_EST_7 %>"><%= PERFIL_EST_7 %></option>'+
+		   '<option value="<%= PERFIL_EST_8 %>"><%= PERFIL_EST_8 %></option>';
+
+	// Genera el contenido para el perfil:
+	$("#perfil_"+id).html(html);
+});
+
+
+
+// EDITAR ESTRUCTURA:
+$(document).on('click', "span.update", function() {
+	var id = this.id; // update+ID Estructura
+	id = id.replace("update", "").trim(); // -> ID Estructura
+	var name; var funcs; var type; var perfil;
+	var idPar = "par" + id; // ID del parrafo, inserta contenido después de él
+	var margen = $("#"+idPar).css("margin-left").replace("px","").trim();
+	margen = parseInt(margen) + 35;
+	// Obtiene la información de la estructura vía AJAX:
+	$.post('./get_structure', {'id' : id}, function(data)
+    {
+    	name = data.name;
+    	type = data.structure_type;
+    	perfil = data.profile;
+
+    	$.post('./get_responsabilities', {'id' : id}, function(data)
+    	{
+    		funcs = data;
+    		// Genera el div de edicion:
+		    // Sólo lo agrega, si no hay uno antes:
+			var anterior = document.getElementById("div_"+id);
+			if (anterior == null) 
+			{
+				// No habia nada, lo agrega
+				var html = '<div class="alert alert-success" style="height:190px;margin-left:'+ margen +'px;' + 
+				           '" id="div_'+ id +'">'+
+					     	'<div style="width:100%;">'+
+					     		'<div style="float:left;width:32%;border:solid 1px white;padding:10px;height:161px;">'+
+					     			'<div>'+
+					     				'<label style="width:30%;font-weight:normal;">Nombre:</label>'+
+					     				'<input type ="text" style="width:60%;" id="nombre_'+ id +'" value="'+ name +'">'+
+					     			'</div>'+
+					     			'<div style="margin:10px 0 0 0;">'+
+					     				'<label style="width:30%;font-weight:normal;">Tipo:</label>'+
+					     				'<select style="width:60%;" class="selTipo" id="tipo_'+ id +'">'+
+					     					'<option disabled>Seleccione...</option>';
+
+					     					// Selecciona su tipo:
+					     					if (type == 'ROL') 
+					     					{
+					     						html+= '<option value="<%= ROL %>" selected>Rol</option>';
+					     					} 
+					     					else
+					     					{
+					     						html+= '<option value="<%= ROL %>" >Rol</option>';
+					     					};
+
+					     					if (type == 'COMITE') 
+					     					{
+					     						html+= '<option value="<%= COMITE %>" selected>Comite</option>';
+					     					} 
+					     					else
+					     					{
+					     						html+= '<option value="<%= COMITE %>" >Comite</option>';
+					     					};
+
+					     					if (type == 'UNIDAD DE NEGOCIO') 
+					     					{
+					     						html+= '<option value="<%= UNIDAD_DE_NEGOCIO %>" selected>Unidad de Negocio</option>';
+					     					} 
+					     					else
+					     					{
+					     						html+= '<option value="<%= UNIDAD_DE_NEGOCIO %>" >Unidad de Negocio</option>';
+					     					};
+
+		                                  
+					     		html+= '</select>'+
+					     			'</div>'+
+					     			'<div style="margin:10px 0 0 0;">'+
+					     				'<label style="width:30%;font-weight:normal;">Perfil:</label>'+
+					     				'<select style="width:60%;" id="perfil_'+ id +'">'+
+					     					'<option disabled selected>Seleccione...</option>';
+
+					     					// Selecciona su perfil:
+					     					if (perfil == '<%= PERFIL_EST_1 %>') 
+					     					{
+					     						html+= '<option value="<%= PERFIL_EST_1 %>" selected><%= PERFIL_EST_1 %></option>';
+					     					} 
+					     					else
+					     					{
+					     						html+= '<option value="<%= PERFIL_EST_1 %>" ><%= PERFIL_EST_1 %></option>';
+					     					};
+
+					     					if (perfil == '<%= PERFIL_EST_2 %>') 
+					     					{
+					     						html+= '<option value="<%= PERFIL_EST_2 %>" selected><%= PERFIL_EST_2 %></option>';
+					     					} 
+					     					else
+					     					{
+					     						html+= '<option value="<%= PERFIL_EST_2 %>" ><%= PERFIL_EST_2 %></option>';
+					     					};
+
+					     					if (perfil == '<%= PERFIL_EST_3 %>') 
+					     					{
+					     						html+= '<option value="<%= PERFIL_EST_3 %>" selected><%= PERFIL_EST_3 %></option>';
+					     					} 
+					     					else
+					     					{
+					     						html+= '<option value="<%= PERFIL_EST_3 %>" ><%= PERFIL_EST_3 %></option>';
+					     					};
+
+					     					if (perfil == '<%= PERFIL_EST_4 %>') 
+					     					{
+					     						html+= '<option value="<%= PERFIL_EST_4 %>" selected><%= PERFIL_EST_4 %></option>';
+					     					} 
+					     					else
+					     					{
+					     						html+= '<option value="<%= PERFIL_EST_4 %>" ><%= PERFIL_EST_4 %></option>';
+					     					};
+
+					     					if (perfil == '<%= PERFIL_EST_5 %>') 
+					     					{
+					     						html+= '<option value="<%= PERFIL_EST_5 %>" selected><%= PERFIL_EST_5 %></option>';
+					     					} 
+					     					else
+					     					{
+					     						html+= '<option value="<%= PERFIL_EST_5 %>" ><%= PERFIL_EST_5 %></option>';
+					     					};
+
+					     					if (perfil == '<%= PERFIL_EST_6 %>') 
+					     					{
+					     						html+= '<option value="<%= PERFIL_EST_6 %>" selected><%= PERFIL_EST_6 %></option>';
+					     					} 
+					     					else
+					     					{
+					     						html+= '<option value="<%= PERFIL_EST_6 %>" ><%= PERFIL_EST_6 %></option>';
+					     					};
+
+					     					if (perfil == '<%= PERFIL_EST_7 %>') 
+					     					{
+					     						html+= '<option value="<%= PERFIL_EST_7 %>" selected><%= PERFIL_EST_7 %></option>';
+					     					} 
+					     					else
+					     					{
+					     						html+= '<option value="<%= PERFIL_EST_7 %>" ><%= PERFIL_EST_7 %></option>';
+					     					};
+
+					     					if (perfil == '<%= PERFIL_EST_8 %>') 
+					     					{
+					     						html+= '<option value="<%= PERFIL_EST_8 %>" selected><%= PERFIL_EST_8 %></option>';
+					     					} 
+					     					else
+					     					{
+					     						html+= '<option value="<%= PERFIL_EST_8 %>" ><%= PERFIL_EST_8 %></option>';
+					     					};
+
+					     	    html+=  '</select>'+
+					     			'</div>'+	
+					     		'</div>'+
+					     		'<div style="float:left;width:64%;border:solid 1px white;padding:10px;">'+
+					     			'<div>'+
+					     				'<label style="width:30%;font-weight:normal;">Agregar o buscar funciones:</label>'+
+					     				'<input type ="text" style="width:69%; placeholder="Buscar..." class="auto_resps" id="auto_'+ id+'">'+
+					     			'</div>'+
+					     			'<div style="margin:10px 0 0 0;">'+
+					     				'<select multiple style="width:100%;" id="funcs_'+ id +'">';
+
+					     				// Adiciona las funciones:
+					     				for (i = 0; i < funcs.length; i++) 
+										{ 
+											html += '<option value=' + funcs[i].id + ' selected>' + funcs[i].name + '</option>';
+										}
+
+
+
+					     		html+= '</select><span style="color:#EB6003;font-size:11px;">Sólo se guardarán las funciones seleccionadas. Para eliminar funciones, elimínelas de la selección con Ctrl+click.</span>'+
+					     			'</div>'+
+					     		'</div>'+
+					     		'<div style="float:left;width:4%;padding:10px;height:141px;">'+
+					     			'<img src="/assets/trash.png" align="right" style="cursor:pointer;" class="del_new" id="del_'+ id +'" '+
+					     			'title="Descartar"><br><br>'+
+					     			'<img src="/assets/save.png" align="right" style="cursor:pointer;" class="update" id="update_'+ id +'" '+
+					     			'title="Guardar cambios">'+
+					     		'</div>'+
+					     	'</div>'+
+					     '</div>';
+
+			    $(html).insertAfter("#"+idPar);
+			    // Agrega el autocomplete:
+			    $("#auto_"+id).autocomplete({
+		           source: "/autocomplete/responsabilities",
+		           select: function(event, ui) {
+		           var id = this.id;  // auto_idPadre
+		           var select_id = id.replace("auto", "funcs"); // funcs_idPadre
+		           var selected = ui.item;
+		           var split = selected.value.split(" - ");
+		           id = split[0]; var name = split[1];
+		           var existe = false; var temp;
+		           // Si debe agregarla, lo hace:
+		           if (id.trim() == '(Agregar)') 
+		           {
+		      	     // Debe agregarla:
+		      	     $.post('./add_responsability', {'name' : name}, function(data)
+		      	     {
+		      	    	if (data.id == null) 
+		      	     	{
+		      	     		// ERROR
+		      		     	id = 'ERROR';
+		      			    name = 'ERROR';
+		      		    } 
+		      	        else
+		      	        {
+		      	    	    // OK
+		      	    	   id = data.id;
+		      			   name = data.name;
+		      	        };
+
+		      	        html = "<option value='" + id + "' selected>" + name + "</option>";
+				        // Agrega la opcion del objeto seleccionado si no existia antes:
+				        $('#'+select_id +' > option').each(function() 
+				        {
+				          temp = $(this).text().trim();
+				          if (temp == name) 
+				          {
+				            existe = true;
+				          };
+				        });
+
+				        if (!existe && id != 'ERROR') 
+				        {
+				            $("#"+select_id).append(html); 
+				        };
+		     
+		          	 });
+		      	    }
+		      	    else
+		      	    {
+		      	    	html = "<option value='" + id + "' selected>" + name + "</option>";
+				        // Agrega la opcion del objeto seleccionado si no existia antes:
+				        $('#'+select_id +' > option').each(function() 
+				        {
+				          temp = $(this).text().trim();
+				          if (temp == name) 
+				          {
+				            existe = true;
+				          };
+				        });
+
+				        if (!existe && id != 'ERROR') 
+				        {
+				            $("#"+select_id).append(html); 
+				        };
+		        	};
+
+
+
+		        /* Borra para agregar nuevo contenido */
+		        $(this).val(''); return false;
+		        }
+		      
+		      });
+
+			  };
+   		});
+    });
+
+});
+
+
+
+// DESCARTAR ESTRUCTURA:
+$(document).on('click', "img.del_new", function() {
+	var id = this.id;
+	id = id.replace("del", "div"); // -> div_par1_1
+	// Elimina todo el div:
+	$("#"+id).remove();
+});
+
+// ACTUALIZAR ESTRUCTURA:
+$(document).on('click', "img.update", function() {
+	var id = this.id; // Original -> update_idPadre
+	var idDiv = id.replace("update", "div"); // -> div_idPadre
+
+	// IDS de las variables:
+    var idNombre = id.replace("update", "nombre");
+    var idTipo = id.replace("update", "tipo");
+    var idFuncs = id.replace("update", "funcs");
+    var idPerfil = id.replace("update", "perfil");
+    // Variables:
+    var nombre = $("#"+idNombre).val();
+    var tipo = $("#"+idTipo).val();
+    var perfil = $("#"+idPerfil).val();
+    var funcs = []; var bool = false; var funcs_text = [];
+    // Agrega las funciones:
+    $("#"+idFuncs+ "> option").each(function(){
+      bool = $(this).is( ":selected" );
+      if (bool) 
+        {
+          funcs.push($(this).val()); // Agrega el ID de la función
+          funcs_text.push($(this).text()); // Agrega el texto de la función
+        };
+    });
+
+    var idPadre = id.split("_")[1];
+	// Realiza la petición AJAX:
+	
+	var html = ''; var margen = 0; var funcion = '';
+	// Si el perfil esta definido lo envia, antes no:
+	if (perfil == null) 
+	{
+		// No definido
+		$("#"+idPerfil).focus();
+	} 
+	else
+	{
+		// Envia una peticion AJAX para obtener el texto de la implicacion:
+	    $.post('./update_structure', {'id' : idPadre, 'name' : nombre, 'tipo' : tipo, 'funcs' : funcs, 'perfil' : perfil}, function(data)
+	    {
+	    	
+	    	// En data viene la estructura recien actualizada:
+	    	if (data.id != null) 
+	    	{
+	    		// OK - Creado con éxito, elimina el div que lo contenía, y el registro actual:
+	    		$("#"+idDiv).remove();
+	    		$("#par"+idPadre).remove();
+	    		// Inserta el registro donde está actualmente:
+	    		if (data.parent_id != null) 
+	    		{
+	    			idPadre = 'par' + data.parent_id;
+	    			// Obtiene la margen del padre:
+	    			margen = $("#"+idPadre).css("margin-left");
+	    			// Le agrega 5 px, para construir el arbol:
+	    			margen = parseInt(margen.replace("px", "").trim()) + 35;
+	    		} 
+	    	    else
+	    	    {
+	    	    	idPadre = 'title';
+	    			margen = 0;
+	    	    };
+	    		
+	    		funcion = '<img title="Agregue una nueva estructura de gobierno, con esta estructura como padre" src="/assets/list_option.png" style="margin-right:6px;cursor:pointer;" class="new_est" id="img' + data.id + '">';
+
+
+	    		html = '<p id="par' + data.id + '" style="margin:0 0 0 '+ margen +'px;">' + funcion + '[' + data.structure_type + '] - ' + data.name + '<span id="span' + data.id +'" class="tool" style="color:#428bca;cursor:pointer;"> | Funciones </span><span id="update'+ data.id +'" class="update" style="color:#428bca;cursor:pointer;"> | Editar</span>' + '<span style="color:green;font-weight:bold;"> ACTUALIZADA!</span></p>';
+
+	                        
+	    		$(html).insertAfter("#"+idPadre);
+	    	} 
+	    	else
+	    	{
+	    		// Informa el error:
+	    		$("#"+idDiv).attr("class", "alert alert-danger");
+	    	};
+	    });
+	};
+});
+
+
+// GUARDAR ESTRUCTURA:
+$(document).on('click', "img.add_new", function() {
+	var id = this.id; // Original -> add_idPadre
+	var idDiv = id.replace("add", "div"); // -> div_idPadre
+
+	// IDS de las variables:
+    var idNombre = id.replace("add", "nombre");
+    var idTipo = id.replace("add", "tipo");
+    var idFuncs = id.replace("add", "funcs");
+    var idPerfil = id.replace("add", "perfil");
+
+    // Variables:
+    var nombre = $("#"+idNombre).val();
+    var tipo = $("#"+idTipo).val();
+    var perfil = $("#"+idPerfil).val();
+    var funcs = []; var bool = false; var funcs_text = [];
+    // Agrega las funciones:
+    $("#"+idFuncs+ "> option").each(function(){
+      bool = $(this).is( ":selected" );
+      if (bool) 
+        {
+          funcs.push($(this).val()); // Agrega el ID de la función
+          funcs_text.push($(this).text()); // Agrega el texto de la función
+        };
+    });
+
+
+	var idPadre = id.split("_")[1]; var type;
+	if (idPadre == '0') 
+	{
+		type = 'GENERIC';
+	} 
+    else
+    {
+    	type = 'SPECIFIC';
+    };
+	// Realiza la petición AJAX:
+	
+	var html = ''; var margen = 0; var funcion = '';
+	// Revisa si el perfil se definio:
+	if (perfil == null) 
+	{
+		$("#"+idPerfil).focus();
+	} 
+	else
+	{
+		// Envia una peticion AJAX para obtener el texto de la implicacion:
+	    $.post('./add_structure', {'name' : nombre, 'id_padre' : idPadre, 'tipo' : tipo, 'funcs' : funcs, 'type' : type, 'perfil' : perfil}, function(data)
+	    {	    	
+	    	// En data viene la estructura recien creada:
+	    	if (data.id != null) 
+	    	{
+	    		// OK - Creado con éxito, elimina el div que lo contenía:
+	    		$("#"+idDiv).remove();
+	    		// Inserta el registro después de su padre:
+	    		if (data.parent_id != null) 
+	    		{
+	    			idPadre = 'par' + data.parent_id;
+	    			// Obtiene la margen del padre:
+	    			margen = $("#"+idPadre).css("margin-left");
+	    			// Le agrega 5 px, para construir el arbol:
+	    			margen = parseInt(margen.replace("px", "").trim()) + 35;
+	    		} 
+	    	    else
+	    	    {
+	    	    	idPadre = 'title';
+	    			margen = 0;
+	    	    };
+	    		
+	    		funcion = '<img title="Agregue una nueva estructura de gobierno, con esta estructura como padre" src="/assets/list_option.png" style="margin-right:6px;cursor:pointer;" class="new_est" id="img' + data.id + '">';
+
+
+	    		html = '<p id="par' + data.id + '" style="margin:0 0 0 '+ margen +'px;">' + funcion + '[' + data.structure_type + '] - ' + data.name + '<span id="span' + data.id +'" class="tool" style="color:#428bca;cursor:pointer;"> | Funciones</span><span id="update'+data.id+'" class="update" style="color:#428bca;cursor:pointer;"> | Editar</span>'+
+	    		    '<span style="color:green;font-weight:bold;">' +' GUARDADA!</span></p>';
+
+	            // Elimina el aviso de no estructuras,si existe:
+	            if (document.getElementById("noStructures") != null) 
+	            {
+	            	$("#noStructures").remove();
+	            };
+
+	    		$(html).insertAfter("#"+idPadre);
+	    	} 
+	    	else
+	    	{
+	    		// Informa el error:
+	    		$("#"+idDiv).attr("class", "alert alert-danger");
+	    	};
+	    });
+	};
+
+});
+
+// MOSTRAR DIALOGO DEL TOOLTIP:
+$(document).on('click', "span.tool", function() 
+{
+	var idEst = this.id.replace("span","").trim();
+
+	// Realiza el llamado para obtener la información de las funciones:
+	$.get('./get_functions', {'idEst' : idEst}, function(data)
+    {
+    	var html = "<h3>Funciones: </h3>";
+		if (data.length == 0) 
+		{
+			html += '<p style="color:#333;"><i>- Esta estructura no tiene funciones definidas</i></p>';
+		} 
+		else
+		{
+			var error = false; var partes = [];
+			for (i = 0; i < data.length; i++) 
+			{ 
+				if (data[i] == '#$%&/()=') 
+				{
+					// Viene el caracter de separacion, vienen errores
+					error = true;
+					html += '<h3 style="color:red;">Conflictos encontrados:</h3>';
+					continue;
+				};
+
+				if (error) 
+				{
+					// Formatea el contenido de los errores:
+					partes = data[i].split("|");
+					html+= '<p style="color:red;"><i>- ' + partes[0] + ', conflictiva con las siguientes estructuras: </i></p>';
+					for (var k = 1; k < partes.length; k++) 
+					{
+						html+= '<p style="color:red;margin-left:15px;"><i>- ' + partes[k] + '</i></p>';
+					};
+				} 
+				else
+				{
+					// Renderiza las funciones normalmente:
+					html += '<p style="color:#333;"><i>- ' + data[i] + '</i></p>';
+				};
+			}
+		};
+
+		$("#dialogFuncs").html(html);
+		// Abre el dialogo:
+		$("#dialogFuncs").dialog("option", "width", 600);
+		// Asigna el titulo al dialogo:
+		$("#dialogFuncs").dialog('option', 'title', 'Funciones por estructura de gobierno');
+		$("#dialogFuncs").dialog("option", "height", 500);
+		$("#dialogFuncs").dialog("option", "resizable", false);
+		// Pasa el id de la implicacion, como parametro al dialogo:
+	    $("#dialogFuncs").dialog("open");
+    });
+
+});
+
+
+
+// AGREGAR ESTRUCTURA:
+$(document).on('click', "img.new_est", function() {
+	var id = this.id; // ID de la imagen del parrafo al que se hizo click
+	var idPar = id.replace("img", "par"); // ID del parrafo, inserta contenido después de él
+	var idPadre = id.replace("img", "").trim();
+	var margen = $("#"+idPar).css("margin-left").replace("px","").trim();
+	margen = parseInt(margen) + 35;
+
+	// Sólo lo agrega, si no hay uno antes:
+	var anterior = document.getElementById("div_"+idPadre);
+	if (anterior == null) 
+	{
+		// No habia nada, lo agrega
+		var html = '<div class="alert alert-info" style="height:190px;margin-left:'+ margen +'px;color:#333;' + 
+		           'background-color:#eeeeee;border-color:#cacaca;" id="div_'+ idPadre +'">'+
+			     	'<div style="width:100%;">'+
+			     		'<div style="float:left;width:32%;border:solid 1px white;padding:10px;height:161px;">'+
+			     			'<div>'+
+			     				'<label style="width:30%;font-weight:normal;">Nombre:</label>'+
+			     				'<input type ="text" style="width:60%;" id="nombre_'+ idPadre +'">'+
+			     			'</div>'+
+			     			'<div style="margin:10px 0 0 0;">'+
+			     				'<label style="width:30%;font-weight:normal;">Tipo:</label>'+
+			     				'<select style="width:60%;" class="selTipo" id="tipo_'+ idPadre +'">'+
+			     					'<option selected disabled>Seleccione...</option>'+
+			     					'<option value="<%= ROL %>">Rol</option>'+
+			     					'<option value="<%= COMITE %>">Comite</option>'+
+			     					'<option value="<%= UNIDAD_DE_NEGOCIO %>">Unidad de Negocio</option>'+
+			     				'</select>'+
+			     			'</div>'+
+			     			'<div style="margin:10px 0 0 0;">'+
+			     				'<label style="width:30%;font-weight:normal;">Perfil:</label>'+
+			     				'<select style="width:60%;" id="perfil_'+ idPadre +'">'+
+			     					'<option selected disabled>Seleccione...</option>'+
+			     					/*'<option value="<%= PERFIL_EST_1 %>"><%= PERFIL_EST_1 %></option>'+
+			     					'<option value="<%= PERFIL_EST_2 %>"><%= PERFIL_EST_2 %></option>'+
+			     					'<option value="<%= PERFIL_EST_3 %>"><%= PERFIL_EST_3 %></option>'+
+			     					'<option value="<%= PERFIL_EST_4 %>"><%= PERFIL_EST_4 %></option>'+
+			     					'<option value="<%= PERFIL_EST_5 %>"><%= PERFIL_EST_5 %></option>'+
+			     					'<option value="<%= PERFIL_EST_6 %>"><%= PERFIL_EST_6 %></option>'+
+			     					'<option value="<%= PERFIL_EST_7 %>"><%= PERFIL_EST_7 %></option>'+
+			     					'<option value="<%= PERFIL_EST_8 %>"><%= PERFIL_EST_8 %></option>'+*/
+			     				'</select>'+
+			     			'</div>'+
+			     		'</div>'+
+			     		'<div style="float:left;width:64%;border:solid 1px white;padding:10px;">'+
+			     			'<div>'+
+			     				'<label style="width:30%;font-weight:normal;">Agregar o buscar funciones:</label>'+
+			     				'<input type ="text" style="width:69%; placeholder="Buscar..." class="auto_resps" id="auto_'+ idPadre+'">'+
+			     			'</div>'+
+			     			'<div style="margin:10px 0 0 0;">'+
+			     				'<select multiple style="width:100%;" id="funcs_'+ idPadre +'">'+
+			     				'</select><span style="color:#EB6003;font-size:11px;">Sólo se guardarán las funciones seleccionadas. Para eliminar funciones, elimínelas de la selección con Ctrl+click.</span>'+
+			     			'</div>'+
+			     		'</div>'+
+			     		'<div style="float:left;width:4%;padding:10px;height:141px;">'+
+			     			'<img src="/assets/trash.png" align="right" style="cursor:pointer;" class="del_new" id="del_'+ idPadre +'" '+
+			     			'title="Descartar"><br><br>'+
+			     			'<img src="/assets/save.png" align="right" style="cursor:pointer;" class="add_new" id="add_'+ idPadre +'" '+
+			     			'title="Guardar">'+
+			     		'</div>'+
+			     	'</div>'+
+			     '</div>';
+
+	    $(html).insertAfter("#"+idPar);
+	    // Agrega el autocomplete:
+	    $("#auto_"+idPadre).autocomplete({
+           source: "/autocomplete/responsabilities",
+           select: function(event, ui) {
+           var id = this.id;  // auto_idPadre
+           var select_id = id.replace("auto", "funcs"); // funcs_idPadre
+           var selected = ui.item;
+           var split = selected.value.split(" - ");
+           id = split[0]; var name = split[1];
+           var existe = false; var temp;
+           // Si debe agregarla, lo hace:
+           if (id.trim() == '(Agregar)') 
+           {
+      	     // Debe agregarla:
+      	     $.post('./add_responsability', {'name' : name}, function(data)
+      	     {
+      	    	if (data.id == null) 
+      	     	{
+      	     		// ERROR
+      		     	id = 'ERROR';
+      			    name = 'ERROR';
+      		    } 
+      	        else
+      	        {
+      	    	    // OK
+      	    	   id = data.id;
+      			   name = data.name;
+      	        };
+
+      	        html = "<option value='" + id + "' selected>" + name + "</option>";
+		        // Agrega la opcion del objeto seleccionado si no existia antes:
+		        $('#'+select_id +' > option').each(function() 
+		        {
+		          temp = $(this).text().trim();
+		          if (temp == name) 
+		          {
+		            existe = true;
+		          };
+		        });
+
+		        if (!existe && id != 'ERROR') 
+		        {
+		            $("#"+select_id).append(html); 
+		        };
+     
+          	 });
+      	    }
+      	    else
+      	    {
+      	    	html = "<option value='" + id + "' selected>" + name + "</option>";
+		        // Agrega la opcion del objeto seleccionado si no existia antes:
+		        $('#'+select_id +' > option').each(function() 
+		        {
+		          temp = $(this).text().trim();
+		          if (temp == name) 
+		          {
+		            existe = true;
+		          };
+		        });
+
+		        if (!existe && id != 'ERROR') 
+		        {
+		            $("#"+select_id).append(html); 
+		        };
+        	};
+
+
+
+        /* Borra para agregar nuevo contenido */
+        $(this).val(''); return false;
+        }
+      
+      });
+
+	  };
+	
+});
+
+
+// AGREGAR ESTRUCTURA GENERICA:
+$(document).on('click', "span.new_est", function() {
+	var margen = 35;
+
+	// Sólo lo agrega, si no hay uno antes:
+	var anterior = document.getElementById("div_0");
+	if (anterior == null) 
+	{
+		// No habia nada, lo agrega
+		var html = '<div class="alert alert-info" style="height:190px;margin-left:'+ margen +'px;color:#333;' + 
+		           'background-color:#eeeeee;border-color:#cacaca;" id="div_0">'+
+			     	'<div style="width:100%;">'+
+			     		'<div style="float:left;width:32%;border:solid 1px white;padding:10px;height:161px;">'+
+			     			'<div>'+
+			     				'<label style="width:30%;font-weight:normal;">Nombre:</label>'+
+			     				'<input type ="text" style="width:60%;" id="nombre_0">'+
+			     			'</div>'+
+			     			'<div style="margin:10px 0 0 0;">'+
+			     				'<label style="width:30%;font-weight:normal;">Tipo:</label>'+
+			     				'<select style="width:60%;" class="selTipo" id="tipo_0">'+
+			     					'<option selected disabled>Seleccione...</option>'+
+			     					'<option value="<%= ROL %>">Rol</option>'+
+			     					'<option value="<%= COMITE %>">Comite</option>'+
+			     					'<option value="<%= UNIDAD_DE_NEGOCIO %>">Unidad de Negocio</option>'+
+			     				'</select>'+
+			     			'</div>'+
+			     			'<div style="margin:10px 0 0 0;">'+
+			     				'<label style="width:30%;font-weight:normal;">Perfil:</label>'+
+			     				'<select style="width:60%;" id="perfil_0">'+
+			     					'<option selected disabled>Seleccione...</option>'+
+			     					/*'<option value="<%= PERFIL_EST_1 %>"><%= PERFIL_EST_1 %></option>'+
+			     					'<option value="<%= PERFIL_EST_2 %>"><%= PERFIL_EST_2 %></option>'+
+			     					'<option value="<%= PERFIL_EST_3 %>"><%= PERFIL_EST_3 %></option>'+
+			     					'<option value="<%= PERFIL_EST_4 %>"><%= PERFIL_EST_4 %></option>'+
+			     					'<option value="<%= PERFIL_EST_5 %>"><%= PERFIL_EST_5 %></option>'+
+			     					'<option value="<%= PERFIL_EST_6 %>"><%= PERFIL_EST_6 %></option>'+
+			     					'<option value="<%= PERFIL_EST_7 %>"><%= PERFIL_EST_7 %></option>'+
+			     					'<option value="<%= PERFIL_EST_8 %>"><%= PERFIL_EST_8 %></option>'+*/
+			     				'</select>'+
+			     			'</div>'+
+			     		'</div>'+
+			     		'<div style="float:left;width:64%;border:solid 1px white;padding:10px;">'+
+			     			'<div>'+
+			     				'<label style="width:30%;font-weight:normal;">Agregar o buscar funciones:</label>'+
+			     				'<input type ="text" style="width:69%; placeholder="Buscar..." class="auto_resps" id="auto_0">'+
+			     			'</div>'+
+			     			'<div style="margin:10px 0 0 0;">'+
+			     				'<select multiple style="width:100%;" id="funcs_0">'+
+			     				'</select><span style="color:#EB6003;font-size:11px;">Sólo se guardarán las funciones seleccionadas. Para eliminar funciones, elimínelas de la selección con Ctrl+click.</span>'+
+			     			'</div>'+
+			     		'</div>'+
+			     		'<div style="float:left;width:4%;padding:10px;height:141px;">'+
+			     			'<img src="/assets/trash.png" align="right" style="cursor:pointer;" class="del_new" id="del_0" '+
+			     			'title="Descartar"><br><br>'+
+			     			'<img src="/assets/save.png" align="right" style="cursor:pointer;" class="add_new" id="add_0" '+
+			     			'title="Guardar">'+
+			     		'</div>'+
+			     	'</div>'+
+			     '</div>';
+
+	    $(html).insertAfter("#title");
+	    // Agrega el autocomplete:
+	    $("#auto_0").autocomplete({
+           source: "/autocomplete/responsabilities",
+           select: function(event, ui) {
+           var id = this.id;  // auto_idPadre
+           var select_id = id.replace("auto", "funcs"); // funcs_idPadre
+           var selected = ui.item;
+           var split = selected.value.split(" - ");
+           id = split[0]; var name = split[1];
+           var existe = false; var temp;
+           // Si debe agregarla, lo hace:
+           if (id.trim() == '(Agregar)') 
+           {
+      	     // Debe agregarla:
+      	     $.post('./add_responsability', {'name' : name}, function(data)
+      	     {
+      	    	if (data.id == null) 
+      	     	{
+      	     		// ERROR
+      		     	id = 'ERROR';
+      			    name = 'ERROR';
+      		    } 
+      	        else
+      	        {
+      	    	    // OK
+      	    	   id = data.id;
+      			   name = data.name;
+      	        };
+
+      	        html = "<option value='" + id + "' selected>" + name + "</option>"; 
+      	        // Agrega la opcion del objeto seleccionado si no existia antes:
+		        $('#'+select_id +' > option').each(function() 
+		        {
+		          temp = $(this).text().trim();
+		          if (temp == name) 
+		          {
+		            existe = true;
+		          };
+		        });
+
+		        if (!existe && id != 'ERROR') 
+		          {
+		            $("#"+select_id).append(html); 
+		          };   
+          	 });
+          	}
+          	else
+          	{
+          		html = "<option value='" + id + "' selected>" + name + "</option>"; 
+      	        // Agrega la opcion del objeto seleccionado si no existia antes:
+		        $('#'+select_id +' > option').each(function() 
+		        {
+		          temp = $(this).text().trim();
+		          if (temp == name) 
+		          {
+		            existe = true;
+		          };
+		        });
+
+		        if (!existe && id != 'ERROR') 
+		          {
+		            $("#"+select_id).append(html); 
+		          };
+
+        	};
+
+        /* Borra para agregar nuevo contenido */
+        $(this).val(''); return false;
+        }
+      
+      });
+
+	  };
+	
+});
+
+
+// Dialogo de funciones
+$(function () {
+  $("#dialogFuncs").dialog({
+    autoOpen: false,
+    modal: true,
+    buttons: {
+      "Aceptar": function(){
+      	// Borra todo su contenido
+      	$("#dialogFuncs").html("");
+        $(this).dialog("close");
+      },
+      "Cancelar": function () {
+      	$("#dialogFuncs").html("");
+        $(this).dialog("close");
+      }
+    },
+  });
+});
+
+</script>
+
+<div>
+	<ol class="breadcrumb">
+		<li><a href="../inicio/inicio">Inicio</a></li>
+		<li class="active">[<%= @empresa.name %>] Gobierno de TI - Estructuras de Gobierno</li>
+	</ol>
+</div>
+
+<% if flash[:notice] %>
+<div class="alert alert-info">
+	<p><%= flash[:notice] %></p>
+</div>
+<% end %>
+
+<!-- Estructuras de Gobierno -->
+<div id="divEstr">
+	<div>
+		<h2 id="title"><span style="margin:0 10px 0 0;color:#333;font-size:22px;cursor:pointer;" class="new_est">[+]</span>Estructuras de Gobierno de TI:</h2>
+		<% if @estructuras.size == 0 %>
+		<div class="alert alert-info" id="noStructures">
+		No hay estructuras de gobierno en el sistema, para la empresa: <%= @empresa.name %>.
+		</div>
+		<% else %>
+		   <% @padres.each do |est| %>
+		     <%= render :partial => 'structure', :locals => {:structure => est, :nivel => 0} %>
+		   <% end %>
+		<% end %>
+	</div>
+</div>
+
+
+<div id="dialogFuncs" style="font-size:12px;">
+</div>
+

@@ -1,0 +1,176 @@
+<style>
+
+.risklvl
+{
+	font-weight: bolder;
+	font-size: 20px;
+}
+
+
+</style>
+
+<script>
+
+$( document ).ready(function() {
+
+	// Gestiona el click en el boton
+	$("#save").click(function(){
+		// Obtiene los valores de los input de clase risklvl, si falta algún valor, arroja un error:
+		var niveles = '';
+		var errores = 0;
+		$(".risklvl").each(function(i){
+			if ($(this).val() == '') 
+			{
+				errores+= 1;
+			} 
+			else
+			{
+				niveles+= $(this).val();
+				// Si no es el último index, agrega el separador
+				if (i < 36) 
+				{
+					niveles+= '|';
+				};
+			};
+		});
+
+		// Si existen errores, lo informa y no envía el formulario
+		if (errores > 0) 
+		{
+			$("#err").text("Errors detected on " + errores + " cell(s), please complete all the required values before saving the changes.");
+			$("#err").show();
+		} 
+		else
+		{
+			// Agrega el valor de la unidad de impacto:
+			var unidad = $("#qriesgo").val();
+			if (unidad == '') 
+			{
+				unidad = 0;
+			};
+			niveles += unidad;
+
+			// Esconde el label de errores
+			$("#err").hide();
+			// Pasa el valor al input hidden:
+			$("#hd_lvl").val(niveles);
+			// Envía el formulario
+			$("#riskmap").submit();
+		};
+
+
+	});
+
+
+
+
+});
+
+</script>
+
+
+<div>
+	<ol class="breadcrumb">
+		<li><a href="../inicio/inicio">Home</a></li>
+		<li class="active">[ <%= @empresa.name %> ] Configuration - Riskmap</li>
+	</ol>
+</div>
+
+<h2>Personalize - Riskmap</h2>
+
+<!-- Dialogo para evaluar el nivel de riesgo -->
+<p style="font-size:13px;">
+<% if @default != nil %>
+Below is presented the default risk scale distribution, you can configure the values according to your organization needs.
+<% else %>
+Below is presented the saved risk scale distribution of the enterprise: <%= @empresa.name %>, you can modify any value.
+<% end %>
+</p>
+<p style="font-size:13px;color:red;text-transform:uppercase;display:none;" id="err"></p>
+
+<%= form_tag( "./resultado", method: "post", id: "riskmap") do %>
+<div style="width:100%;height:400px;">
+	<!-- Espacio para el rotulo de la grafica -->
+	<div style="float:left;width:130px;margin-right:10px;">
+		<img src="/assets/y-axis_big_en.png" style="margin-top:35px;">
+	</div>
+	<div style="float:left;width:auto;">
+		<table style="margin-top:20px;color:black;text-align:center;font-size:13px;">
+			<tr style="border: 1px solid white;height:60px;">
+				<td class="riskmap_big" style="background:yellow;"><input class="risklvl" type="number" value='<%= @niveles[0] %>' min="0"></td>
+				<td class="riskmap_big" style="background:orange;"><input class="risklvl" type="number" value='<%= @niveles[1] %>' min="0"></td>
+				<td class="riskmap_big" style="background:orange;"><input class="risklvl" type="number" value='<%= @niveles[2] %>' min="0"></td>
+				<td class="riskmap_big" style="background:red;"><input class="risklvl" type="number" value='<%= @niveles[3] %>' min="0"></td>
+				<td class="riskmap_big" style="background:red;"><input class="risklvl" type="number" value='<%= @niveles[4] %>' min="0"></td>
+				<td class="riskmap_big" style="background:red;"><input class="risklvl" type="number" value='<%= @niveles[5] %>' min="0"></td>
+			</tr>
+			<tr style="border: 1px solid white;height:60px;">
+				<td class="riskmap_big" style="background:yellow;"><input class="risklvl" type="number" value='<%= @niveles[6] %>' min="0"></td>
+				<td class="riskmap_big" style="background:yellow;"><input class="risklvl" type="number" value='<%= @niveles[7] %>' min="0"></td>
+				<td class="riskmap_big" style="background:orange;"><input class="risklvl" type="number" value='<%= @niveles[8] %>' min="0"></td>
+				<td class="riskmap_big" style="background:orange;"><input class="risklvl" type="number" value='<%= @niveles[9] %>' min="0"></td>
+				<td class="riskmap_big" style="background:red;"><input class="risklvl" type="number" value='<%= @niveles[10] %>' min="0"></td>
+				<td class="riskmap_big" style="background:red;"><input class="risklvl" type="number" value='<%= @niveles[11] %>' min="0"></td>
+			</tr>
+			<tr style="border: 1px solid white;height:60px;">
+				<td class="riskmap_big" style="background:yellow;"><input class="risklvl" type="number" value='<%= @niveles[12] %>' min="0"></td>
+				<td class="riskmap_big" style="background:yellow;"><input class="risklvl" type="number" value='<%= @niveles[13] %>' min="0"></td>
+				<td class="riskmap_big" style="background:yellow;"><input class="risklvl" type="number" value='<%= @niveles[14] %>' min="0"></td>
+				<td class="riskmap_big" style="background:orange;"><input class="risklvl" type="number" value='<%= @niveles[15] %>' min="0"></td>
+				<td class="riskmap_big" style="background:orange;"><input class="risklvl" type="number" value='<%= @niveles[16] %>' min="0"></td>
+				<td class="riskmap_big" style="background:red;"><input class="risklvl" type="number" value='<%= @niveles[17] %>' min="0"></td>
+			</tr>
+			<tr style="border: 1px solid white;height:60px;">
+				<td class="riskmap_big" style="background:green;"><input class="risklvl" type="number" value='<%= @niveles[18] %>' min="0"></td>
+				<td class="riskmap_big" style="background:yellow;"><input class="risklvl" type="number" value='<%= @niveles[19] %>' min="0"></td>
+				<td class="riskmap_big" style="background:yellow;"><input class="risklvl" type="number" value='<%= @niveles[20] %>' min="0"></td>
+				<td class="riskmap_big" style="background:yellow;"><input class="risklvl" type="number" value='<%= @niveles[21] %>' min="0"></td>
+				<td class="riskmap_big" style="background:orange;"><input class="risklvl" type="number" value='<%= @niveles[22] %>' min="0"></td>
+				<td class="riskmap_big" style="background:orange;"><input class="risklvl" type="number" value='<%= @niveles[23] %>' min="0"></td>
+			</tr>
+			<tr style="border: 1px solid white;height:60px;">
+				<td class="riskmap_big" style="background:green;"><input class="risklvl" type="number" value='<%= @niveles[24] %>' min="0"></td>
+				<td class="riskmap_big" style="background:green;"><input class="risklvl" type="number" value='<%= @niveles[25] %>' min="0"></td>
+				<td class="riskmap_big" style="background:yellow;"><input class="risklvl" type="number" value='<%= @niveles[26] %>' min="0"></td>
+				<td class="riskmap_big" style="background:yellow;"><input class="risklvl" type="number" value='<%= @niveles[27] %>' min="0"></td>
+				<td class="riskmap_big" style="background:yellow;"><input class="risklvl" type="number" value='<%= @niveles[28] %>' min="0"></td>
+				<td class="riskmap_big" style="background:orange;"><input class="risklvl" type="number" value='<%= @niveles[29] %>' min="0"></td>
+			</tr>
+			<tr style="border: 1px solid white;height:60px;">
+				<td class="riskmap_big" style="background:green;"><input class="risklvl" type="number" value='<%= @niveles[30] %>' min="0"></td>
+				<td class="riskmap_big" style="background:green;"><input class="risklvl" type="number" value='<%= @niveles[31] %>' min="0"></td>
+				<td class="riskmap_big" style="background:green;"><input class="risklvl" type="number" value='<%= @niveles[32] %>' min="0"></td>
+				<td class="riskmap_big" style="background:yellow;"><input class="risklvl" type="number" value='<%= @niveles[33] %>' min="0"></td>
+				<td class="riskmap_big" style="background:yellow;"><input class="risklvl" type="number" value='<%= @niveles[34] %>' min="0"></td>
+				<td class="riskmap_big" style="background:yellow;"><input class="risklvl" type="number" value='<%= @niveles[35] %>' min="0"></td>
+			</tr>
+		</table>
+	</div>
+	<div style="float:left;width:220px;">
+		<img src="/assets/imp_tol_big_en.png" style="margin:17px 0 40px 55px">
+		<br>
+		<img align="left" src="/assets/money.png" style="width:30px;height:30px;margin: 10px 5px 0 70px;"><p style="font-size:11px;width:70%;margin-left:45%;">Financial impact (aprox.) per risk unit (USD):</p></img>
+        <input type="number" style="margin:8px 0 10px 70px;width:170px;" min="1" placeholder="e.g 1.000 USD" id="qriesgo" <% if @niveles[36].to_i > 0 %>value="<%= @niveles[36] %>" <% end %>>
+	</div>
+</div><!-- 100% -->
+<br>
+
+<div>
+	<img src="/assets/x-axis_big_en.png" style="margin-left:135px;">
+</div>
+<!-- Input para pasar la nformacion actualizada de los niveles -->
+<input name="niveles" id="hd_lvl" type="text" readonly hidden>
+
+<div class="btn-group" style="margin-top:15px;">
+   <button type="button" class="btn btn-default" id="save">Save</button>
+</div>
+
+
+<% end # Cierra form_tag %>
+
+
+
+
+
+
+

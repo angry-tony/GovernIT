@@ -1,0 +1,194 @@
+<script type="text/javascript">
+
+$( document ).ready(function() {
+
+  var mod0 = false; var mod1 = false; var mod2 = false; var mod3 = false;
+  //var mod0 = true; var mod1 = true; var mod2 = true; var mod3 = true;
+
+  // Carga el acceso a los modulos desde el inicio:
+  $.get('/inicio/modulos', function(data)
+  {
+    if (data[0]) { mod0 = true;};
+    if (data[1]) { mod1 = true;};
+    if (data[2]) { mod2 = true;};
+    if (data[3]) { mod3 = true;};
+  });
+
+  // Sólo activa los botones de las acciones, cuando se ha seleccionado al menos una empresa:
+  $("#select_empresas").change(function(){
+
+    // Obtiene la seleccion:
+    var sel = $("#select_empresas option:selected").val();
+    // Activa todo, sólo si es una empresa válida:
+    if (sel != 'N') 
+      {
+        // Envia una peticion POST, para actualizar el valor de la sesion:
+        $.post('/inicio/session_config', {'idEmpresa' : sel}, function(data)
+        {
+          if (data == 'OK') 
+          {
+            // La sesion se activo correctamente, activa los modulos necesarios y actualiza la empresa en el encabezado:
+            $("#myEnterprise").html($("#select_empresas option:selected").text().trim());
+
+            if (mod0) 
+            {
+              // Desbloquea modulo 0 y pasa la informacion a los inputs hidden:
+              $("#btnConfigurar").attr("disabled", false); 
+              // $("#btnActivos").attr("disabled", false);
+              //$("#btnProgramas").attr("disabled", false); 
+            };
+
+            if (mod1) 
+            {
+              // Desbloquea modulo 1 y pasa la informacion a los inputs hidden:
+              $("#btnRisks").attr("disabled", false); 
+              $("#btnGoals").attr("disabled", false); 
+              $("#btnDecisiones").attr("disabled", false); 
+              $("#btnStructures").attr("disabled", false); 
+              $("#btnMaps").attr("disabled", false); 
+              $("#btnPriorization").attr("disabled", false);           
+            };
+
+            if (mod2) 
+            {
+              // Desbloquea modulo 2 y pasa la informacion a los inputs hidden:
+              $("#btnSimular").attr("disabled", false);
+              $("#btnVisualizar").attr("disabled", false); 
+              $("#btnComparar").attr("disabled", false);                    
+            };
+          } 
+          else
+          {
+            // No se pudo activar la sesion, no desbloquea nada! 
+            $("#errorEmpresa").html("You've tried to access an unauthorized enterprise!");
+          };
+          
+        }, "text");
+
+        
+
+      };
+
+  });
+
+});
+
+</script>
+
+<% 
+emp = getMyEnterprise
+mod0 = current_user.has_role? ROLE_USER_CONFIG
+mod1 = current_user.has_role? ROLE_USER_GOV
+mod2 = current_user.has_role? ROLE_USER_SIMULATION
+admin = current_user.has_role? ROLE_ADMIN
+if (current_user.has_role? ROLE_EVAL) || (current_user.has_role? ROLE_ADMIN)
+   mod0 = true
+   mod1 = true
+   mod2 = true
+end
+
+%>
+
+
+<div style="width:100%;">
+  <select style="margin-left:3%;width:300px;border-color:#DDD;height:30px;" id="select_empresas">
+    <option selected disabled value="N">--- Select the enterprise to manage ---</option>
+    <% @empresas.each do |e|%>
+      <% if !emp.nil? && emp.id == e.id %>
+      <option value='<%= e.id %>' selected>&nbsp;&nbsp;<%= e.name %></option>
+      <% else %>
+      <option value='<%= e.id %>'>&nbsp;&nbsp;<%= e.name %></option>
+      <% end %>
+    <% end %>
+  </select>
+  <!-- La creación de empresas sólo está disponible para los administradores -->
+  <% if current_user.has_role? ROLE_ADMIN %>
+  <a href="../enterprises/new" style="margin-left:10px;" title="Add new enterprise"><img src="/assets/add.png"></a>
+  <a href="../enterprises/edit" style="margin-left:20px;" title="Edit enterprise"><img src="/assets/edit_26.png"></a>
+  <% end %>
+</div>
+
+<span style="color:red;margin-left:37px;" id="errorEmpresa"></span>
+
+<hr>
+
+<div style="width:100%">
+
+  <!--  CONFIGURACION -->
+  <div style="text-align:center;width:30%;float:left;border:solid 1px #DDD;min-height:610px;padding:50px 0 50px 0;">
+    <div style="margin:30px;"><img src="/assets/configuration.png"></div>
+    <h3 style="margin-top:15px;font-weight:100;">Configuration</h3>
+    <p style="margin-left:10%;margin-right:10%;margin-top:20px;width:80%;font-size:14px;">Configure your organization's variables, such as risk scale or IT portfolio.</p>
+
+    <div class="btn-group" style="width:100%;margin:0 25% 0 25%;">
+      <button id="btnConfigurar" type="submit" class="btn btn-default" style="width:50%;" onclick="location.href='../config/riskmap'" <% if (emp.nil?) || (!mod0) %> disabled <% end %> >Risk Scale</button>
+    </div>
+  </div>
+
+  <div style="width:69%;float:left;margin-left:1%;min-height:610px;">
+
+    <!--  GOBIERNO DE TI -->
+    <div style="min-height:200px;border:solid 1px #DDD;margin:0 0 5px 0;">
+      <div style="width:20%;float:left;padding:36px 20px 36px 20px;">
+        <img src="/assets/governance.png">
+      </div>
+
+      <div style="width:80%;float:left;text-align:left;">
+        <h3 style="margin-top:36px;font-weight:100;">IT Governance Model</h3>
+        <p style="margin-top:20px;font-size:14px;">Configure and manage IT decisions, governance structures and decision-making archetypes. 
+        </p>
+        <div class="btn-group">
+          <button id="btnDecisiones" type="button" class="btn btn-default" onclick="location.href='../eM/governance/decisions'" <% if (emp.nil?) || (!mod1) %> disabled <% end %> >Decisions</button>
+          <button id="btnStructures" type="button" class="btn btn-default" onclick="location.href='../governance/structures'" <% if (emp.nil?) || (!mod1) %> disabled <% end %> >Governance Structures</button>
+          <button id="btnMaps" type="button" class="btn btn-default" onclick="location.href='../eM/governance/decision_maps'" <% if (emp.nil?) || (!mod1) %> disabled <% end %> >Decision Maps</button>
+          <button id="btnRisks" type="button" class="btn btn-default" onclick="location.href='../eEE/governance/risks'" <% if (emp.nil?) || (!mod1) %> disabled <% end %> >Risk Assessment</button>
+          <button id="btnGoals" type="button" class="btn btn-default" onclick="location.href='../eEE/governance/goals'" <% if (emp.nil?) || (!mod1) %> disabled <% end %> >Goal Assessment</button>
+          <button id="btnPriorization" type="button" class="btn btn-default" onclick="location.href='../eEE/priorization/escenarios'" <% if (emp.nil?) || (!mod1) %> disabled <% end %> >Prioritization Scenarios</button>
+        </div>
+      </div>
+
+    </div>
+
+<% if false # Hidden %>
+
+    <!--  SIMULACION -->
+    <div style="min-height:200px;border:solid 1px #DDD;margin:0 0 5px 0;">
+      <div style="width:20%;float:left;padding:36px 20px 36px 20px;">
+        <img src="/assets/escenario.png">
+      </div>
+
+      <div style="width:80%;float:left;text-align:left;">
+        <h3 style="margin-top:36px;font-weight:100;">Decision-Making Simulation</h3>
+        <p style="margin-top:20px;font-size:14px;">Run new simulations, and compare the results of previous executions.</p>
+        <div class="btn-group">
+          <button id="btnSimular" type="button" class="btn btn-default" onclick="location.href='../eS/simulacion/inicio'" <% if (emp.nil?) || (!mod2) %> disabled <% end %> >Simulate</button>      
+          <button id="btnVisualizar" type="button" class="btn btn-default" onclick="location.href='../eS/escenarios'" <% if (emp.nil?) || (!mod2) %> disabled <% end %> >Configure</button>     
+          <button id="btnComparar" type="button" class="btn btn-default" onclick="location.href='../eS/comparacion/inicio'" <% if (emp.nil?) || (!mod2) %> disabled <% end %> >Compare</button>
+        </div>
+      </div>    
+    </div>
+
+    <!--  CUANTIFICACION -->
+    <div style="min-height:200px;border:solid 1px #DDD;">
+      <div style="width:20%;float:left;padding:36px 20px 36px 20px;">
+        <img src="/assets/portfolio.png">
+      </div>
+
+      <div style="width:80%;float:left;text-align:left;">
+        <h3 style="margin-top:36px;font-weight:100;">IT/Business Cuantification</h3>
+        <p style="margin-top:20px;font-size:14px;"></p>   
+        <% if admin %>
+          <div class="btn-group">
+            <button id="btnSimularQ" type="button" class="btn btn-default" onclick="location.href='../eQ/distribuciones/index'">Simulate</button>
+          </div>     
+        <% end %>
+      </div>    
+    </div>
+
+<% end %>
+
+  </div>
+
+
+
+</div>

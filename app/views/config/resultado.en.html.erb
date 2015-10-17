@@ -1,0 +1,14 @@
+<% if @error != nil %>
+<div class="alert alert-danger">
+	<%= @error %>
+</div>
+
+<% else %>
+<div class="alert alert-success">
+	<p>The changes were saved succesfully</p>
+</div>
+<div class="btn-group">
+  <button type="button" class="btn btn-default" onclick="location.href='../inicio/inicio'">Home</button>
+</div>
+
+<% end %>

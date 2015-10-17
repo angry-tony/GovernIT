@@ -1,0 +1,212 @@
+
+<style>
+
+tr, th, td 
+{
+  padding: 10px;
+  border: solid 1px #cacaca;
+}
+
+th
+{
+  color: #333;
+  font-weight: normal;
+  background-color: #f5f5f5;
+}
+
+p.cell
+{
+  font-size: 12px;
+  margin: 0px;
+  color: #3c763d;
+  font-weight: bold;
+}
+
+</style>
+
+<script>
+
+$(function () {
+  $("#dialog_addr").dialog({
+    autoOpen: false,
+    modal: true,
+    buttons: {
+      "Guardar cambios": function(){
+      	// Debe pasar los elementos seleccionados, a la celda que hizo click:
+      	var celda = $("#dialog_addr").data('idCell');
+        var idDec = celda.split("_")[1].trim();
+        var idArch = celda.split("_")[2].trim();
+        var idMap = '<%= @map.id %>';
+      	var input = celda.replace("cell", "input");
+      	var span = celda.replace("cell", "span");
+      	// Obtiene los ids y textos de los elementos seleccionados:
+      	var html = ''; var ids = ''; var checked = false; var val = ''; var partes; 
+      	$('.check_dialog').each(function(){
+      		checked = $(this).prop("checked");
+      		if (checked) 
+      		{
+      			val = $(this).next('label').text();
+      			html+= '<p class="cell"><i>- '+ val +'</i></p>';
+      			val = $(this).val();
+      			if (ids == '') 
+      			{
+      				ids+= val;
+      			}
+      			else
+      			{
+      				ids+= '|' + val;
+      			};
+      			
+      		};
+
+		  });
+      	// Pasa el texto a la celda, y los ids al input hidden
+      	$("#"+celda).find('p').remove();
+      	$("#"+celda).append(html);
+      	$("#"+input).val(ids);
+
+        // Realiza la actualización del detalle del mapa:
+        $.post('./update_map', {'idsEstructuras' : ids, 'idDec' : idDec, 'idArch' : idArch, 'idMap': idMap}, function(data)
+        {
+          if (data.id != null) 
+          {
+            // Actualizacion exitosa:
+            // colorea el <td> de verde, para dar hecho de la actualización:
+            // color: #3c763d, background: #dff0d8, border-color: #d6e9c6
+            $("#cell_"+idDec+'_'+idArch).css({'color': '#3c763d',
+                                              'background-color': '#dff0d8'});
+          } 
+          else
+          {
+            // Actualizacion fallida:
+            // colorea el <td> de rojo, para dar hecho del error:
+            // color: #3c763d, background: #dff0d8, border-color: #d6e9c6
+            $("#cell_"+idDec+'_'+idArch).css({'color': '#a94442',
+                                              'background-color': '#f2dede'});
+          };            
+        });
+
+
+      	// Reinicia todos los checks:
+      	$('.check_dialog').each(function(){
+      		$(this).prop("checked",false);
+		    });
+
+      	$(this).dialog("close");
+      },
+      "Cerrar": function () {
+      	// Reinicia los checkboxes de todos los responsables:
+      	$('.check_dialog').each(function(){
+      		$(this).prop("checked",false);
+		    });
+ 
+        $(this).dialog("close");
+      }
+    },
+  });
+
+
+  $(".cell_span").click(function () {
+    // lvl309 -> 309 es el codigo del riesgo
+    var idCell = this.id;
+    idCell = idCell.replace("span", "cell");
+    idCell = idCell.trim();
+    var idInput = idCell.replace("cell", "input");
+    var checks = $("#"+idInput).val().split("|");
+
+    //Pasa los valores que tiene dicha celda, a los checkboxes:
+    if (checks.length > 0) 
+    {
+      for (var i = 0; i < checks.length; i++) 
+      {
+        $('.check_dialog').each(function(){
+          
+          if ($(this).val() == checks[i]) 
+          {
+            $(this).prop("checked",true);
+            return false;
+          };
+            
+        });        
+      };
+    };
+
+    // Reinicia los checkbox
+    $("#dialog_addr").dialog("option", "width", 400);
+    $("#dialog_addr").dialog("option", "height", 400);
+    $("#dialog_addr").dialog("option", "resizable", false);
+    // Pasa el id de la implicacion, como parametro al dialogo:
+    $("#dialog_addr").data('idCell', idCell);
+    $("#dialog_addr").dialog("open").delay(2000);
+  });
+
+});
+
+</script>
+
+
+
+<script>
+
+$( document ).ready(function() {
+	
+	// Hover sobre cada celda del mapa:
+	$(".cell_map").mouseover(function(){
+		// Inserta la opcion de agregar responsables a la celda:
+		$( this ).find( "span" ).text( "Assign [+]" );
+	});
+
+	$(".cell_map").mouseout(function(){
+		// Inserta la opcion de agregar responsables a la celda:
+		$( this ).find( "span" ).text( "" );
+	});
+
+});
+
+</script>
+
+<div>
+	<ol class="breadcrumb">
+		<li><%= link_to "Home", main_app.inicio_inicio_path %></li>
+    <li><%= link_to "Decision Maps", governance_decision_maps_path %></li>
+		<li class="active">[<%= @empresa.name %>] Decision Map - <%= @map.name %></li>
+	</ol>
+</div>
+
+<h2>Decision Map Update:</h2>
+<!-- Dialogo para agregar responsables: -->
+<div id="dialog_addr" title="Add responsibles">
+	<% @estructuras.each do |e| %>
+	<input type="checkbox" value="<%= e.id %>" class="check_dialog"> <label style="font-weight:normal;"><%= e.name %></label><br>
+	<% end %>
+</div>
+
+<div id="mapaCreado">
+	<!-- MAPA: -->
+	<div>
+		<table>
+			<!-- Linea 1: Arquetipos e info. de la decision: -->
+			<tr>
+				<th>Decision</th>
+        <% @archs.each do |ar| %>
+          <th><%= ar.name %><br> <%= ar.description %></th>
+        <% end %>
+			</tr>
+			<!-- Lineas siguientes: Decisiones (Agrupada por dimension)-->
+			<% divs = @archs.size
+         dim_ant = nil 
+         cols = divs + 1 %>
+			<% @genericas.each do |gen| %>
+      <% if dim_ant != gen.dimension %>
+      <tr style="background-color:#d9edf7;border-color:#bce8f1;">
+        <td colspan = <%= cols %> style="text-align:center;color:#31708f;font-size:18px;">Dimension: <%= translateDimension(gen.dimension) %></td>
+      </tr>
+      <% dim_ant = gen.dimension %>
+      <% end %>
+
+			<%= render :partial => 'table_dec', :locals => {:decision => gen, :divs => divs, :lvl => 0} %>
+
+			<% end %>
+		</table>
+	</div>
+</div>

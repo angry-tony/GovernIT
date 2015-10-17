@@ -1,0 +1,417 @@
+<% if @escenario.nil? %>
+<div class="alert alert-danger">
+	<p>No se encontró el escenario seleccionado.</p>
+</div>
+
+<div class="btn-group">
+  <button type="button" class="btn btn-default" onclick="location.href='../inicio/inicio'">Inicio</button>
+</div>
+
+<% else %>
+
+<script>
+$( document ).ready(function() {
+
+  // Agregar un objetivo especifico:
+  $(".new").click(function(){
+    var id = this.id; // add[idGoal]
+    id = id.replace("add","").trim(); // idGoal
+    var divCreate = 'divHijo' + id; //divHijo[idGoal]
+    // Verifica si no hay ya un div de creacion:
+    if (document.getElementById(divCreate) == null) 
+    {
+      // Lo crea:
+      var html = '<div class="alert alert-info" style="margin-left:5%;margin-bottom:10px;color:#333;background-color:#eeeeee;border-color:#cacaca;"' +
+               ' id="divHijo' + id + '">Descripción del objetivo específico: &nbsp;' +
+               '<br><input type="text" style="width:60%;height:30px;border:none;font-size:12px;"' + 
+               'id="newDesc_' + id  +'">'+
+               '<img src="/assets/trash.png" align="right" style="margin:0 15px 0 15px;cursor:pointer;"'+
+               ' class="del" id="del_'+ id + '" title="Descartar">' +
+               '<img src="/assets/save.png" align="right" style="margin:0 0 0 5px;cursor:pointer;"'+
+               ' class="add_new" id="add_'+ id + '" title="Guardar"></div>';
+
+      // Lo inserta debajo del div del padre:
+      $("#div"+id).append(html);
+    };
+
+  });
+
+  // Click en alguna de las pestañas:
+  // Objetivos de Negocio:
+  $("#pill_b").click(function(){
+    // Obtiene la clase, si no está activo, la activa y desactiva la otra, de lo contrario no hace nada:
+    var clase = $("#pill_b").attr("class");
+    if (clase == 'active') 
+    {
+      // No hace nada
+    } 
+    else
+    {
+      // Desactiva la anterior, modifica su cursor, y oculta su div:
+      $("#pill_it").css('cursor','pointer');
+      $("#pill_it").attr('class','');
+      $("#it_goals").hide();
+
+      // Activa esta opción, modifica su cursor, y muestra su div:
+      $("#pill_b").css('cursor','normal');
+      $("#pill_b").attr('class','active');
+      $("#business_goals").show();
+
+    };
+  });
+
+  // Objetivos de TI:
+  $("#pill_it").click(function(){
+    // Obtiene la clase, si no está activo, la activa y desactiva la otra, de lo contrario no hace nada:
+    var clase = $("#pill_it").attr("class");
+    if (clase == 'active') 
+    {
+      // No hace nada
+    } 
+    else
+    {
+      // Desactiva la anterior, modifica su cursor, y oculta su div:
+      $("#pill_b").css('cursor','pointer');
+      $("#pill_b").attr('class','');
+      $("#business_goals").hide();
+
+      // Activa esta opción, modifica su cursor, y muestra su div:
+      $("#pill_it").css('cursor','normal');
+      $("#pill_it").attr('class','active');
+      $("#it_goals").show();
+
+
+    };
+  });
+
+});
+
+// DESCARTAR ESPECIFICA:
+$(document).on('click', "img.del", function() {
+  var id = this.id;
+  id = id.replace("del_", "divHijo"); 
+  // Elimina todo el div:
+  $("#"+id).remove();
+});
+
+// GUARDAR ESPECIFICO:
+$(document).on('click', "img.add_new", function() {
+  var id = this.id; // Original -> add_[idPadre]
+  var idDiv = id.replace("add_", "divHijo"); // -> divHijo[idPadre]
+  var idInput = id.replace("add_", "newDesc_"); // newDesc_[idPadre]
+  var desc = $("#"+idInput).val();
+  
+  var idPadre = id.split("_")[1].trim(); 
+  // Realiza la petición AJAX:
+  
+  var html = ''; 
+  // Envia una peticion AJAX para agregar el objetivo especifico:
+    $.post('./add_specific_goal', {'description' : desc, 'id_padre' : idPadre}, function(data)
+    {
+      // En data viene el objetivo recien creado:
+      if (data.id != null) 
+      {
+        // OK - Creado con éxito, elimina el div que lo contenía:
+        $("#"+idDiv).remove();
+        // Inserta el registro después de su padre:
+        html = '<p style="margin-left:5%;color:#AAA;"><i>- ' + data.description + '</i><span style="color:green;font-weight:bold;margin-left:5px;">' +' GUARDADO!</span></p>';
+
+        $("#div"+idPadre).append(html);
+      } 
+      else
+      {
+        // Informa el error:
+        $("#"+idDiv).attr("class", "alert alert-danger");
+        $('<p style="color:red;">ERROR: Guardando el registro. Verifique la información ingresada.</p>').insertAfter("#"+idInput);
+      };
+    });
+
+
+});
+
+
+</script>
+
+<script>
+
+$(function () {
+$("#dialog").dialog({
+    autoOpen: false,
+    modal: true,
+    buttons: {
+      "Guardar evaluación": function(){
+        var idEsc = '<%= @escenario.id %>';
+        var goal = $("#dialog").data('idgoal');
+        var html;
+        var importance = $("#importance option:selected").val();
+        var performance = $("#performance option:selected").val();
+
+        // Actualiza la calificacion via AJAX:
+        $.post('./update_goal_cal', {'importance' : importance, 'performance' : performance, 'goal' : goal, 'escenario': idEsc}, function(data)
+        {
+            // Según el status, muestra la creación o actualización:
+            if (data.id != null) 
+            {
+                // Creación/Actualización exitosa:
+                // Elimina un div de evaluación anterior, si lo habia:
+                $("#div_eval_"+goal).remove();
+                // Crea un nuevo div de evaluación, indicando si hubo actualización o creación:
+                html = '<br id="br'+goal+'"><div class="alert alert-success" style="width:378px;margin-left:5%;margin-bottom:10px;padding: 5px 15px 5px 15px;" id="div_eval_'+ goal +'">'+
+                               '<label>Actualizado! </label>'+
+                                 ' Importancia: ';
+
+                                 if (importance == 0) {html+= ' N/A ';} else { html+= importance;};
+
+                                  html+= ', Desempeño: ';
+
+                                 if (performance == 0) {html+= ' N/A ';} else { html+= performance;};
+
+                                  html+= '</div>';
+            } 
+            else
+            {
+                // ERROR
+                // Elimina un div de evaluación anterior, si lo habia:
+                $("#div_eval_"+goal).remove();
+                // Crea un nuevo div de evaluación, indicando si hubo actualización o creación:
+                html = '<br id="br'+goal+'"><div class="alert alert-danger" style="width:378px;margin-left:5%;margin-bottom:10px;padding: 5px 15px 5px 15px;" id="div_eval_'+ goal +'">'+
+                           '<label>Error actualizando el registro!</label>'+
+                        '</div>';
+            };
+
+            // Antes de insertarlo, remueve los saltos de linea:
+            $("#div"+goal).find('br').remove();
+            $("#br"+goal).remove();
+            $(html).insertAfter("#desc"+goal);
+           
+        });
+        
+
+        $(this).dialog("close");
+      },
+      "Cerrar": function () {
+        $(this).dialog("close");
+      }
+    },
+  });
+
+
+  $(".eval").click(function () {
+    // eval309 -> 309 es el codigo del riesgo
+    var idgoal = this.id;
+    idgoal = idgoal.replace("eval", "");
+    idgoal = idgoal.trim();
+
+    // Limpia los valores de desempeño e importancia
+   	$("#performance").val("0");
+   	$("#importance").val("0");
+
+
+
+    // Envia una peticion AJAX para obtener el texto del objetivo:
+    $.get('./get_info_cal_goal', {'idGoal' : idgoal, 'idEsc' : '<%= @escenario.id %>'}, function(data){
+       
+       $("#txt_goal").text('OBJETIVO A EVALUAR: ' +  data[0]);
+       $("#performance").val(data[1]);
+       $("#importance").val(data[2]);
+
+  	   $("#dialog").dialog("option", "width", 400);
+  	   $("#dialog").dialog("option", "height", 270);
+  	   $("#dialog").dialog("option", "resizable", false);
+  	   // Pasa el id del objetivo, como parametro al dialogo:
+  	   $("#dialog").data('idgoal', idgoal);
+       $("#dialog").dialog("open");
+    });
+
+  });
+
+});
+</script>
+
+<div>
+	<ol class="breadcrumb">
+		<li><%= link_to "Inicio", main_app.inicio_inicio_path %></li>
+    <li><%= link_to "Escenarios de Evaluación de Objetivos", governance_goals_path %></li>
+		<li class="active">[<%= @empresa.name %>] Evaluación de Objetivos: <%= @escenario.name %></li>
+	</ol>
+</div>
+
+<h2>Escenario: <%= @escenario.name %></h2>
+
+<% if @cals.size == 0 %>
+<p>A continuación se presentan los objetivos genéricos del sistema, puede evaluarlos con su respectiva opción:</p>
+<% else %>
+<p>A continuación se presentan los objetivos genéricos evaluados, puede realizar cualquier modificación:</p>
+<% end %>
+</br>
+
+<ul class="nav nav-pills">
+  <li class="active" id="pill_b"><a>Objetivos de Negocio</a></li>
+  <li id="pill_it" style="cursor:pointer;"><a>Objetivos de TI</a></li>
+</ul>
+
+<div id="business_goals" style="border:solid 1px #DDD;min-height:500px;padding:10px;overflow:auto;">
+  <!--  Agrupa por dimension: -->
+  <% @b_dims.each do |dim| %>
+  <div class="alert alert-info">
+    <span style="text-align:center;font-size:18px;">
+      Dimensión: <%= dim %>
+    </span>
+  </div>
+    <% temp_goals = @bGoals.select { |goal|  goal.dimension == dim  } %>
+    <% @bGoals = @bGoals - temp_goals %>
+    <% if temp_goals.size == 0 %>
+    <p>No existen objetivos de negocio bajo esta dimensión.</p>
+    <% else %>
+      <% temp_goals.each do |goal| %>
+      <% 
+       idGoal = 'eval' << goal.id.to_s 
+       idNew = 'add' << goal.id.to_s
+       idDiv = 'div' << goal.id.to_s
+       idDesc = 'desc' << goal.id.to_s
+      %>  
+
+      <div style="width:100%;" id="<%= idDiv %>">
+        <div style="float:left;width:2%;">
+          <img src="/assets/evaluate.png" style="margin-right:3px;cursor:pointer;" id="<%= idGoal %>" class="eval" title="Evaluar objetivo">
+        </div>
+        <div style="float:left;width:2%;">
+          <img src="/assets/list_option.png" style="margin-right:3px;cursor:pointer;" id="<%= idNew %>" class="new" title="Agregar un nuevo objetivo específico con este objetivo como padre.">
+        </div>
+        <div style="float:left;width:95%;margin-left:1%;" id="<%= idDesc %>">
+          <%= goal.description %>
+        </div>
+
+        <!-- Revisa si tiene calificacion este objetivo: -->
+        <% myCal = @cals.select { |cal|  cal.goal == goal  }.first %>
+        <% if myCal.nil? %>
+        <br><br>
+        <% else %>
+        <br>
+        <% idDivEval = 'div_eval_' << goal.id.to_s %>
+        <div class="alert alert-success" style="width:378px;margin-left:5%;margin-bottom:10px;padding: 5px 15px 5px 15px;" id="<%= idDivEval %>">
+          <label>Calificación actual:</label>
+          Importancia: <% if myCal.importance == 0 %>  N/A  <% else %> <%= myCal.importance %> <% end %>
+          , Desempeño: <% if myCal.performance == 0 %>  N/A  <% else %> <%= myCal.performance %> <% end %>
+        </div>
+        <% end %>
+        <!-- Renderiza sus hijos tambien: -->
+        <% hijos = @especificos.select{|esp| esp.parent_id == goal.id} %>
+        <% @especificos = @especificos - hijos %>
+
+        <% hijos.each do |hijo| %>
+        <p style="margin-left:5%;color:#AAA;"><i>- <%= hijo.description %> </i>
+        <% end %>
+
+      </div>
+        
+      <% end %>
+
+    <% end %>
+
+  <% end %>
+
+</div>
+
+<div id="it_goals" style="display:none;border:solid 1px #DDD;min-height:500px;padding:10px;overflow:auto;">
+  <!--  Agrupa por dimension: -->
+  <% @it_dims.each do |dim| %>
+  <div class="alert alert-info">
+    <span style="text-align:center;font-size:18px;">
+      Dimensión: <%= dim %>
+    </span>
+  </div>
+    <% temp_goals = @itGoals.select { |goal|  goal.dimension == dim  } %>
+    <% @itGoals = @itGoals - temp_goals %>
+    <% if temp_goals.size == 0 %>
+    <p>No existen objetivos de TI bajo esta dimensión.</p>
+    <% else %>
+      <% temp_goals.each do |goal| %>
+      <% 
+       idGoal = 'eval' << goal.id.to_s 
+       idNew = 'add' << goal.id.to_s 
+       idDiv = 'div' << goal.id.to_s
+       idDesc = 'desc' << goal.id.to_s
+      %>  
+
+      <div style="width:100%;" id="<%= idDiv %>">
+        <div style="float:left;width:2%;">
+          <img src="/assets/evaluate.png" style="margin-right:3px;cursor:pointer;" id="<%= idGoal %>" class="eval" title="Evaluar objetivo">
+        </div>
+        <div style="float:left;width:2%;">
+          <img src="/assets/list_option.png" style="margin-right:3px;cursor:pointer;" id="<%= idNew %>" class="new" title="Agregar un nuevo objetivo específico con este objetivo como padre.">
+        </div>
+        <div style="float:left;width:95%;margin-left:1%;" id="<%= idDesc %>">
+          <%= goal.description %>
+        </div>
+        <!-- Revisa si tiene calificacion este objetivo: -->
+        <% myCal = @cals.select { |cal|  cal.goal == goal  }.first %>
+        <% if myCal.nil? %>
+        <br><br>
+        <% else %>
+        <br>
+        <% idDivEval = 'div_eval_' << goal.id.to_s %>
+        <div class="alert alert-success" style="width:378px;margin-left:5%;margin-bottom:10px;padding: 5px 15px 5px 15px;" id="<%= idDivEval %>">
+          <label>Calificación actual:</label> 
+          Importancia: <% if myCal.importance == 0 %>  N/A  <% else %> <%= myCal.importance %> <% end %>
+          , Desempeño: <% if myCal.performance == 0 %>  N/A  <% else %> <%= myCal.performance %> <% end %>
+        </div>
+        <% end %>
+
+        <!-- Renderiza sus hijos tambien: -->
+        <% hijos = @especificos.select{|esp| esp.parent_id == goal.id} %>
+        <% @especificos = @especificos - hijos %>
+
+        <% hijos.each do |hijo| %>
+        <p style="margin-left:5%;color:#AAA;"><i>- <%= hijo.description %> </i>
+        <% end %>
+
+      </div>
+        
+      <% end %>
+
+    <% end %>
+
+  <% end %>
+</div>
+
+<!-- Dialogo para evaluar el objetivo -->
+<div id="dialog" title="Evaluación del objetivo">
+  <!-- Presenta el detalle del objetivo: -->
+  <p style="font-size:12px;" id="txt_goal"><i></i></p> <!-- Descripcion -->
+  <hr style="margin:7px 0 7px 0;">
+ 
+  <div>
+    <label style="width:30%;font-weight:normal;font-size:12px;">IMPORTANCIA:</label>
+    <select id="importance" style="width:40%;font-size:12px;">
+      <optgroup style="font-size:12px;">
+        <option value="0">NO APLICA</option>
+        <option value="1">1 (Ninguna)</option>
+        <option value="2">2 (Baja)</option>
+        <option value="3">3 (Media)</option>
+        <option value="4">4 (Alta)</option>
+        <option value="5">5 (Muy Alta)</option>
+      </optgroup>
+    </select>
+  </div>
+
+  <div style="margin-top:25px;">
+    <label style="width:30%;font-weight:normal;font-size:12px;">DESEMPEÑO:</label>
+    <select id="performance" style="width:40%;font-size:12px;">
+      <optgroup style="font-size:12px;">
+        <option value="0">NO APLICA</option>
+        <option value="1">1 (Ninguno)</option>
+        <option value="2">2 (Bajo)</option>
+        <option value="3">3 (Medio)</option>
+        <option value="4">4 (Alto)</option>
+        <option value="5">5 (Muy Alto)</option>
+      </optgroup>
+    </select>
+  </div>
+
+</div>
+
+
+
+<% end %>
+

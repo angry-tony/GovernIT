@@ -1,0 +1,38 @@
+<%
+myEst = structure # Estructura actual
+myLvl = nivel # Nivel de profundidad -> Para las margenes
+margin = myLvl * 35
+id = 'par' << myEst.id.to_s
+id_img = 'img' << myEst.id.to_s 
+id_span = 'span' << myEst.id.to_s
+id_edit = 'update' << myEst.id.to_s
+hijos = myEst.hijas
+
+
+# Dibuja la estructura actual:
+%>
+
+<p id="<%= id %>" style="margin:0 0 0 <%= margin %>px;">
+	<img src="/assets/list_option.png" title="Add a new governance structure, under the hierarchy of this governance structure" style="margin-right:6px;cursor:pointer;" class="new_est" id="<%= id_img %>">[<%= myEst.structure_type%>] - <%= myEst.name %> <span id="<%= id_span %>" class="tool" style="color:#428bca;cursor:pointer;">| Responsabilities</span> <span id="<%= id_edit %>" class="update" style="color:#428bca;cursor:pointer;">| Edit</span>
+</p>
+<%
+funcs = ''
+myEst.governance_responsabilities.each do |gr|
+	funcs+= gr.name << '|'
+end
+
+if funcs == ''
+	funcs = "This governance structure has no defined responsabilities."
+end
+
+# Dibuja los hijos, si los hay:
+if hijos.size > 0
+	# Aumenta el nivel:
+	myLvl+= 1
+	hijos.each do |h| %>
+		<%= render :partial => 'structure', :locals => {:structure => h, :nivel => myLvl} %>
+	<% end
+	
+end
+
+%>

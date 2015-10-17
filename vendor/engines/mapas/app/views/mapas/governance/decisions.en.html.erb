@@ -1,0 +1,600 @@
+<script>
+
+// ACTUALIZA LAS DECISIONES SEGÚN EL CAMBIO DE LA DIMENSIÓN:
+$(document).on('change', "select.editDim", function() {
+	var id = this.id;
+	id = id.replace("selEditDim_", "").trim(); 
+	var dim = $("#selEditDim_"+id+ "> option:selected").text();
+	// Obtiene la información de las decisiones de dicha dimension:
+	$.post('./get_decisions_by_dim', {'dim' : dim, 'me' : id}, function(data)
+    {
+    	var html= 
+    	'<option value="NA">None</option>';
+
+    	for (var i = 0; i < data.length; i++) 
+    	{
+    		html+= '<option value="'+ data[i].id +'">' + data[i].description + '</option>';
+    	};
+
+    	// Actualiza el valor del select de dimensiones:
+    	$("#selEditPadre_"+id).html(html);
+    
+    });
+	
+});
+
+// DESCARTAR EDICIÓN:
+$(document).on('click', "img.discard", function() {
+	var id = this.id;
+	id = id.replace("discard", "").trim(); 
+	// Elimina todo el div:
+	$("#div_edit_"+id).remove();
+});
+
+// GUARDAR CAMBIOS DE EDICIÓN:
+$(document).on('click', "img.update", function() {
+	var id = this.id;
+	id = id.replace("update", "").trim(); 
+
+	// Obtiene los nuevos valores:
+	var newDesc  = $("#inputEditDesc_"+id).val();
+	var newDim   = $("#selEditDim_"+id+"> option:selected").text();
+	var newPadre = $("#selEditPadre_"+id+"> option:selected").val();
+	var html; var idPadre; var margen;
+
+	// Realiza la actualización via AJAX:
+   	$.post('./update_decision', {'id' : id, 'newDesc' : newDesc, 'newDim' : newDim, 'newPadre' : newPadre}, function(data)
+    {
+    	if (data.id != null) 
+    	{
+    		// Actualización exitosa:
+    		// Elimina el div de actualizacion:
+    		$("#div_edit_"+id).remove();
+    		// Elimina el <p> de la decision original, pues será reubicado:
+    		$("#par"+id).remove();
+    		// Crea el nuevo <p>, con la información actualizada para su reubicación:
+    		if (data.parent_id == null) 
+    		{
+    			// GENERICA:
+    			// Inserta el registro después de su dimension:
+    			idPadre = 'div_dim_' + data.dimension.toLowerCase().trim().substring(0,4);
+	    		html = '<p id="par' + data.id + '"  title="Add a new specific decision under this generic decision">' + 
+	    		'<img src="/assets/list_option.png" style="margin-right:6px;cursor:pointer;" class="new_dec" id="img' + data.id + '">'+
+	    		data.description + '<span id="update'+ data.id +'" class="update"'+ 
+	    		    'style="color:#428bca;cursor:pointer;" title="Edit"> | Edit</span>'+
+	    		    '<span id="delete'+data.id+'" class="delete" style="color:#428bca;cursor:pointer;" title="Delete decision"> | Delete</span>'+
+	    		    '<span style="color:green;font-weight:bold;">' +' UPDATED!</span></p>';
+
+	    		$(html).insertAfter("#"+idPadre);
+
+    		} 
+    		else
+    		{
+    			// ESPECIFICA:
+    			// Inserta el registro después de su padre:
+	    		idPadre = 'par' + data.parent_id;
+	    		// Obtiene la margen del padre:
+	    		margen = $("#"+idPadre).css("margin-left");
+	    		// Le agrega 5 px, para construir el arbol:
+	    		margen = parseInt(margen.replace("px", "").trim()) + 35;
+
+	    		html = '<p id="par' + data.id + '" style="margin-left:'+ margen +'px;" title="Add a new specific decision under this generic decision">' + 
+	    		'<img src="/assets/list_option.png" style="margin-right:6px;cursor:pointer;" class="new_dec" id="img' + data.id + '">'+
+	    		data.description + '<span id="update'+ data.id +'" class="update"'+ 
+	    		    'style="color:#428bca;cursor:pointer;" title="Edit"> | Edit</span>'+
+	    		    '<span id="delete'+data.id+'" class="delete" style="color:#428bca;cursor:pointer;" title="Delete decision"> | Delete</span>'+
+	    		    '<span style="color:green;font-weight:bold;">' +' UPDATED!</span></p>';
+
+	    		$(html).insertAfter("#"+idPadre);
+    		};
+    	} 
+    	else
+    	{
+    		// ERROR:
+    		$("#div_edit_"+id).attr("class", "alert alert-danger");
+    	};
+    });
+
+
+});
+
+
+// EDITAR DECISIÓN:
+$(document).on('click', "span.update", function() {
+	var id = this.id; // update+ID Decision
+	id = id.replace("update", "").trim(); // -> ID Decision
+	var desc; var dim; var padre; var antEdit;
+	var idPar = "par" + id; // ID del parrafo, inserta contenido después de él
+	var margen = $("#"+idPar).css("margin-left").replace("px","").trim();
+	margen = parseInt(margen) + 35;
+	// Obtiene la información de la decision vía AJAX:
+	$.post('./get_decision', {'id' : id}, function(data)
+    {
+    	desc = data.description;
+    	dim = data.dimension;
+    	padre = data.parent_id;
+
+    	// Obtiene las demás decisiones de dicha dimension
+    	$.post('./get_decisions_by_dim', {'dim' : dim, 'me' : id}, function(data)
+        {
+        	// Genera el div de edicion, si no había uno antes (de creación o edición):
+       		// Es una decisión generica
+      		antEdit = document.getElementById("div_edit_"+ id);
+       		// Sólo crea el div de edición, si no había uno antes:
+       		if (antEdit == null) 
+       		{
+       			var html = 
+       			'<div class="alert alert-success" style="height:80px;padding:15px;font-size:12px;margin-left:'+margen+'px;" id="div_edit_'+ id +'">'+
+					'<div style="float:left;width:50%;">'+
+						"<span style='font-size:14px;'>Decision's description: &nbsp;</span> <br>"+
+						'<input type="text" style="width:90%;height:30px;border:none;" value="'+ desc +'" id="inputEditDesc_'+id+'">'+
+					'</div>'+
+					
+					'<div style="float:left;width:20%;">'+
+						'<span style="font-size:14px;"> Dimension: </span><br>'+
+						'<select style="width:90%;height:30px;" id="selEditDim_'+ id +'" class="editDim">';
+
+						if (dim == '<%= DIM_DEC_1 %>') { html+= '<option selected value="1"><%= translateDimension(DIM_DEC_1) %></option>';} 
+						else{html+= '<option value="1">IT Principles</option>';};
+
+						if (dim == '<%= DIM_DEC_2 %>') { html+= '<option selected value="2"><%= translateDimension(DIM_DEC_2) %></option>';} 
+						else{html+= '<option value="2">IT Architecture</option>';};
+
+						if (dim == '<%= DIM_DEC_3 %>') { html+= '<option selected value="3"><%= translateDimension(DIM_DEC_3) %></option>';} 
+						else{html+= '<option value="3">Infrastructure</option>';};
+
+						if (dim == '<%= DIM_DEC_4 %>') { html+= '<option selected value="4"><%= translateDimension(DIM_DEC_4) %></option>';} 
+						else{html+= '<option value="4">IT Applications</option>';};
+
+						if (dim == '<%= DIM_DEC_5 %>') { html+= '<option selected value="5"><%= translateDimension(DIM_DEC_5) %></option>';} 
+						else{html+= '<option value="5">Investment and Prioritization</option>';};
+
+     					if (dim == '<%= DIM_DEC_6 %>') { html+= '<option selected value="6"><%= translateDimension(DIM_DEC_6) %></option>';} 
+						else{html+= '<option value="6">Pending for classification</option>';};
+
+						html+= 
+						'</select>'+
+					'</div>'+
+					
+					'<div style="float:left;width:20%;">'+
+						'<span style="font-size:14px;">Father decision: </span> <br>'+
+						'<select style="width:90%;height:30px;" id="selEditPadre_'+id+'">'+
+							'<option value="NA">None</option>';
+
+							for (var i = 0; i < data.length; i++) 
+							{
+								html+= '<option value="'+data[i].id + '"';
+								if (padre == data[i].id) 
+								{
+									html+= ' selected >';
+								}
+								else
+								{
+									html+= '>'
+								};
+
+								html+= data[i].description + '</option>';
+
+							};
+
+							html+=
+						'</select>'+
+					'</div>'+
+						
+					'<div style="float:left;width:10%;">'+
+						'<br>'+
+						'<img src="/assets/trash.png" align="right" style="margin:0 15px 0 15px;cursor:pointer;" class="discard" id="discard'+ id +'" title="Discard edition">'+
+						'<img src="/assets/save.png" align="right" style="margin:0 0 0 5px;cursor:pointer;" class="update" id="update'+ id +'" title="Save changes">'+
+					'</div>'+
+				'</div>';
+
+			    $(html).insertAfter("#"+idPar);
+       		};
+        });
+    });
+});
+
+
+
+
+
+
+
+$( document ).ready(function() {	
+
+	var divExiste = document.getElementById("instantiate");
+	if (divExiste != null) 
+	{
+		$( "#dialog-instantiate" ).dialog({
+		    autoOpen: false,
+		    resizable: false,
+		    modal: true,
+		    buttons: {
+		      "Load decisions": function() 
+		      {
+		      	$(this).html('<span style="color:blue;"><img src="<%= LOADING_GIF %>" > Loading and instantiating decisions...</span>');
+		        $("#instantiate_form").submit();
+		      },
+		      "Cancel": function() {
+		        $(this).dialog( "close" );
+		        // Elimina el contenido de la instanciacion:
+		        $("#instantiate").remove();
+		      }
+		    }
+		  });
+
+		$("#dialog-instantiate").dialog("option", "width", 450);
+		$("#dialog-instantiate").dialog("option", "height", 230);
+		$("#dialog-instantiate").dialog("open");
+	};
+
+
+	// Agregar decisiones genéricas:
+	$(".new_dec_gen").click(function(){
+		var id = this.id; // ID del span del div al que se hizo click, inserta contenido después de él -> span_dim_[aplic]
+		id = id.replace("span", "div").trim(); // -> div_dim_[aplic]
+		var dim = id.split("_")[2].trim();
+
+		// Sólo lo agrega, si no hay uno antes:
+	    var anterior = document.getElementById("div_"+dim);
+
+	    if (anterior == null) 
+	    {
+	    	var html = '<div class="alert alert-info" style="color:#333;background-color:#eeeeee;border-color:#cacaca;"' +
+		           " id='div_"+ dim +"'>Generic decision's description: &nbsp;" +
+		           '<br><input type="text" style="width:90%;height:30px;border:none;font-size:12px;"' + 
+		           'id="new_' + dim + '">'+
+		           '<img src="/assets/trash.png" align="right" style="margin:0 15px 0 15px;cursor:pointer;"'+
+		           ' class="del_new_gen" id="del_'+ dim + '" title="Discard">' +
+		           '<img src="/assets/save.png" align="right" style="margin:0 0 0 5px;cursor:pointer;"'+
+		           ' class="add_new_gen" id="add_'+ dim + '" title="Save"></div>';
+
+		    $(html).insertAfter("#"+id);
+
+	    };
+
+	});
+
+});
+
+// DESCARTAR ESPECIFICA:
+$(document).on('click', "img.del_new", function() {
+	var id = this.id;
+	id = id.replace("del", "div"); // -> div_par1_1
+	// Elimina todo el div:
+	$("#"+id).remove();
+});
+
+// DESCARTAR GENERICA:
+$(document).on('click', "img.del_new_gen", function() {
+	var id = this.id;
+	id = id.replace("del", "div"); // -> div_par1
+	// Elimina todo el div:
+	$("#"+id).remove();
+});
+
+// ELIMINAR DECISIÓN:
+$(document).on('click', "span.delete", function() {
+	var id = this.id;
+	id = id.replace("delete", "").trim(); 
+	var confirmable = false;
+
+	$.post('./get_info_to_delete', {'idDec' : id}, function(data)
+    {
+    	// Consulta que más se borrará en caso de aceptar:
+		// Decisiones hijas[1], detalles de mapas[2] y hallazgos[3]:
+		var html = '<p>Do you really want to delete the following decision? </p><span style="color:green;font-weight:bold;font-size:12px;">' + data[0] + '</span><br>';
+
+		if (data[1] != '0' || data[2] != '0' || data[3] != '0') 
+		{
+			confirmable = true;
+			html+= '<p style="margin-top:10px;">Its elimination also will cause the elimination of the following information: </p>';
+			if (data[1] != '0') 
+			{
+				html+= '<span style="color:green;font-weight:bold;font-size:12px;">Derived decisions: '+data[1]+'</span><br>';
+			};
+			if (data[2] != '0') 
+			{
+				html+= '<span style="color:green;font-weight:bold;font-size:12px;">Detail records on decision maps: '+data[2]+'</span><br>';
+			};
+			if (data[3] != '0') 
+			{
+				html+= '<span style="color:green;font-weight:bold;font-size:12px;">Derived findings on decision maps: '+data[3]+'</span><br>';
+			};
+		};
+
+
+		$("#dialog-confirm").html(html);
+		$("#dialog-confirm").dialog("option", "width", 450);
+		$("#dialog-confirm").dialog("option", "height", 400);
+		// Pasa el id del riesgo, como parametro al dialogo:
+		$("#dialog-confirm").data('idDecision', id);
+		$("#dialog-confirm").data('confirmable', confirmable);
+		$("#dialog-confirm").dialog("open");
+
+    });
+	
+	
+});
+
+
+// AGREGAR ESPECIFICA:
+$(document).on('click', "img.new_dec", function() {
+	var id = this.id; // ID de la imagen del parrafo al que se hizo click, inserta contenido después de él
+	var idGen = id.replace("img", "").trim();
+	id = id.replace("img", "par");
+	var margen = $("#"+id).css("margin-left").replace("px","").trim();
+	margen = parseInt(margen) + 35;
+
+	var anterior = document.getElementById("div_"+idGen);
+	if (anterior == null) 
+	{
+		var html = '<div class="alert alert-info" style="margin-left:'+ margen +'px;color:#333;background-color:#eeeeee;border-color:#cacaca;"' +
+	           " id='div_"+ idGen +"'> Decision's description "+
+	           ' (Other attributtes, such as dimension, will be taken from the generic decision): &nbsp;'+
+	           '<br><input type="text" style="width:90%;height:30px;border:none;font-size:12px;" name="'+ 
+	           'new_' + idGen + '" id="new_' + idGen + '">'+
+	           '<img src="/assets/trash.png" align="right" style="margin:0 15px 0 15px;cursor:pointer;"'+
+	           ' class="del_new" id="del_'+ idGen + '" title="Discard">' +
+	           '<img src="/assets/save.png" align="right" style="margin:0 0 0 5px;cursor:pointer;"'+
+	           ' class="add_new" id="add_'+ idGen + '" title="Save"></div>';
+
+		           
+        $(html).insertAfter("#"+id);
+
+	};
+
+});
+
+
+
+// GUARDAR ESPECIFICA:
+$(document).on('click', "img.add_new", function() {
+	var id = this.id; // Original -> add_par1_1
+	var idDiv = id.replace("add", "div"); // -> div_par1_1
+	var idInput = id.replace("add", "new"); // new_par1_1
+	var desc = $("#"+idInput).val();
+	var idPadre = id.split("_")[1].replace("par","").trim(); 
+	// Realiza la petición AJAX:
+	
+	var html = ''; var margen = 0; var funcion = '';
+	// Envia una peticion AJAX para obtener el texto de la implicacion:
+    $.post('./add_specific', {'description' : desc, 'id_padre' : idPadre}, function(data)
+    {
+    	
+    	// En data viene la decision recien creada:
+    	if (data.id != null) 
+    	{
+    		// OK - Creado con éxito, elimina el div que lo contenía:
+    		$("#"+idDiv).remove();
+    		// Inserta el registro después de su padre:
+    		idPadre = 'par' + data.parent_id;
+    		// Obtiene la margen del padre:
+    		margen = $("#"+idPadre).css("margin-left");
+    		// Le agrega 5 px, para construir el arbol:
+    		margen = parseInt(margen.replace("px", "").trim()) + 35;
+    		funcion = '<img src="/assets/list_option.png" style="margin-right:6px;cursor:pointer;" class="new_dec" id="img' + data.id + '">';
+
+
+    		html = '<p id="par' + data.id + '" style="margin-left:'+ margen +'px;" title="Add a new specific decision under this generic decision">' + funcion + data.description + '<span id="update'+ data.id +'" class="update"'+ 
+    		    'style="color:#428bca;cursor:pointer;" title="Edit"> | Edit</span>'+
+    		    '<span id="delete'+data.id+'" class="delete" style="color:#428bca;cursor:pointer;" title="Delete decision"> | Delete</span>'+
+    		    '<span style="color:green;font-weight:bold;">' +' SAVED!</span></p>';
+
+    		$(html).insertAfter("#"+idPadre);
+    	} 
+    	else
+    	{
+    		// Informa el error:
+    		$("#"+idDiv).attr("class", "alert alert-danger");
+    		$('<p style="color:red;">ERROR: Saving the record. Verify the entered information.</p>').insertAfter("#"+idInput);
+    	};
+    });
+
+
+});
+
+// GUARDAR GENERICA:
+$(document).on('click', "img.add_new_gen", function() {
+	var id = this.id; // Original -> add_[dim]_[cont]
+	var dim = id.split("_")[1].trim();
+	var idDiv = id.replace("add", "div"); // -> div_par1_1
+	var idInput = id.replace("add", "new"); // new_par1_1
+	var idPar = 'par_' + dim;
+	var desc = $("#"+idInput).val();
+	var dimension = $("#"+idPar).text().replace("Dimensión: ", "").trim(); // par_[dim]
+	dimension = dimension.replace("[+]","").trim();
+	// Realiza la petición AJAX:
+	
+	var html = ''; 
+	// Envia una peticion AJAX para obtener el texto de la implicacion:
+    $.post('./add_generic', {'description' : desc, 'dimension' : dimension}, function(data)
+    {
+    	
+    	// En data viene la decision recien creada:
+    	if (data.id != null) 
+    	{
+    		// OK - Creado con éxito, elimina el div que lo contenía:
+    		$("#"+idDiv).remove();
+    		// Inserta el registro después de su dimension:
+    		idPadre = 'div_dim_' + dim;
+    		funcion = '<img src="/assets/list_option.png" style="margin-right:6px;cursor:pointer;" class="new_dec" id="img' + data.id + '">';
+
+    		html = '<p id="par' + data.id + '"  title="Add a new specific decision under this generic decision">' + funcion + data.description + '<span id="update'+ data.id +'" class="update"'+ 
+    		    'style="color:#428bca;cursor:pointer;" title="Edit"> | Edit</span>'+
+    		    '<span id="delete'+data.id+'" class="delete" style="color:#428bca;cursor:pointer;" title="Delete decision"> | Delete</span>'+
+    		    '<span style="color:green;font-weight:bold;">' +' SAVED!</span></p>';
+
+    		$(html).insertAfter("#"+idPadre);
+    	} 
+    	else
+    	{
+    		// Informa el error:
+    		$("#"+idDiv).attr("class", "alert alert-danger");
+    		$('<p style="color:red;">ERROR: Saving the record. Verify the entered information.</p>').insertAfter("#"+idInput);
+    	};
+    });
+
+
+});
+
+</script>
+
+<script>
+
+$(function() {
+  $( "#dialog-confirm" ).dialog({
+    autoOpen: false,
+    resizable: false,
+    modal: true,
+    buttons: {
+      "Delete": function() 
+      {
+      	// Valida si es la pantalla inicial o la confirmacion:
+      	var debeConfirmar = $("#dialog-confirm").data('confirmable');
+
+      	if (!debeConfirmar) 
+      	{
+      		// Puede borrarla de una!
+      		// Debe borrar el riesgo, en cascada, es decir borra tambien sus calificaciones, y la de su padre:
+	        var idDecision = $("#dialog-confirm").data('idDecision');
+	        $.post('./delete_decision', {'idDecision' : idDecision}, function(data)
+	    	{
+	    		// En data viene un arreglo con los ids de las decisiones que fueron borradas, para eliminarlas del listado:
+	    		for (var i = 0; i < data.length; i++) 
+	    		{
+	    			$("#par"+data[i]).html('<span style="color:red;font-size:12px;">Deleted record!</span>');
+	    			// Al cabo de 5 segundos lo remueve:
+	    			setTimeout( "jQuery('#par"+data[i]+"').remove();" , 3000 );
+	    		};
+
+	    		// Elimina el contenido del dialogo
+		        $("#dialog-confirm").dialog( "close" );
+		        $("#dialog-confirm").html("");
+
+	    	});
+      	} 
+      	else
+      	{
+      		// Construye el texto de re-confirmación:
+      		var html = $("#dialog-confirm").html() + "<br><span style='color:red;font-size:16px;'>Do you really want to confirm the elimination (this operation CAN'T be undone)? : </span><br>";
+
+      		$("#dialog-confirm").html(html);
+
+      		$("#dialog-confirm").dialog("option", "title", "Are you sure do you want to proceed with the removal?");
+      		$("#dialog-confirm").data('confirmable', false);
+      	};
+        
+      },
+      "Cancel": function() {
+        $(this).dialog( "close" );
+        // Elimina el contenido del dialogo:
+        $("#dialog-confirm").html("");
+      }
+    }
+  });
+});
+
+</script>
+
+<style>
+
+td
+{
+	border-right:solid 1px #DDD;
+	padding:4px;
+}
+
+tr
+{
+	border: solid 1px #DDD;
+	padding: 4px;
+}
+
+th
+{
+	background-color: #d9edf7;
+	border-right:solid 1px #bce8f1;
+	color: #31708f;
+	padding:4px;
+	font-weight: normal;
+}
+
+
+
+
+
+
+</style>
+
+<div>
+	<ol class="breadcrumb">
+		<li><%= link_to "Home", main_app.inicio_inicio_path %></li>
+		<li class="active">[<%= @empresa.name %>] IT Governance - Decisions</li>
+	</ol>
+</div>
+
+
+<div style="width:100%;min-height:500px;">
+	<!-- Crear nuevas decisiones específicas -->
+	<div>
+		<h2>Decisions:</h2>
+		<!-- F3: Decisión Específica En Masa-->
+		<div style="width:100%;padding:15px;border:1px solid #DDD;"> 
+			<p>Below are presented generic and specific decisions, separated by their dimension:</p>
+			<% # Ciclo 1: DIMENSION: %>
+			<% @dims.each do |dim| %>
+			<%
+			   id = 'div_dim_' << dim.downcase[0..3]
+			%>
+			<div class="alert alert-info" id="<%= id %>">
+				<% id_span = 'span_dim_' << dim.downcase[0..3] 
+				   id_par = 'par_' << dim.downcase[0..3] %>
+				<p style="font-size:18px;" id="<%= id_par %>"><span title="Add a new generic decision under this dimension" style="cursor:pointer;margin-right:15px;" class="new_dec_gen" id="<%= id_span %>">[+]</span>Dimension: <%= translateDimension(dim) %></p>
+			</div>
+			  <% # Ciclo 2: GENERICAS: %>
+			  <% gens = @genericas.select {|g| g.dimension == dim} 
+			     @genericas = @genericas - gens # Depura el arreglo de genericas %>
+			  <% gens.each do |gen| %>
+			     <%= render :partial => 'decision', :locals => {:decision => gen, :nivel => 0} %>
+			  <% end %> <!-- Cierra Ciclo 2 -->
+			<% end %> <!-- Cierra Ciclo 1 -->			
+		</div>
+		<!-- Cierra F3 -->
+	</div>
+</div>
+
+<!-- Dialogo para confirmar la eliminación de una decisión -->
+<div id="dialog-confirm" title="Decision Elimination Confirmation">
+</div>
+
+
+<!-- Si la empresa no tiene decisiones genericas, genera un dialogo para que pueda instanciar un grupo -->
+<% if !@tieneDecisiones %>
+<div id="instantiate">
+
+	<div id="dialog-instantiate" title="Intantiate generic decisions" style="display:none;">
+		<p>The enterprise: <%= @empresa.name %> doesn't have created decisions in the system, do you want to load a group of generic decision provided by InvestIT?</p>
+	</div>
+
+	<%= form_tag( "./instantiate_decisions" , method: "post", id: "instantiate_form") do %>
+	<% end %>
+
+</div>
+
+<% end %>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,32 @@
+Which one is the desirable Operational Model of the organization?|Principios de TI
+How IT will support the Operational Model?|Principios de TI
+Define the desirable behavior of IT in the business, of the IT professionals and users|Principios de TI
+How IT will be financed?|Principios de TI
+Define and educate executives about IT strategy|Principios de TI
+Define principles for each architectural domain|Arquitectura de TI
+Define and guarantee the logical organization of data, applications and infrastructure|Arquitectura de TI
+Define politics, relationships and technical options in order to reach the desired standarization and integration of business and IT|Arquitectura de TI
+Which processes should be supported with IT?|Arquitectura de TI
+What information guides this processes and how it should be integrated?|Arquitectura de TI
+What technical capacities should be standardized across the organization to support IT efficiently and to facilitate the process standardization and integration?|Arquitectura de TI
+What activities should be standardized across the organization?|Arquitectura de TI
+What technological elections will guide the way the organization attacks IT initiatives?|Arquitectura de TI
+What infrastructure services are critical to achieve the organization's strategic goals?|Infraestructura
+What infrastructure services should be implemented across the organization and what service levels it requires?|Infraestructura
+What should be the cost structure of the infrastructure services?|Infraestructura
+What is the updating plan of the technological infrastructure?|Infraestructura
+What infrastructure services should be outsourced?|Infraestructura
+Specify the applications' needs to buy or development?|Aplicaciones de TI
+Coordinate IT demand/portfolio|Aplicaciones de TI
+Training and education|Aplicaciones de TI
+Change management|Aplicaciones de TI
+What are the market and business opportunities for new business applications?|Aplicaciones de TI
+How will be the success' assessment of experiments/applications?|Aplicaciones de TI
+How will be the relevance's assessment of an architectural exception?|Aplicaciones de TI
+Who is the owner of each project's results?|Aplicaciones de TI
+Who is in charge of implementing the required change management to guarantee value?|Aplicaciones de TI
+Choose initiatives to be financed|Inversión y Priorización
+Define criteria to reconcile different local and global IT investment needs|Inversión y Priorización
+What are the strategic processes' changes or improvements for the organization?|Inversión y Priorización
+What is the AS-IS and TO-BE IT portfolio distribution? Are these portfolios consistent with the organization's strategic goals?|Inversión y Priorización
+What is the relative importance of transversal investments against local investments? Is this importance reflected on current investment practices?|Inversión y Priorización

@@ -1,0 +1,114 @@
+<%
+
+myDec = decision
+myDivs = divs # Número de <td>, por los arquetipos
+hijos = darHijosD(myDec)
+myLvl = lvl
+
+%>
+
+<% # Renderiza la decision: %>
+
+<tr>
+	<% idSpan = 'span_' << myDec.id.to_s %>
+	<% classTd = 'cell_finding' %>
+	<% classSpan = 'span_finding' %>
+	<% if myLvl > 0 # Debe enfatizar la jerarquia: %>
+	    <% margen = myLvl * 15 %> 
+		<td style="background-color:#f5f5f5;border:solid 1px #cacaca;width:30%;" class="<%= classTd %>">
+			<div style="width:100%;text-align:right;">
+				<% if (current_user.has_role? ROLE_ADMIN) || (current_user.has_role? ROLE_EVAL) || (current_user.has_role? ROLE_USER_GOV) %>
+				<span id="<%= idSpan %>" class="<%= classSpan %>" style="color:#428bca;cursor:pointer;margin:3px 0 3px 0;"></span>
+				<% end %>
+			</div>
+			<div>
+				<img src="/assets/right.png" style="margin-left:<%= margen %>px;"> <%= myDec.description %>
+			</div>
+		</td>
+	<% else %>
+		<td style="background-color:#f5f5f5;border:solid 1px #cacaca;" class="<%= classTd %>">
+			<div style="width:100%;text-align:right;">
+				<% if (current_user.has_role? ROLE_ADMIN) || (current_user.has_role? ROLE_EVAL) || (current_user.has_role? ROLE_USER_GOV) %>
+				<span id="<%= idSpan %>" class="<%= classSpan %>" style="color:#428bca;cursor:pointer;margin:3px 0 3px 0;"></span>
+				<% end %>
+			</div>
+			<div>
+				<%= myDec.description %>
+			</div>
+		</td>
+	<% end %>
+
+	<% for i in 1..myDivs # i: ID del tipo de responsabilidad %>
+	<% seleccionadas = @details.select { |d|  d.governance_decision.id == myDec.id && d.responsability_type == @resps[i-1] }     %>
+	<% idCell = 'cell_' << myDec.id.to_s << '_' << i.to_s %>
+	<% idSpan = 'span_' << myDec.id.to_s << '_' << i.to_s %>
+	<% idInput = 'input_' << myDec.id.to_s << '_' << i.to_s %>
+	<% classSpan = 'cell_span' %>
+	<% classCell = 'cell_map' %>
+	<% ids = '' %>
+	<!-- Si se está tratando la última columna, cambia la clase del span -->
+	<%
+	   if i == myDivs
+
+	   	# Última columna, para agregar mecanismos complementarios:
+	   	classSpan = 'lastSpan'
+	   	classCell = 'lastCell'
+	   	# El input no interesa:
+	   	idInput = ''
+	   	# Tampoco hay seleccionadas como estructuras, los hay como mecanismos:
+	   	mech = seleccionadas.first
+	   	if !mech.nil?
+	   		mechs = mech.complementary_mechanisms
+	   		if !mechs.nil? && mechs != ''
+		   		# Hay mecanismos cargados
+		   		loadedMechs = mechs.split("|")
+	   	    end
+	   	end
+
+	   end
+
+	%>
+
+
+
+
+	<td class="<%= classCell %>" id="<%= idCell %>">
+		<span id="<%= idSpan %>" class="<%= classSpan %>" style="color:#428bca;cursor:pointer;margin:3px 0 3px 0;text-align:center;">
+		</span>
+		<!-- Renderiza los mecanismos igual que las estructuras: -->
+		<% if !loadedMechs.nil? %>
+		    <% myMechs = Mapas::ComplementaryMechanism.where(id: loadedMechs) %>
+		    <% myMechs.each do |mech| %>
+		    <% idMech = 'mech' << mech.id.to_s %>
+		    	<p class="cell" id="<%= idMech %>"><i>- <%= mech.description %></i></p>
+		    <% end %>
+		<% else %>
+			<% seleccionadas.each do |sel| %>
+				<p class="cell"><i>- <%= sel.governance_structure.name %></i></p>
+				<% 
+				if ids == '' 
+					ids += sel.governance_structure.id.to_s
+				else
+					ids+= '|' + sel.governance_structure.id.to_s
+				end
+
+				%>
+			<% end %>
+			<input id="<%= idInput %>" name="<%= idInput %>" readonly hidden value="<%= ids %>">
+
+		<% end %>
+
+	</td>
+	<% end %>
+</tr>
+
+<% # Renderiza los hijos: %>
+
+<% if hijos.size > 0 %>
+<% myLvl = lvl + 1 %>
+
+	<% hijos.each do |h| %>
+		<%= render :partial => 'table_dec_2', :locals => {:decision => h, :divs => myDivs, :lvl => myLvl} %>
+	<% end %>
+
+<% end %>

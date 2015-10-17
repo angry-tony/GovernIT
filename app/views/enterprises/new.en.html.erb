@@ -1,0 +1,50 @@
+<% if current_user.has_role? ROLE_ADMIN %>
+
+	<h2>New Enterprise</h2>
+
+	<%= form_tag( "../enterprises/resultado", method: "post", multipart: true) do %>
+
+	<div style="width:100%;height:340px;">
+		<div style="width:45%;float:left;">
+			<p>Enterprise name:</p>
+			<div class="input-group">
+				<input type="text" class="form-control" name="nombre" style="width:350px;">
+			</div>
+			<br></br>
+			<p>Enterprise description:</p>
+			<div class="input-group">
+				<textarea rows="8" cols="44" class="form-control" name="desc" style="resize:none;"></textarea>
+			</div>
+		</div>
+
+		<div style="width:10%;float:left;">
+		</div>
+
+		<div style="width:45%;float:left;">
+			<p>Enterpise logo:</p>
+			<div class="input-group">
+				<input type="file" class="form-control" name="logo">
+			</div>
+		</div>
+	</div>
+
+
+
+	<div class="btn-group">
+		<button type="submit" class="btn btn-default" >Save</button>
+	</div>
+
+
+<% end %>
+
+<% else %>
+
+	<div class="alert alert-danger">
+		Unauthorized area!.
+	</div>
+
+	<div class="btn-group">
+	  <button type="button" class="btn btn-default" onclick="location.href='../inicio/inicio'">Home</button>
+	</div>
+
+<% end %>

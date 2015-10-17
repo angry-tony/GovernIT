@@ -1,0 +1,175 @@
+<script>
+
+$( document ).ready(function() {
+
+    var structures;
+	// Obtiene las estructuras desde el inicio, para sólo cargarlas una vez:
+	$.get('../governance/get_structures', function(data)
+	{
+		structures = data;
+	});
+
+	// Crear nuevo mapa:
+	$(".new_esc").click(function(){
+		// Despliega el div de creación, si no está desplegado ya:
+		var anterior = document.getElementById("div_create");
+		var html;
+		if (anterior == null) 
+		{
+			html = '<div class="alert alert-info" id="div_create" style="color:#333;background-color:#f5f5f5;border:solid 1px #cacaca;height:60px;">'+
+					'<div style="width:100%;height:100%;">'+
+						'<div style="width:45%;float:left;">'+
+							'<label style="font-weight:normal;margin-right:4px;">Nombre del escenario:</label>'+
+							'<input type="text" id="nameEsc" style="width:60%;">'+
+						'</div>'+
+						'<div style="width:45%;float:left;">'+
+							'<label style="font-weight:normal;margin-right:4px;">Estructura (que crea el escenario):</label>'+
+							'<select id="estEsc" style="width:50%;">'+
+							  '<option disabled selected value="N">Seleccione...</option>';
+
+							  for (var i = 0; i < structures.length; i++) 
+							  {
+							  	html+= '<option value="'+ structures[i].id +'">'+ structures[i].name +'</option>';
+							  };
+
+							html+= '</select>'+
+						'</div>'+
+						'<div style="width:10%;float:left;">'+
+							'<img src="/assets/trash.png" align="right" style="cursor:pointer;" class="del" title="Descartar">'+
+		     				'<img src="/assets/save.png" align="right" style="cursor:pointer;margin-right:15px;" class="add" title="Guardar">'+
+						'</div>'+
+					'</div>'+
+				'</div>';
+
+				// Lo agrega justo después del titulo:
+			$(html).insertAfter("#title");
+		};
+	});
+
+
+
+});
+
+
+// GUARDAR ESCENARIO DE RIESGO:
+$(document).on('click', "img.add", function() {
+	var name = $("#nameEsc").val();
+	var est = $("#estEsc option:selected").val();
+	var estName = $("#estEsc option:selected").text();
+
+	var html;
+	// Si alguna de las 2 es vacío, no deja guardar:
+	if (name == '' || est == 'N') 
+	{
+		// Elimina los bordes y color de fondo:
+		$("#div_create").css({'border-color': 'none',
+                              'background-color': 'none',
+                              'color': 'none'});
+
+		$("#div_create").attr("class", "alert alert-danger");
+	} 
+	else
+	{
+		// Crea el mapa via AJAX:
+	    $.post('./add_goal_escenario', {'name' : name, 'est' : est}, function(data)
+    	{
+    		if (data.id != null) 
+    		{
+    			// Creado con éxito, remueve el div de creación, y lo agrega en el listado:
+    			$("#div_create").remove();
+    			var idEsc = 'img' + data.id;
+    			html = 	'<p>'+
+		   					'<img src="/assets/edit.png" style="margin-right:6px;cursor:pointer;" id="'+ idEsc +'" class="edit"'+
+		   					'title="Editar escenario de evaluación de objetivos"> '+
+		   					'[' + estName +'] - '+ data.name + ' ' + 
+		   					'<span style="color:green;font-weight:bold;">' +' GUARDADO!</span>'+
+		   				'</p>';
+
+		   		// Remueve el aviso de no mapas, si existe:
+		   		if (document.getElementById("noEscenarios") != null) 
+		   		{
+		   			$("#noEscenarios").remove();
+		   		};
+
+		   		$(html).insertAfter("#title");
+    		} 
+    		else
+    		{
+    			// ERROR:
+    			// Elimina los bordes y color de fondo:
+				$("#div_create").css({'border-color': 'none',
+		                              'background-color': 'none',
+		                              'color': 'none'});
+
+				$("#div_create").attr("class", "alert alert-danger");
+    		};
+    	});
+
+	};
+});
+
+// DESCARTAR ESCENARIO DE RIESGO:
+$(document).on('click', "img.del", function() {
+	// Elimina el div de creacion:
+	$("#div_create").remove();
+});
+
+// EDITAR ESCENARIO DE RIESGO:
+$(document).on('click', "img.edit", function() {
+	// Obtiene el id del mapa:
+	var idEsc = this.id;
+	idEsc = idEsc.replace("img","").trim();
+	// lo pasa al input hidden:
+	$("#formIdEsc").val(idEsc);
+	// Y envia el formulario:
+	$("#edit_form").submit();
+});
+
+
+
+</script>
+
+<div>
+	<ol class="breadcrumb">
+		<li><%= link_to "Inicio", main_app.inicio_inicio_path %></li>
+		<li class="active">[<%= @empresa.name %>] Gobierno de TI - Escenarios de Evaluación de Objetivos</li>
+	</ol>
+</div>
+
+<% if flash[:notice] %>
+<div class="alert alert-info">
+	<p><%= flash[:notice] %></p>
+</div>
+<% end %>
+
+
+<!-- Escenarios de evaluación de riesgos -->
+<div>
+	<div>
+		<h2 id="title">
+			<span style="margin:0 10px 0 0;color:#333;font-size:22px;cursor:pointer;" class="new_esc">[+]</span>Escenarios de Evaluación de Objetivos:
+		</h2>
+		<% if @escs.size == 0 %>
+		<div class="alert alert-info" id="noEscenarios">
+		No hay escenarios de evaluación de objetivos en el sistema, para la empresa: <%= @empresa.name %>.
+		</div>
+		<% else %>
+		   <% @escs.each do |esc| %>
+		   <% idEsc = 'img' << esc.id.to_s %>
+		   <p>
+		   	<img src="/assets/edit.png" style="margin-right:6px;cursor:pointer;" id="<%= idEsc %>" class="edit" title="Editar escenarios de evaluación de objetivos">
+		   	[<%= esc.governance_structure.name %>] - <%= esc.name %> 
+		   </p>
+		   <% end %>
+		<% end %>
+	</div>
+</div>
+
+
+<% # Form hidden, para tratar la edición: %>
+<%= form_tag( "./goal_escenario" , method: "post", id: "edit_form") do %>
+<input type="text" name="idEsc" id="formIdEsc" hidden readonly>
+<% end %>
+
+
+

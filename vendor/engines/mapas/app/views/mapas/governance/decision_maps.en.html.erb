@@ -1,0 +1,760 @@
+<style>
+
+table, td 
+{
+	border: solid 1px #949494;
+	padding: 5px;
+	text-align: center;
+	font-size: 12px;
+}
+
+td.rotate
+{
+	-webkit-transform: rotate(270deg);
+	-moz-transform: rotate(270deg);
+	-o-transform: rotate(270deg);
+	writing-mode: lr-tb;
+}
+
+td.blank
+{
+	border: none;
+	padding: 0px;
+}
+
+td.maxRed
+{
+	border: solid 2px #FF4444;
+	/*background: #F9CCCC;*/
+}
+
+td.maxOrange
+{
+	border: solid 2px #FAAB19;
+	/*background: #FCE6BE;*/
+}
+
+span.box
+{
+	margin-right:7px;
+	display:inline-block;
+	width:40px;
+	height:12px;
+	border:solid 1px #333;
+}
+
+input.invCheck
+{
+	width:18px;
+	height:20px;
+	margin:0px 3px 0px 0px;
+	padding:0px;
+	vertical-align:-6px;
+	display: none;
+}
+
+span.totalDBD
+{
+	color: blue;
+	font-size: 12px;
+}
+
+</style>
+
+<script>
+
+var archetypes; var dimensions; var totalDecsByDim;
+
+</script>
+
+<script>
+
+$(function () {
+  $("#dialogIdentifyArch").dialog({
+    autoOpen: false,
+    modal: true,
+    buttons: {
+      "Accept": function()
+      {
+      	// Habilita de nuevo la seccion de opciones:
+      	$("#opciones").html("<button type='button' class='btn btn-default' style='width:20%;' id='compareArchetype'>Compare archetype's report</button>");
+      	// Esconde y reinicia los checks:
+      	$(".invCheck").hide();
+      	$(".invCheck").prop("checked", false);
+      	// Desbloquea los checks:
+		$(".invCheck").prop("disabled", false);
+      	// Vuelve a habilitar los botones de identificacion:
+      	$(".identify").prop("disabled", false);
+        $(this).html("");
+        $(this).dialog("close");
+      }
+    },
+    close: function() 
+    {
+      // Habilita de nuevo la seccion de opciones:
+      $("#opciones").html("<button type='button' class='btn btn-default' style='width:20%;' id='compareArchetype'>Compare archetype's report</button>");	
+      // Esconde y reinicia los checks:
+	  $(".invCheck").hide();
+	  $(".invCheck").prop("checked", false);
+	  // Desbloquea los checks:
+	  $(".invCheck").prop("disabled", false);
+
+	  // Vuelve a habilitar los botones de identificacion:
+  	  $(".identify").prop("disabled", false);
+      $(this).html("");
+      $(this).dialog("close");
+    }
+  });
+
+});
+</script>
+
+
+<script>
+
+$( document ).ready(function() {
+
+    var structures; 
+	// Obtiene las estructuras desde el inicio, para sólo cargarlas una vez:
+	$.get('./get_structures', function(data)
+	{
+		structures = data;
+	});
+
+	// Obtiene los arquetipos desde el inicio, para sólo cargarlos una vez:
+	$.get('./get_archetypes', function(data)
+	{
+		archetypes = data;
+	});
+
+	// Obtiene las dimensiones desde el inicio, para sólo cargarlas una vez:
+	$.get('./get_dimensions', function(data)
+	{
+		dimensions = data;
+	});
+
+	// Obtiene el total de decisiones por dimension desde el inicio, para sólo cargarlos una vez:
+	$.get('./get_decs_stats_by_dim', function(data)
+	{
+		totalDecsByDim = data;
+	});
+
+
+
+
+	// Crear nuevo mapa:
+	$(".new_map").click(function(){
+		// Despliega el div de creación, si no está desplegado ya:
+		var anterior = document.getElementById("div_create");
+		var html;
+		if (anterior == null) 
+		{
+			html = '<div class="alert alert-info" id="div_create" style="color:#333;background-color:#f5f5f5;border:solid 1px #cacaca;height:80px;">'+
+					'<div style="width:100%;height:100%;">'+
+						'<div style="width:20%;float:left;">'+
+							"<label style='font-weight:normal;margin-right:4px;'>Map's name:</label><br>"+
+							'<input type="text" id="nameMap" style="width:90%;">'+
+						'</div>'+
+						'<div style="width:35%;float:left;">'+
+							"<label style='font-weight:normal;margin-right:4px;'>Map's description:</label><br>"+
+							'<input type="text" id="descMap" style="width:90%;">'+
+						'</div>'+
+						'<div style="width:20%;float:left;">'+
+							'<label style="font-weight:normal;margin-right:4px;">Governance Structure:</label><br>'+
+							'<select id="estMap" style="width:90%;">'+
+							  '<option disabled selected value="N">Select...</option>';
+
+							  for (var i = 0; i < structures.length; i++) 
+							  {
+							  	html+= '<option value="'+ structures[i].id +'">'+ structures[i].name +'</option>';
+							  };
+
+							html+= '</select>'+
+						'</div>'+
+						'<div style="width:20%;float:left;">'+
+							"<label style='font-weight:normal;margin-right:4px;'>Map's Type:</label><br>"+
+							'<select id="typeMap" style="width:90%;">'+
+							  '<option disabled selected value="N">Select...</option>'+
+							  '<option value="<%= MAP_TYPE_1 %>">Archetypes</option>'+
+							  '<option value="<%= MAP_TYPE_2 %>">Responsabilities delegation</option>'+
+							'</select>'+
+						'</div>'+
+						'<div style="width:5%;float:left;"><br>'+
+							'<img src="/assets/trash.png" align="right" style="cursor:pointer;" class="del" title="Discard">'+
+		     				'<img src="/assets/save.png" align="right" style="cursor:pointer;margin-right:15px;" class="add" title="Save">'+
+						'</div>'+
+					'</div>'+
+				'</div>';
+
+				// Lo agrega justo después del titulo:
+			$(html).insertAfter("#title");
+		};
+	});
+
+
+
+});
+
+
+// GUARDAR MAPA DE DECISIÓN:
+$(document).on('click', "img.add", function() {
+	var name = $("#nameMap").val();
+	var desc = $("#descMap").val();
+	var est = $("#estMap option:selected").val();
+	var estName = $("#estMap option:selected").text();
+	var type = $("#typeMap option:selected").val();
+	var typeName = $("#typeMap option:selected").text();
+
+	var html;
+	// Si alguna de las 2 es vacío, no deja guardar:
+	if (name == '' || desc == '' || est == 'N' || type == 'N') 
+	{
+		// Elimina los bordes y color de fondo:
+		$("#div_create").css({'border-color': 'none',
+                              'background-color': 'none',
+                              'color': 'none'});
+
+		$("#div_create").attr("class", "alert alert-danger");
+	} 
+	else
+	{
+		// Crea el mapa via AJAX:
+	    $.post('./add_map', {'name' : name, 'desc' : desc, 'est' : est, 'type' : type}, function(data)
+    	{
+    		if (data.id != null) 
+    		{
+    			// Creado con éxito, remueve el div de creación, y lo agrega en el listado:
+    			$("#div_create").remove();
+    			var idMap = 'img' + data.id;
+    			var classMap = 'edit'; var identifyMap = '';
+    			if (type == '<%= MAP_TYPE_2 %>') 
+    			{
+    				classMap = 'edit_2';
+    				identifyMap = 'identify';
+    		    };
+
+    			html = 	'<p>';
+    			            if (identifyMap != '') 
+    			            {
+    			            	html+= '<input type="checkbox" class="invCheck" id="chk'+data.id+'">';
+    			            };
+
+		   					html+= '<img src="/assets/edit.png" style="margin-right:6px;cursor:pointer;" id="'+ idMap +'" class="'+ 
+		   					classMap + '"' +
+		   					'title="Edit decision map"> ';
+
+		   					if (identifyMap != '') 
+		   					{
+		   						html+= '<img src="/assets/view.png" style="margin-right:6px;cursor:pointer;" id="identify'+ data.id+'" class="identify" title="Identify governance archetype">';
+		   					};
+
+
+		   					html += ' [' + estName + ': ' + data.name +'] - '+ data.description + ' ' + 
+		   					'<span style="color:green;font-weight:bold;">' +' SAVED!</span>'+
+		   				'</p>';
+
+		   		// Remueve el aviso de no mapas, si existe:
+		   		if (document.getElementById("noMapas") != null) 
+		   		{
+		   			$("#noMapas").remove();
+		   			var html2 = '<div class="btn-group" style="width:100%;margin-bottom:15px;" id="opciones">'+
+		    						"<button type='button' class='btn btn-default' style='width:20%;' id='compareArchetype'>Compare archetype's report</button>"+
+	    						'</div>';
+
+	    		    $(html2).insertAfter("#title");
+		   		};
+
+		   		$(html).insertAfter("#opciones");
+    		} 
+    		else
+    		{
+    			// ERROR:
+    			// Elimina los bordes y color de fondo:
+				$("#div_create").css({'border-color': 'none',
+		                              'background-color': 'none',
+		                              'color': 'none'});
+
+				$("#div_create").attr("class", "alert alert-danger");
+    		};
+    	});
+
+	};
+});
+
+// DESCARTAR MAPA DE DECISIÓN:
+$(document).on('click', "img.del", function() {
+	// Elimina el div de creacion:
+	$("#div_create").remove();
+});
+
+// EDITAR MAPA DE DECISIÓN (Arquetipos):
+$(document).on('click', "img.edit", function() {
+	// Obtiene el id del mapa:
+	var idMapa = this.id;
+	idMapa = idMapa.replace("img","").trim();
+	// lo pasa al input hidden:
+	$("#formIdMap").val(idMapa);
+	// Y envia el formulario:
+	$("#edit_form").submit();
+});
+
+// EDITAR MAPA DE DECISIÓN (Delegación de responsabilidades):
+$(document).on('click', "img.edit_2", function() {
+	// Obtiene el id del mapa:
+	var idMapa = this.id;
+	idMapa = idMapa.replace("img","").trim();
+	// lo pasa al input hidden:
+	$("#formIdMap2").val(idMapa);
+	// Y envia el formulario:
+	$("#edit_form_2").submit();
+});
+
+// INDETIFICAR ARQUETIPO DE GOBIERNO (Delegación de responsabilidades):
+$(document).on('click', "img.identify", function() 
+{
+	// Lo primero que hace es deshabilitar los demás mecanismos de identificacion:
+	$(".identify").prop("disabled", true);
+
+	//$("#"+this.id).attr("src", "'http://jimpunk.net/Loading/wp-content/uploads/loading52.gif'");
+
+	// Obtiene el id del mapa:
+	var idMapa = this.id;
+	idMapa = idMapa.replace("identify","").trim();
+
+	// Loading:
+	$("#opciones").html('<span style="color:blue;font-size:14px;"><img src="<%= LOADING_GIF %>"> Identifying archetype...</span>');
+
+
+	var html = '';
+	// Construye el contenido HTML:
+	html+= '<div><table>'+
+				'<tr>'+
+					'<td colspan="3" class="blank"></td>'+
+					"<td colspan='10'>Decision's Domain</td>"+
+				'</tr>'+
+				'<tr>'+
+					'<td colspan="3" class="blank"></td>';
+					for (var i = 0; i < dimensions.length; i++) 
+					{
+						html+= '<td colspan="2">'+ dimensions[i] +'<br><span class="totalDBD">'+ totalDecsByDim[i] + ' decisions</span></td>';
+					};
+
+					
+		html+=  '</tr>'+
+				'<tr>'+
+					'<td colspan="3" class="blank"></td>'+
+					'<td>Decides</td>'+
+					'<td>Consulted</td>'+
+					'<td>Decides</td>'+
+					'<td>Consulted</td>'+
+					'<td>Decides</td>'+
+					'<td>Consulted</td>'+
+					'<td>Decides</td>'+
+					'<td>Consulted</td>'+
+					'<td>Decides</td>'+
+					'<td>Consulted</td>'+
+				'</tr>';
+
+		// Renderiza el total de filas ubicando el arquetipo:
+		html+= '<tr><td rowspan="7"><img src="/assets/archetype_title_axis_en.png"></td>';
+
+		html+=  '<td>'+ archetypes[0].name +'</td>'+
+		        '<td rowspan="7"><img src="/assets/centralized_axis_en.png"></td>';
+		var contArchs = 1;
+		var valor;
+
+		// Consulta la distribución:
+	    $.post('./identify_archetype', {'idMap' : idMapa}, function(data)
+    	{
+			
+    		for (var i = 0; i < data.length; i++) // En el index 0 va el nombre del mapa
+    		{
+    			valor = data[i];
+    			// Si i+1 MOD 10 = 0, cambió de linea, renderiza otro arquetipo
+    			var modulo = 1;
+    			if (i > 0) 
+    			{
+    				modulo = i % 10;
+    			};
+    			if ((modulo == 0) && (contArchs <= archetypes.length ) ) 
+    			{
+    				html+= '</tr><tr>';
+    				if (contArchs == archetypes.length) 
+    				{
+    					html+= '<td>Without responsible</td>';
+    				} 
+    				else
+    				{
+    					html+= '<td>'+ archetypes[contArchs].name +'</td>';
+    				};
+    				
+    				contArchs+=1;
+    			};
+
+    			html+= '<td';
+
+    			// Si es mayor, lo marca:
+    			if (valor.charAt(0) == 'M' ) 
+    			{
+    				if (valor.charAt(1) == 'R') 
+    				{
+    					// Lo marca en rojo
+    					html+= ' class="maxRed" >'
+    					valor = valor.replace("MR","").trim();
+    				} 
+    				else
+    				{
+    					// Lo marca en naranja
+    					html+= ' class="maxOrange" >'
+    					valor = valor.replace("MN","").trim();
+    				};
+    			}
+    			else
+    			{
+    				html+= '>';
+    			};
+
+    			html+= valor;
+
+    			if (valor != '-') 
+    			{
+    				html+= '%';
+    			}; 
+    			html+= '</td>';
+    		};
+
+    		html+= '</table></div>';
+
+
+	    	// Muestra el dialogo:
+	    	$("#dialogIdentifyArch").html(html);
+			// Muestra el dialogo:
+			$("#dialogIdentifyArch").dialog("option", "width", 855);
+		    $("#dialogIdentifyArch").dialog("option", "height", 500);
+		    $("#dialogIdentifyArch").dialog("option", "resizable", false);
+		    $("#dialogIdentifyArch").dialog("open");
+		    $("#opciones").html("");
+    	});
+	
+});
+
+// COMPARAR ARQUETIPOS (FASE INICIAL):
+$(document).on('click', "button#compareArchetype", function() {
+	// Se elimina a si mismo:
+	$("#"+this.id).remove();
+
+	// Muestra los checkboxes, y muta en 2 botones de consolidar - aceptar
+	$(".invCheck").show();
+	// Botones de consolidar y cancelar:
+	var html = '<button type="button" class="btn btn-default" style="width:15%;" id="confirm">Compare</button>'+
+	           '<button type="button" class="btn btn-default" style="width:15%;" id="cancel">Cancel</button><br><br>' +
+	           '<p style="color:#3c763d;font-weight:bold;" >Select at least 2 decision maps (and 5 maximum) to compare its identified governance archetypes: </p>';
+	// Los ubica en el mismo container de opciones:
+	$("#opciones").html(html);
+
+});
+
+// CANCELAR COMPARACION:
+$(document).on('click', "button#cancel", function() {
+	
+	// Esconde los checkboxes
+	$(".invCheck").hide();
+	// Reinicia los checboxes:
+	$(".invCheck").prop("checked", false);
+
+
+	// Reinicia el boton de la fase 1:
+	var html = "<button type='button' class='btn btn-default' style='width:20%;' id='compareArchetype'>Compare archetype's report</button>";
+	// Los ubica en el mismo container de opciones:
+	$("#opciones").html(html);
+
+});
+
+// CONFIRMAR CONSOLIDACION:
+$(document).on('click', "button#confirm", function() {
+	// Obtiene los inputs seleccionados, y va guardando el id en un texto:
+	var cont = 0;
+	var checked = false;
+	var str = '';
+	var s1 = '';
+
+	// bloquea los checks:
+	$(".invCheck").prop("disabled", true);
+	// Bloquea la identificacion individual:
+	$(".identify").prop("disabled", true);
+
+	// Define un arreglo de colores (5), para dividir la visualizacion:
+	// Blanco, Azul, Verde, Amarillo, Naranja
+	var colores = ["#FFFFFF", "#CCCEEF", "#CCEFCC", "#EAEFCC", "#EFDDCC"];
+
+	$(".invCheck").each(function(){
+		checked = $(this).prop("checked");
+        if (checked) 
+        {
+          cont+= 1;	
+          s1 = $(this).attr("id").replace("chk","").trim();
+          // Si está checkeado, lo agrega al string especial (máximo 5):
+          if (cont < 6) 
+          {
+          	if (str == '') 
+	        {
+	        	str = s1;
+	        } 
+	        else
+	        {
+	          	str+= '|' + s1;
+	        };
+          };
+
+        };
+    });
+
+    // Si hay mas de un mapa seleccionado, procede, si no no hace nada:
+    if (cont > 1) 
+    {
+    	// Elimina los botones de confirmación:
+    	// Loading:
+		$("#opciones").html('<span style="color:blue;font-size:14px;"><img src="<%= LOADING_GIF %>"> Comparing identified archertypes...</span>');
+
+
+    	var numMapas = str.split("|").length;
+    	// Llama al comparador!
+    	// Lo primero que hace es deshabilitar los demás mecanismos de identificacion:
+		$(".identify").prop("disabled", true);
+
+
+		var html = '';
+		// Construye el contenido HTML:
+		html+= '<div><table>'+
+					'<tr>'+
+						'<td colspan="3" class="blank"></td>'+
+						"<td colspan='10'>Decision's Domain</td>"+
+					'</tr>'+
+					'<tr>'+
+						'<td colspan="3" class="blank"></td>';
+						for (var i = 0; i < dimensions.length; i++) 
+						{
+							html+= '<td colspan="2">'+ dimensions[i] + '<br><span class="totalDBD">'+ totalDecsByDim[i] + ' decisions</span></td>';
+						};
+
+						
+			html+=  '</tr>'+
+					'<tr>'+
+						'<td colspan="3" class="blank"></td>'+
+						'<td>Decides</td>'+
+						'<td>Consulted</td>'+
+						'<td>Decides</td>'+
+						'<td>Consulted</td>'+
+						'<td>Decides</td>'+
+						'<td>Consulted</td>'+
+						'<td>Decides</td>'+
+						'<td>Consulted</td>'+
+						'<td>Decides</td>'+
+						'<td>Consulted</td>'+
+					'</tr>';
+
+
+			// Renderiza el total de filas ubicando el arquetipo:
+			html+= '<tr><td rowspan="'+ parseInt(7*numMapas) +'" ><img src="/assets/archetype_title_axis_en.png"></td>';
+
+			html+=  '<td rowspan="'+ numMapas +'">'+ archetypes[0].name +'</td>'+
+			        '<td rowspan="'+ parseInt(7*numMapas) +'"><img src="/assets/centralized_axis_en.png"></td>';;
+			var contArchs = 1;
+			var valor; var saltoLinea = 1; var mapaTratado = 1;
+
+			// Consulta la distribución:
+		    $.post('./identify_archetype', {'idMap' : str}, function(data)
+	    	{
+	    		for (var i = 0; i < data.length; i++) // En las primeras posiciones van los nombres de los mapas! 
+	    		{
+	    			valor = data[i];
+	    			// Si i+1 MOD 10 = 0, cambió de linea, renderiza otro arquetipo
+	    			var modulo = 1;
+	    			if (i > 0) 
+	    			{
+	    				modulo = i % 10;
+	    			};
+
+	    			if (modulo == 0)  
+	    			{
+	    				html+= '</tr><tr>';
+	    				// Cuando crea una nueva linea, aumenta el valor del mapa tratado, para cambiar su color:
+	    				mapaTratado+= 1;
+	    				// Si se pasa su valor, se reinicia:
+	    				if (mapaTratado > numMapas) {mapaTratado = 1};
+
+	    				if (contArchs <= archetypes.length) 
+	    				{
+
+	    					// Solo abre un nuevo arquetipo si ya paso una vez por aca:
+		    				if (saltoLinea == numMapas) 
+		    				{
+		    					if (contArchs == archetypes.length) 
+			    				{
+			    					html+=  '<td rowspan="'+ numMapas +'">Without responsible</td>';
+			    				} 
+			    				else
+			    				{
+			    					html+=  '<td rowspan="'+ numMapas +'">'+ archetypes[contArchs].name +'</td>';
+			    				};
+		    					
+		    					contArchs+=1;
+		    					saltoLinea = 1;
+		    				}
+		    				else
+		    				{
+		    					saltoLinea+=1;
+		    				};
+		    				
+	    				};
+	    			};
+
+	    			html+= '<td style="background:'+ colores[mapaTratado-1] +';"';
+
+	    			// Si es mayor, lo marca:
+	    			if (valor.charAt(0) == 'M' ) 
+	    			{
+	    				if (valor.charAt(1) == 'R') 
+	    				{
+	    					// Lo marca en rojo
+	    					html+= ' class="maxRed" >'
+	    					valor = valor.replace("MR","").trim();
+	    				} 
+	    				else
+	    				{
+	    					// Lo marca en naranja
+	    					html+= ' class="maxOrange" >'
+	    					valor = valor.replace("MN","").trim();
+	    				};
+	    			}
+	    			else
+	    			{
+	    				html+= '>';
+	    			};
+
+	    			html+= valor;
+
+	    			if (valor != '-') 
+	    			{
+	    				html+= '%';
+	    			}; 
+	    			html+= '</td>';
+	    		};
+
+	    		html+= '</table></div>';
+
+	    		// Genera las leyendas:
+	    		$.get('./get_map_names', {'idMaps' : str}, function(data)
+	    		{
+	    			html+= '<div style="margin-top:25px;">';
+
+	    			for (var i = 0; i < data.length; i++) 
+	    			{
+	    				html+= '<span class="box" style="background:'+ colores[i]+';"></span><span style="font-size:13px;margin-right:10px;">'+ data[i] +'</span><br>';
+	    			};
+
+	    			html+= '</div>';
+
+
+	    			$("#dialogIdentifyArch").html(html);
+					// Muestra el dialogo:
+					$("#dialogIdentifyArch").dialog("option", "width", 855);
+				    $("#dialogIdentifyArch").dialog("option", "height", 700);
+				    $("#dialogIdentifyArch").dialog("option", "resizable", false);
+				    $("#dialogIdentifyArch").dialog("open");
+				    $("#opciones").html("");
+	    		});
+	    		
+	    	});
+    }
+    else
+    {
+    	// Desbloquea los checks:
+		$(".invCheck").prop("disabled", false);
+		// Desbloquea la identificacion individual:
+		$(".identify").prop("disabled", false);
+    };
+
+});
+
+
+
+
+</script>
+
+<div>
+	<ol class="breadcrumb">
+		<li><%= link_to "Home", main_app.inicio_inicio_path %></li>
+		<li class="active">[<%= @empresa.name %>] IT Governance - Decision Maps</li>
+	</ol>
+</div>
+
+<% if flash[:notice] %>
+<div class="alert alert-info">
+	<p><%= flash[:notice] %></p>
+</div>
+<% end %>
+
+
+<!-- Mapas de Decision -->
+<div>
+	<div>
+		<h2 id="title">
+			<span style="margin:0 10px 0 0;color:#333;font-size:22px;cursor:pointer;" class="new_map">[+]</span>Decision Maps:
+		</h2>
+		<% if @maps.size == 0 %>
+		<div class="alert alert-info" id="noMapas">
+		There are no decision maps in the system, related to the enterprise: <%= @empresa.name %>.
+		</div>
+		<% else %>
+			<div class="btn-group" style="width:100%;margin-bottom:15px;" id="opciones">
+		    	<button type="button" class="btn btn-default" style="width:20%;" id="compareArchetype">Compare archetype's report</button>
+			</div>
+		   <% @maps.each do |map| %>
+		   <% idMap = 'img' << map.id.to_s %>
+		   <% idIdentify = 'identify' << map.id.to_s %>
+		   <% idChk = 'chk' << map.id.to_s %>
+		   <% # La clase para la edición depende del tipo de mapa:
+		      classMap = ''
+		      identifyMap = ''
+
+			   if map.map_type.nil?
+			   	classMap = 'edit'
+			   elsif map.map_type == MAP_TYPE_1
+			   	classMap = 'edit'
+			   elsif map.map_type == MAP_TYPE_2
+			   	classMap = 'edit_2'
+			   	identifyMap = 'identify'
+			   end
+		    %>
+		   <p>
+		   	<% if !identifyMap.blank? %>
+		   	<input type="checkbox" class="invCheck" id="<%= idChk %>">
+		   	<% end %>
+		   	<img src="/assets/edit.png" style="margin-right:6px;cursor:pointer;" id="<%= idMap %>" class="<%= classMap %>" title="Edit decision map">
+		   	<% if !identifyMap.blank? %>
+		   	<img src="/assets/view.png" style="margin-right:6px;cursor:pointer;" id="<%= idIdentify %>" class="<%= identifyMap %>" title="Identify governance archetype">
+		   	<% end %>
+		   	
+		   	[<%= map.governance_structure.name %>: <%= map.name %>] - <%= map.description %> 
+		   </p>
+		   <% end %>
+		<% end %>
+	</div>
+</div>
+
+
+<div id="dialogIdentifyArch" title="Identified Governance Archetype">
+</div>
+
+<% # Form hidden, para tratar la edición de los mapas de arquetipos: %>
+<%= form_tag( "./decision_map" , method: "post", id: "edit_form") do %>
+<input type="text" name="idMap" id="formIdMap" hidden readonly>
+<% end %>
+
+<% # Form hidden, para tratar la edición de los mapas de delegacion de responsabilidades: %>
+<%= form_tag( "./decision_map_2" , method: "post", id: "edit_form_2") do %>
+<input type="text" name="idMap" id="formIdMap2" hidden readonly>
+<% end %>
+
+

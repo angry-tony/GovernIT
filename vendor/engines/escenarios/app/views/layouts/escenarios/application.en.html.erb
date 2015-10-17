@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Scenarios</title>
+  <%= stylesheet_link_tag    "application", media: "all" %>
+  <%= javascript_include_tag "application" %>
+  <%= csrf_meta_tags %>
+</head>
+<body>
+
+<% if !alert.nil? && !alert.empty? %>
+<div class="alert alert-danger" style="padding:10px;">
+    <%= alert %>
+</div>
+<% end %>
+
+<% if !notice.nil? && !notice.empty? %>
+<div class="alert alert-info" style="padding:10px;">
+    <%= notice %>
+</div>
+<% end %>
+
+<% if user_signed_in? %>
+<div>
+  <p style="text-align:right;">
+    <% emp = getMyEnterprise %>
+    <img src="/assets/online.png">
+    <%= current_user.email %> |
+    <img src="/assets/enterprise.png">
+    <% if !emp.nil? %>
+    Enterprise: <span id="myEnterprise" style="text-transform:uppercase;"><%= emp.name %></span> |
+    <% else %>
+    Enterprise: <span id="myEnterprise" style="text-transform:uppercase;"> - </span> |
+    <% end %> 
+    <% if current_user.has_role? ROLE_ADMIN %>
+      <img src="/assets/key.png">
+      <%= link_to "Administration", main_app.administrar_path %> | 
+    <% end %>
+
+    <img src="/assets/home.png">
+    <%= link_to "Home", main_app.root_path %> |
+
+    <img src="/assets/logout.png">
+    <%= link_to "Log out", main_app.destroy_user_session_path, method: :delete %>
+  </p>
+</div>
+<% end %>
+
+<%= yield %>
+
+</body>
+</html>

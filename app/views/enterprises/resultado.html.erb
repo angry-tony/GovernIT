@@ -1,0 +1,31 @@
+<% if !@error.empty?  %>
+<div class="alert alert-danger">
+	<h3>No se pudo crear la empresa:</h3>
+	<p><%= @error %></p>
+</div>
+
+<div class="btn-group">
+  <button type="button" class="btn btn-default" onclick="location.href='../enterprises/new'">Volver</button>
+</div>
+<% elsif @empresa == nil %>
+<div class="alert alert-danger">
+	<p>No se encontró la empresa</p>
+</div>
+
+<div class="btn-group">
+  <button type="button" class="btn btn-default" onclick="location.href='../enterprises/new'">Volver</button>
+</div>
+<% else %>
+<div class="alert alert-success">
+	<p>La empresa fue creada exitosamente</p>
+</div>
+
+<div class="btn-group">
+  <button type="button" class="btn btn-default" onclick="location.href='../enterprises/new'">Volver</button>
+  <button type="button" class="btn btn-default" onclick="location.href='../inicio/inicio'">Ir al Inicio</button>
+</div>
+
+
+
+
+<% end %>
