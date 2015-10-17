@@ -1,28 +1,24 @@
 == README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
-
-Things you may want to cover:
-
 * Ruby version
+  2.0
 
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
+* Rails version
+  4.0.2
 
 * Deployment instructions
+  1. Open a command window and navigate to the root folder of the project (e.g ..../InvestIT)
+  2. Install all the required gems for the project:
+	- Run 'bundle install'
+  3. Create the database to support the application
+  	- Set the user, password and database name in the file located in "InvestIT/config/database.yml". 
+  	If you are going to use another database other than PostgreSQL, you need to include the respective gem in the Gemfile and re-run bundle install.
+  	- Run 'rake db:create' or 'bundle exec rake db:create' (if the first one triggers a version conflict)
+  4. Load the data into the database
+  	- Set a valid email for the administrator in the file located in "InvestIT/db/seeds.rb", line 19. Save the file with the changes.
+  	- Run 'rake db:seed' or 'bundle exec rake db:seed' (if the first one triggers a version conflict)
+  5. Activate your account and start using InvestIT
+  	- Run 'rails s' to start the application server and start using InvestIT.
 
-* ...
 
 
-Please feel free to use a different markup language if you do not plan to run
-<tt>rake doc:app</tt>.
