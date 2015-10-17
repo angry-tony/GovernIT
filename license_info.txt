@@ -1,5 +1,4 @@
-InvestIT, is a modular web application able to support different types of
-analysis around to IT Governance context.
+GovernIT: A Software for Creating and Controlling IT Governance Models
 
 Copyright (C) 2015  Oscar González Rojas - Sebastián Lesmes Alvarado
 
