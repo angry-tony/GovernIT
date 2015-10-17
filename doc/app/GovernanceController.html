@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8">
+
+<title>class GovernanceController - Rails Application Documentation</title>
+
+<link href="./fonts.css" rel="stylesheet">
+<link href="./rdoc.css" rel="stylesheet">
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "./";
+</script>
+
+<script src="./js/jquery.js"></script>
+<script src="./js/navigation.js"></script>
+<script src="./js/search_index.js"></script>
+<script src="./js/search.js"></script>
+<script src="./js/searcher.js"></script>
+<script src="./js/darkfish.js"></script>
+
+
+<body id="top" role="document" class="class">
+<nav role="navigation">
+  <div id="project-navigation">
+    <div id="home-section" role="region" title="Quick navigation" class="nav-section">
+  <h2>
+    <a href="./index.html" rel="home">Home</a>
+  </h2>
+
+  <div id="table-of-contents-navigation">
+    <a href="./table_of_contents.html#pages">Pages</a>
+    <a href="./table_of_contents.html#classes">Classes</a>
+    <a href="./table_of_contents.html#methods">Methods</a>
+  </div>
+</div>
+
+    <div id="search-section" role="search" class="project-section initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <div id="search-field-wrapper">
+      <input id="search-field" role="combobox" aria-label="Search"
+             aria-autocomplete="list" aria-controls="search-results"
+             type="text" name="search" placeholder="Search" spellcheck="false"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </div>
+
+    <ul id="search-results" aria-label="Search Results"
+        aria-busy="false" aria-expanded="false"
+        aria-atomic="false" class="initially-hidden"></ul>
+  </form>
+</div>
+
+  </div>
+
+  
+
+  <div id="class-metadata">
+    
+    <div id="parent-class-section" class="nav-section">
+  <h3>Parent</h3>
+
+  
+  <p class="link"><a href="ApplicationController.html">ApplicationController</a>
+  
+</div>
+
+    
+    
+    <!-- Method Quickref -->
+<div id="method-list-section" class="nav-section">
+  <h3>Methods</h3>
+
+  <ul class="link-list" role="directory">
+    
+    <li ><a href="#method-i-add_responsability">#add_responsability</a>
+    
+    <li ><a href="#method-i-add_structure">#add_structure</a>
+    
+    <li ><a href="#method-i-get_functions">#get_functions</a>
+    
+    <li ><a href="#method-i-get_responsabilities">#get_responsabilities</a>
+    
+    <li ><a href="#method-i-get_structure">#get_structure</a>
+    
+    <li ><a href="#method-i-structures">#structures</a>
+    
+    <li ><a href="#method-i-update_structure">#update_structure</a>
+    
+  </ul>
+</div>
+
+  </div>
+</nav>
+
+<main role="main" aria-labelledby="class-GovernanceController">
+  <h1 id="class-GovernanceController" class="class">
+    class GovernanceController
+  </h1>
+
+  <section class="description">
+    
+  </section>
+
+  
+  
+  
+  <section id="5Buntitled-5D" class="documentation-section">
+    
+
+    
+
+    
+
+    
+
+    
+     <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Instance Methods</h3>
+       </header>
+
+    
+      <div id="method-i-add_responsability" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">add_responsability</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <hr>
+          
+          
+
+          
+          <div class="method-source-code" id="add_responsability-source">
+            <pre><span class="ruby-comment"># File app/controllers/governance_controller.rb, line 72</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">add_responsability</span>
+        <span class="ruby-identifier">name</span> = <span class="ruby-identifier">params</span>[<span class="ruby-value">:name</span>]
+        <span class="ruby-identifier">gr</span> = <span class="ruby-constant">GovernanceResponsability</span>.<span class="ruby-identifier">new</span>
+        <span class="ruby-identifier">gr</span>.<span class="ruby-identifier">name</span> = <span class="ruby-identifier">name</span>
+
+        <span class="ruby-keyword">begin</span>
+          <span class="ruby-identifier">authorize!</span> <span class="ruby-value">:create</span>, <span class="ruby-constant">GovernanceResponsability</span>
+        <span class="ruby-keyword">rescue</span> 
+          <span class="ruby-identifier">raise</span> <span class="ruby-constant">CanCan</span><span class="ruby-operator">::</span><span class="ruby-constant">AccessDenied</span>.<span class="ruby-identifier">new</span>(<span class="ruby-string">&quot;No tiene autorización para crear funciones&quot;</span>)
+        <span class="ruby-keyword">end</span>
+
+<span class="ruby-identifier">respond_to</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">format</span><span class="ruby-operator">|</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">gr</span>.<span class="ruby-identifier">save</span> <span class="ruby-comment"># OK</span>
+                <span class="ruby-identifier">format</span>.<span class="ruby-identifier">json</span> {<span class="ruby-identifier">render</span> <span class="ruby-identifier">json</span><span class="ruby-operator">:</span> <span class="ruby-identifier">gr</span>}
+        <span class="ruby-keyword">else</span> <span class="ruby-comment"># ERROR</span>
+                <span class="ruby-identifier">format</span>.<span class="ruby-identifier">json</span> {<span class="ruby-identifier">render</span> <span class="ruby-identifier">json</span><span class="ruby-operator">:</span> <span class="ruby-string">&quot;ERROR&quot;</span>}
+        <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span>        
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-add_structure" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">add_structure</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <hr>
+          
+          
+
+          
+          <div class="method-source-code" id="add_structure-source">
+            <pre><span class="ruby-comment"># File app/controllers/governance_controller.rb, line 29</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">add_structure</span>
+        <span class="ruby-ivar">@empresa</span> = <span class="ruby-identifier">view_context</span>.<span class="ruby-identifier">getMyEnterprise</span>
+        <span class="ruby-comment"># Resultados de la creación de estructuras de gobierno:</span>
+        <span class="ruby-identifier">name</span> = <span class="ruby-identifier">params</span>[<span class="ruby-value">:name</span>]
+        <span class="ruby-identifier">tipo</span> = <span class="ruby-identifier">params</span>[<span class="ruby-value">:tipo</span>]
+        <span class="ruby-identifier">funcs</span> = <span class="ruby-identifier">params</span>[<span class="ruby-value">:funcs</span>]
+        <span class="ruby-identifier">padre</span> = <span class="ruby-identifier">params</span>[<span class="ruby-value">:id_padre</span>]
+        <span class="ruby-identifier">type</span> = <span class="ruby-identifier">params</span>[<span class="ruby-value">:type</span>]
+        <span class="ruby-identifier">perfil</span> = <span class="ruby-identifier">params</span>[<span class="ruby-value">:perfil</span>]
+
+        <span class="ruby-identifier">estG</span> = <span class="ruby-constant">GovernanceStructure</span>.<span class="ruby-identifier">new</span>
+        <span class="ruby-identifier">estG</span>.<span class="ruby-identifier">name</span> = <span class="ruby-identifier">name</span>
+        <span class="ruby-identifier">estG</span>.<span class="ruby-identifier">structure_type</span> = <span class="ruby-identifier">tipo</span>
+        <span class="ruby-identifier">resps</span> = <span class="ruby-constant">GovernanceResponsability</span>.<span class="ruby-identifier">where</span>(<span class="ruby-identifier">id</span><span class="ruby-operator">:</span> <span class="ruby-identifier">funcs</span>)
+        <span class="ruby-identifier">estG</span>.<span class="ruby-identifier">governance_responsabilities</span> = <span class="ruby-identifier">resps</span>
+        <span class="ruby-identifier">estG</span>.<span class="ruby-identifier">enterprise_id</span> = <span class="ruby-ivar">@empresa</span>.<span class="ruby-identifier">id</span>
+        <span class="ruby-identifier">estG</span>.<span class="ruby-identifier">global_type</span> = <span class="ruby-identifier">type</span>
+        <span class="ruby-identifier">estG</span>.<span class="ruby-identifier">profile</span> = <span class="ruby-identifier">perfil</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">padre</span>.<span class="ruby-identifier">to_i</span> <span class="ruby-operator">==</span> <span class="ruby-value">0</span>
+                <span class="ruby-identifier">estG</span>.<span class="ruby-identifier">parent</span> = <span class="ruby-keyword">nil</span>
+        <span class="ruby-keyword">else</span>
+                <span class="ruby-identifier">estG</span>.<span class="ruby-identifier">parent</span> = <span class="ruby-constant">GovernanceStructure</span>.<span class="ruby-identifier">find</span>(<span class="ruby-identifier">padre</span>.<span class="ruby-identifier">to_i</span>)
+        <span class="ruby-keyword">end</span>
+
+        <span class="ruby-keyword">begin</span>
+          <span class="ruby-identifier">authorize!</span> <span class="ruby-value">:create</span>, <span class="ruby-identifier">estG</span>
+        <span class="ruby-keyword">rescue</span> 
+          <span class="ruby-identifier">raise</span> <span class="ruby-constant">CanCan</span><span class="ruby-operator">::</span><span class="ruby-constant">AccessDenied</span>.<span class="ruby-identifier">new</span>(<span class="ruby-string">&quot;No tiene autorización para crear estructuras de gobierno para la empresa: &quot;</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-ivar">@empresa</span>.<span class="ruby-identifier">name</span> )
+        <span class="ruby-keyword">end</span>
+
+        <span class="ruby-identifier">respond_to</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">format</span><span class="ruby-operator">|</span>
+                <span class="ruby-keyword">if</span> <span class="ruby-identifier">estG</span>.<span class="ruby-identifier">save</span>
+                        <span class="ruby-comment"># Todo OK</span>
+                        <span class="ruby-identifier">format</span>.<span class="ruby-identifier">json</span> {<span class="ruby-identifier">render</span> <span class="ruby-identifier">json</span><span class="ruby-operator">:</span> <span class="ruby-identifier">estG</span>}
+                <span class="ruby-keyword">else</span>
+                        <span class="ruby-comment"># No se pudo guardar</span>
+                        <span class="ruby-identifier">format</span>.<span class="ruby-identifier">json</span> {<span class="ruby-identifier">render</span> <span class="ruby-identifier">json</span><span class="ruby-operator">:</span> <span class="ruby-string">&#39;ERROR&#39;</span>}
+                <span class="ruby-keyword">end</span>
+                
+<span class="ruby-keyword">end</span>                     
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-get_functions" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">get_functions</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Obtiene la informacion de las funciones de una estructura, y sus conflictos
+(Via AJAX):</p>
+          
+          
+
+          
+          <div class="method-source-code" id="get_functions-source">
+            <pre><span class="ruby-comment"># File app/controllers/governance_controller.rb, line 114</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">get_functions</span>
+        <span class="ruby-identifier">emp</span> = <span class="ruby-identifier">view_context</span>.<span class="ruby-identifier">getMyEnterprise</span>
+        <span class="ruby-identifier">est</span> = <span class="ruby-constant">GovernanceStructure</span>.<span class="ruby-identifier">find</span>(<span class="ruby-identifier">params</span>[<span class="ruby-value">:idEst</span>].<span class="ruby-identifier">to_i</span>)
+        <span class="ruby-identifier">funcs</span> = <span class="ruby-identifier">est</span>.<span class="ruby-identifier">governance_responsabilities</span>
+
+        <span class="ruby-comment"># Para conocer los conflictos, por cada funcion saca sus responsables, depura y compara:</span>
+        <span class="ruby-identifier">conflictos</span> = []
+        <span class="ruby-identifier">funcs</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">f</span><span class="ruby-operator">|</span>
+                <span class="ruby-identifier">ests</span> = <span class="ruby-identifier">f</span>.<span class="ruby-identifier">governance_structures</span>
+                <span class="ruby-comment"># Depura de las estructuras asociadas, para dejar sólo las de la misma empresa.</span>
+                <span class="ruby-identifier">depuradas</span> = []
+
+                <span class="ruby-identifier">ests</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">est</span><span class="ruby-operator">|</span>
+                        <span class="ruby-comment"># Recorre todas las estructuras, si son de la misma empresa, la va agregando:</span>
+                        <span class="ruby-keyword">if</span> <span class="ruby-identifier">est</span>.<span class="ruby-identifier">enterprise_id</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">emp</span>.<span class="ruby-identifier">id</span>
+                                <span class="ruby-identifier">depuradas</span>.<span class="ruby-identifier">push</span>(<span class="ruby-identifier">est</span>)
+                        <span class="ruby-keyword">end</span>
+                <span class="ruby-keyword">end</span>
+
+                <span class="ruby-comment"># Re-asigna:</span>
+                <span class="ruby-identifier">ests</span> = <span class="ruby-identifier">depuradas</span>
+
+                <span class="ruby-keyword">if</span> <span class="ruby-identifier">ests</span>.<span class="ruby-identifier">size</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">1</span>
+                        <span class="ruby-comment"># Tiene este responsable, y al menos otro adicional</span>
+                        <span class="ruby-identifier">otros</span> = <span class="ruby-identifier">ests</span>.<span class="ruby-identifier">select</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">o</span><span class="ruby-operator">|</span> <span class="ruby-identifier">o</span>.<span class="ruby-identifier">id</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">est</span>.<span class="ruby-identifier">id</span>}
+                        <span class="ruby-identifier">temp</span> = <span class="ruby-identifier">f</span>.<span class="ruby-identifier">name</span>
+                        <span class="ruby-identifier">otros</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">o</span><span class="ruby-operator">|</span>
+                                <span class="ruby-identifier">temp</span><span class="ruby-operator">+=</span> <span class="ruby-string">&#39;|&#39;</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">o</span>.<span class="ruby-identifier">name</span>
+                        <span class="ruby-keyword">end</span>
+
+                        <span class="ruby-keyword">if</span> <span class="ruby-identifier">temp</span>.<span class="ruby-identifier">include?</span> <span class="ruby-string">&#39;|&#39;</span>
+                                <span class="ruby-identifier">conflictos</span>.<span class="ruby-identifier">push</span>(<span class="ruby-identifier">temp</span>)
+                        <span class="ruby-keyword">end</span>
+                        <span class="ruby-comment"># String del tipo: Nombre_funcion|estructura conflictiva1|estructura conflictiva2.....</span>
+                <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">end</span>
+
+        <span class="ruby-identifier">funcs</span> = <span class="ruby-identifier">est</span>.<span class="ruby-identifier">governance_responsabilities</span>.<span class="ruby-identifier">map</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">f</span><span class="ruby-operator">|</span> <span class="ruby-identifier">f</span>.<span class="ruby-identifier">name</span>}
+
+        <span class="ruby-comment"># Si hay conflictos, los envia en el mismo arreglo, pero con un elemento de separación:</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">conflictos</span>.<span class="ruby-identifier">size</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">0</span>
+                <span class="ruby-identifier">funcs</span>.<span class="ruby-identifier">push</span>(<span class="ruby-node">&quot;#$%&amp;/()=&quot;</span>) <span class="ruby-comment"># Separacion</span>
+                <span class="ruby-identifier">conflictos</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">c</span><span class="ruby-operator">|</span>
+                        <span class="ruby-identifier">funcs</span>.<span class="ruby-identifier">push</span>(<span class="ruby-identifier">c</span>)
+                <span class="ruby-keyword">end</span>
+        <span class="ruby-keyword">end</span>
+
+        <span class="ruby-identifier">respond_to</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">format</span><span class="ruby-operator">|</span>
+                <span class="ruby-identifier">format</span>.<span class="ruby-identifier">json</span> {<span class="ruby-identifier">render</span> <span class="ruby-identifier">json</span><span class="ruby-operator">:</span> <span class="ruby-identifier">funcs</span>}
+        <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-get_responsabilities" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">get_responsabilities</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <hr>
+          
+          
+
+          
+          <div class="method-source-code" id="get_responsabilities-source">
+            <pre><span class="ruby-comment"># File app/controllers/governance_controller.rb, line 196</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">get_responsabilities</span>
+        <span class="ruby-identifier">est</span> = <span class="ruby-constant">GovernanceStructure</span>.<span class="ruby-identifier">find</span>(<span class="ruby-identifier">params</span>[<span class="ruby-value">:id</span>])
+        <span class="ruby-identifier">respond_to</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">format</span><span class="ruby-operator">|</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-operator">!</span><span class="ruby-identifier">est</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-comment"># OK</span>
+                <span class="ruby-identifier">format</span>.<span class="ruby-identifier">json</span> {<span class="ruby-identifier">render</span> <span class="ruby-identifier">json</span><span class="ruby-operator">:</span> <span class="ruby-identifier">est</span>.<span class="ruby-identifier">governance_responsabilities</span>}
+        <span class="ruby-keyword">else</span> <span class="ruby-comment"># ERROR</span>
+                <span class="ruby-identifier">format</span>.<span class="ruby-identifier">json</span> {<span class="ruby-identifier">render</span> <span class="ruby-identifier">json</span><span class="ruby-operator">:</span> <span class="ruby-string">&quot;ERROR&quot;</span>}
+        <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span>        
+        
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-get_structure" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">get_structure</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <hr>
+          
+          
+
+          
+          <div class="method-source-code" id="get_structure-source">
+            <pre><span class="ruby-comment"># File app/controllers/governance_controller.rb, line 93</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">get_structure</span>
+        <span class="ruby-identifier">est</span> = <span class="ruby-constant">GovernanceStructure</span>.<span class="ruby-identifier">find</span>(<span class="ruby-identifier">params</span>[<span class="ruby-value">:id</span>])
+        <span class="ruby-keyword">begin</span>
+          <span class="ruby-identifier">authorize!</span> <span class="ruby-value">:read</span>, <span class="ruby-identifier">est</span>
+        <span class="ruby-keyword">rescue</span> 
+          <span class="ruby-identifier">raise</span> <span class="ruby-constant">CanCan</span><span class="ruby-operator">::</span><span class="ruby-constant">AccessDenied</span>.<span class="ruby-identifier">new</span>(<span class="ruby-string">&quot;No tiene autorización para acceder a la estructura de gobierno: &quot;</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">est</span>.<span class="ruby-identifier">name</span> )
+        <span class="ruby-keyword">end</span>
+
+        <span class="ruby-identifier">respond_to</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">format</span><span class="ruby-operator">|</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-operator">!</span><span class="ruby-identifier">est</span>.<span class="ruby-identifier">nil?</span> <span class="ruby-comment"># OK</span>
+                <span class="ruby-identifier">format</span>.<span class="ruby-identifier">json</span> {<span class="ruby-identifier">render</span> <span class="ruby-identifier">json</span><span class="ruby-operator">:</span> <span class="ruby-identifier">est</span>}
+        <span class="ruby-keyword">else</span> <span class="ruby-comment"># ERROR</span>
+                <span class="ruby-identifier">format</span>.<span class="ruby-identifier">json</span> {<span class="ruby-identifier">render</span> <span class="ruby-identifier">json</span><span class="ruby-operator">:</span> <span class="ruby-string">&quot;ERROR&quot;</span>}
+        <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span>        
+        
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-structures" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">structures</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+          
+
+          
+          <div class="method-source-code" id="structures-source">
+            <pre><span class="ruby-comment"># File app/controllers/governance_controller.rb, line 3</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">structures</span>
+        <span class="ruby-ivar">@empresa</span> = <span class="ruby-identifier">view_context</span>.<span class="ruby-identifier">getMyEnterprise</span>               
+        <span class="ruby-keyword">if</span> <span class="ruby-operator">!</span><span class="ruby-ivar">@empresa</span>.<span class="ruby-identifier">nil?</span>
+            <span class="ruby-ivar">@estructuras</span> = <span class="ruby-constant">GovernanceStructure</span>.<span class="ruby-identifier">where</span>(<span class="ruby-string">&quot;enterprise_id = ?&quot;</span>, <span class="ruby-ivar">@empresa</span>.<span class="ruby-identifier">id</span>).<span class="ruby-identifier">order</span>(<span class="ruby-identifier">id</span><span class="ruby-operator">:</span> <span class="ruby-value">:asc</span>)
+            <span class="ruby-ivar">@estructuras</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">e</span><span class="ruby-operator">|</span>
+              <span class="ruby-keyword">begin</span>
+                <span class="ruby-identifier">authorize!</span> <span class="ruby-value">:manage</span>, <span class="ruby-identifier">e</span>
+                    <span class="ruby-keyword">rescue</span> 
+                      <span class="ruby-identifier">raise</span> <span class="ruby-constant">CanCan</span><span class="ruby-operator">::</span><span class="ruby-constant">AccessDenied</span>.<span class="ruby-identifier">new</span>(<span class="ruby-string">&quot;No tiene autorización para acceder a las estructuras de gobierno de la empresa: &quot;</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-ivar">@empresa</span>.<span class="ruby-identifier">name</span> )
+                    <span class="ruby-keyword">end</span>
+            <span class="ruby-keyword">end</span>
+            <span class="ruby-ivar">@padres</span> = <span class="ruby-constant">GovernanceStructure</span>.<span class="ruby-identifier">where</span>(<span class="ruby-string">&quot;enterprise_id = ? AND parent_id IS NULL&quot;</span>, <span class="ruby-ivar">@empresa</span>.<span class="ruby-identifier">id</span>).<span class="ruby-identifier">order</span>(<span class="ruby-identifier">id</span><span class="ruby-operator">:</span> <span class="ruby-value">:asc</span>)
+            <span class="ruby-ivar">@padres</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">p</span><span class="ruby-operator">|</span>
+              <span class="ruby-keyword">begin</span>
+                <span class="ruby-identifier">authorize!</span> <span class="ruby-value">:manage</span>, <span class="ruby-identifier">p</span>
+                    <span class="ruby-keyword">rescue</span> 
+                      <span class="ruby-identifier">raise</span> <span class="ruby-constant">CanCan</span><span class="ruby-operator">::</span><span class="ruby-constant">AccessDenied</span>.<span class="ruby-identifier">new</span>(<span class="ruby-string">&quot;No tiene autorización para acceder a las estructuras de gobierno de la empresa: &quot;</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-ivar">@empresa</span>.<span class="ruby-identifier">name</span> )
+                    <span class="ruby-keyword">end</span>
+            <span class="ruby-keyword">end</span>
+            <span class="ruby-ivar">@perfiles</span> = [<span class="ruby-constant">PERFIL_EST_1</span>,<span class="ruby-constant">PERFIL_EST_2</span>,<span class="ruby-constant">PERFIL_EST_3</span>,<span class="ruby-constant">PERFIL_EST_4</span>,<span class="ruby-constant">PERFIL_EST_5</span>,<span class="ruby-constant">PERFIL_EST_6</span>,<span class="ruby-constant">PERFIL_EST_7</span>]
+        <span class="ruby-keyword">else</span>
+                <span class="ruby-identifier">redirect_to</span> <span class="ruby-identifier">root_url</span>, <span class="ruby-value">:alert</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-string">&#39;ERROR: Empresa no encontrada. Debe seleccionar una empresa en el menú inicial&#39;</span>
+        <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-update_structure" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">update_structure</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <hr>
+          
+          
+
+          
+          <div class="method-source-code" id="update_structure-source">
+            <pre><span class="ruby-comment"># File app/controllers/governance_controller.rb, line 167</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">update_structure</span>
+        <span class="ruby-identifier">est</span> = <span class="ruby-constant">GovernanceStructure</span>.<span class="ruby-identifier">find</span>(<span class="ruby-identifier">params</span>[<span class="ruby-value">:id</span>].<span class="ruby-identifier">to_i</span>)
+        <span class="ruby-identifier">n_name</span> = <span class="ruby-identifier">params</span>[<span class="ruby-value">:name</span>]
+        <span class="ruby-identifier">n_tipo</span> = <span class="ruby-identifier">params</span>[<span class="ruby-value">:tipo</span>]
+        <span class="ruby-identifier">n_funcs</span> = <span class="ruby-identifier">params</span>[<span class="ruby-value">:funcs</span>]
+        <span class="ruby-identifier">n_perfil</span> = <span class="ruby-identifier">params</span>[<span class="ruby-value">:perfil</span>]
+        <span class="ruby-identifier">resps</span> = <span class="ruby-constant">GovernanceResponsability</span>.<span class="ruby-identifier">where</span>(<span class="ruby-identifier">id</span><span class="ruby-operator">:</span> <span class="ruby-identifier">n_funcs</span>)
+        <span class="ruby-comment"># Actualiza los textos normales:</span>
+        <span class="ruby-identifier">est</span>.<span class="ruby-identifier">name</span> = <span class="ruby-identifier">n_name</span>
+        <span class="ruby-identifier">est</span>.<span class="ruby-identifier">structure_type</span> = <span class="ruby-identifier">n_tipo</span>
+        <span class="ruby-identifier">est</span>.<span class="ruby-identifier">profile</span> = <span class="ruby-identifier">n_perfil</span>
+        <span class="ruby-identifier">est</span>.<span class="ruby-identifier">governance_responsabilities</span> = <span class="ruby-identifier">resps</span>
+
+        <span class="ruby-keyword">begin</span>
+          <span class="ruby-identifier">authorize!</span> <span class="ruby-value">:update</span>, <span class="ruby-identifier">est</span>
+        <span class="ruby-keyword">rescue</span> 
+          <span class="ruby-identifier">raise</span> <span class="ruby-constant">CanCan</span><span class="ruby-operator">::</span><span class="ruby-constant">AccessDenied</span>.<span class="ruby-identifier">new</span>(<span class="ruby-string">&quot;No tiene autorización para modificar la estructura de gobierno: &quot;</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">est</span>.<span class="ruby-identifier">name</span> )
+        <span class="ruby-keyword">end</span>
+
+        <span class="ruby-identifier">respond_to</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">format</span><span class="ruby-operator">|</span>
+        <span class="ruby-keyword">if</span> <span class="ruby-identifier">est</span>.<span class="ruby-identifier">save</span> <span class="ruby-comment"># OK</span>
+                <span class="ruby-identifier">format</span>.<span class="ruby-identifier">json</span> {<span class="ruby-identifier">render</span> <span class="ruby-identifier">json</span><span class="ruby-operator">:</span> <span class="ruby-identifier">est</span>}
+        <span class="ruby-keyword">else</span> <span class="ruby-comment"># ERROR</span>
+                <span class="ruby-identifier">format</span>.<span class="ruby-identifier">json</span> {<span class="ruby-identifier">render</span> <span class="ruby-identifier">json</span><span class="ruby-operator">:</span> <span class="ruby-string">&quot;ERROR&quot;</span>}
+        <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span>                        
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+  </section>
+</main>
+
+
+<footer id="validator-badges" role="contentinfo">
+  <p><a href="http://validator.w3.org/check/referer">Validate</a>
+  <p>Generated by <a href="http://rdoc.rubyforge.org">RDoc</a> 4.1.1.
+  <p>Based on <a href="http://deveiate.org/projects/Darkfish-Rdoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
+</footer>
+
