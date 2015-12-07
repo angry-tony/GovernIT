@@ -1,29 +1,5 @@
 #encoding: utf-8
 
-# ==========================================================================
-# GovernIT: A Software for Creating and Controlling IT Governance Models
-
-# Copyright (C) 2015  Oscar González Rojas - Sebastián Lesmes Alvarado
-
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/
-
-# Authors' contact information (e-mail):
-# Oscar González Rojas: o-gonza1@uniandes.edu.co
-# Sebastián Lesmes Alvarado: s.lesmes798@uniandes.edu.co
-
-# ==========================================================================
-
 require_dependency "escenarios/application_controller"
 
 module Escenarios
@@ -33,11 +9,8 @@ module Escenarios
 	  @empresa = getMyEnterpriseAPP
 	  if !@empresa.nil?
 		  @escenarios = PriorizationEscenario.where("enterprise_id = ?", @empresa.id).order(risk_escenario_id: :asc)
-	      @escenarios.each do |esc|
-	        authorize! :manage, esc, :message => "No tiene autorización para acceder a los escenarios de priorización de la empresa: " << @empresa.name
-	      end
       else
-      	redirect_to root_url, :alert => 'ERROR: Empresa no encontrada. Debe seleccionar una empresa en el menú inicial'
+      	redirect_to root_url, :alert => 'ERROR: Enterprise not found. Select one from the initial menu.'
 	  end
 
   	end
@@ -63,7 +36,6 @@ module Escenarios
 
 		# Porcentajes de los escenarios de riesgo:
 		riskEscenarios.each do |risk|
-	  		authorize! :read, risk, :message => "No tiene autorización para acceder al escenario de evaluación de riesgos: " << risk.name
 		    resp = view_context.getPorcentajeRiesgos(risk)
 		  	# Inserta el registro: TIPO_ESCENARIO|ID_ESCENARIO|PORCENTAJE
 		  	value = 'RISK|' << risk.id.to_s << '|' << resp.to_s
@@ -72,7 +44,6 @@ module Escenarios
 
 		# Porcentajes de los escenarios de objetivos:
 		goalEscenarios.each do |goal|
-			authorize! :read, goal, :message => "No tiene autorización para acceder al escenario de evaluación de objetivos: " << goal.name
 		 	resp = view_context.getPorcentajeObjetivos(goal)
 		   	# Inserta el registro: TIPO_ESCENARIO|ID_ESCENARIO|PORCENTAJE
 		  	value = 'GOAL|' << goal.id.to_s << '|' << resp.to_s
@@ -123,8 +94,6 @@ module Escenarios
 		esc.risksWeight = wRisk
 		esc.goalsWeight = wGoal
 		esc.enterprise = emp
-
-		authorize! :create, esc, :message => "No tiene autorización para crear escenarios de priorización en la empresa: " << emp.name
 
 		# Realiza la priorizacion y guarda el resultado:
 		hoy = (Time.now.year).to_s << '-' << Time.now.month.to_s << '-' << Time.now.mday.to_s

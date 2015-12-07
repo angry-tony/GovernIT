@@ -1,109 +1,94 @@
-<% if current_user.has_role? ROLE_ADMIN %>
-  <script>
+<script>
 
-  $( document ).ready(function() {
+$( document ).ready(function() {
 
-    // Sólo activa los botones de las acciones, cuando se ha seleccionado al menos una empresa:
-    $("#select_empresas").change(function(){
+  // Sólo activa los botones de las acciones, cuando se ha seleccionado al menos una empresa:
+  $("#select_empresas").change(function(){
 
-      // Obtiene la seleccion:
-      var sel = $("#select_empresas option:selected").val();
-      // Activa todo, sólo si es una empresa válida:
-      if (sel != 'N') 
+    // Obtiene la seleccion:
+    var sel = $("#select_empresas option:selected").val();
+    // Activa todo, sólo si es una empresa válida:
+    if (sel != 'N') 
+      {
+        // Loading:
+        $("#loadingSpan").html('<img src="<%= LOADING_GIF %>"> Actualizando....');
+        // Activa el boton de guardar:
+        $("#btnSave").prop("disabled", false);
+        // Actualiza la informacion de todo:
+        $.get('/enterprises/get_enterprise', {'idEmpresa' : sel}, function(data)
         {
-          // Loading:
-          $("#loadingSpan").html('<img src="<%= LOADING_GIF %>"> Actualizando....');
-          // Activa el boton de guardar:
-          $("#btnSave").prop("disabled", false);
-          // Actualiza la informacion de todo:
-          $.get('/enterprises/get_enterprise', {'idEmpresa' : sel}, function(data)
+          // Actualiza todo lo que se esté tratando:
+          $("#nombre").val(data.name);
+          $("#desc").val(data.description);
+          if (data.logo_file_name != null) 
           {
-            // Actualiza todo lo que se esté tratando:
-            $("#nombre").val(data.name);
-            $("#desc").val(data.description);
-            if (data.logo_file_name != null) 
-            {
-              var newRoute = '/system/logos/' + data.id + '/' + data.logo_file_name;
-              $("#logoImg").attr("src", newRoute);
-            }
-            else
-            {
-              $("#logoImg").attr("src", '../assets/no_logo.png');
-            };
-            $("#loadingSpan").html('');
-          });
+            var newRoute = '/system/logos/' + data.id + '/' + data.logo_file_name;
+            $("#logoImg").attr("src", newRoute);
+          }
+          else
+          {
+            $("#logoImg").attr("src", '../assets/no_logo.png');
+          };
+          $("#loadingSpan").html('');
+        });
 
-        };
-
-    });
+      };
 
   });
 
-  </script>
+});
 
-  <%= form_tag( "../enterprises/update", method: "post", multipart: true) do %>
+</script>
+
+<%= form_tag( "../enterprises/update", method: "post", multipart: true) do %>
 
 
-  <select style="width:300px;border-color:#DDD;height:30px;" id="select_empresas" name="idEmpresa">
-      <option selected disabled value="N">--- Seleccione la empresa a actualizar ---</option>
-      <% @empresas.each do |e| %>
-        <% if !@empresa.nil? && @empresa.id == e.id %>
-        <option value='<%= e.id %>' selected>&nbsp;&nbsp;<%= e.name %></option>
-        <% else %>
-        <option value='<%= e.id %>'>&nbsp;&nbsp;<%= e.name %></option>
-        <% end %>
+<select style="width:300px;border-color:#DDD;height:30px;" id="select_empresas" name="idEmpresa">
+    <option selected disabled value="N">--- Seleccione la empresa a actualizar ---</option>
+    <% @empresas.each do |e| %>
+      <% if !@empresa.nil? && @empresa.id == e.id %>
+      <option value='<%= e.id %>' selected>&nbsp;&nbsp;<%= e.name %></option>
+      <% else %>
+      <option value='<%= e.id %>'>&nbsp;&nbsp;<%= e.name %></option>
       <% end %>
-  </select>
+    <% end %>
+</select>
 
 
-  <h2>Editar empresa <span style="color:blue;font-size:13px;" id="loadingSpan"></span> </h2>
+<h2>Editar empresa <span style="color:blue;font-size:13px;" id="loadingSpan"></span> </h2>
 
 
-  <div style="width:100%;height:340px;">
-    <div style="width:45%;float:left;">
-      <p>Nombre de la empresa:</p>
-      <div class="input-group">
-        <input type="text" class="form-control" name="nombre" style="width:350px;" id="nombre" <% if !@empresa.nil? %> value="<%= @empresa.name %>" <% end %> >
-      </div>
-      <br></br>
-      <p>Descripción de la empresa:</p>
-      <div class="input-group">
-        <textarea rows="8" cols="44" class="form-control" name="desc" id="desc" style="resize:none;"><% if !@empresa.nil? %><%= @empresa.description %><% end %></textarea>
-      </div>
+<div style="width:100%;height:340px;">
+  <div style="width:45%;float:left;">
+    <p>Nombre de la empresa:</p>
+    <div class="input-group">
+      <input type="text" class="form-control" name="nombre" style="width:350px;" id="nombre" <% if !@empresa.nil? %> value="<%= @empresa.name %>" <% end %> >
     </div>
-
-    <div style="width:10%;float:left;">
-    </div>
-
-    <div style="width:45%;float:left;">
-      <p>Logo de la empresa:</p>
-      <div class="input-group">
-        <input type="file" class="form-control" name="logo">
-        <center>
-          <img style="margin-top:70px;max-width:260px;max-height:230px;" id="logoImg" <% if !@empresa.nil? && !@empresa.logo_file_name.blank? %> src="/system/logos/<%= @empresa.id.to_s%>/<%= @empresa.logo_file_name %>" <% else %> src="../assets/no_logo.png" <% end %> >
-        </center>
-      </div>
+    <br></br>
+    <p>Descripción de la empresa:</p>
+    <div class="input-group">
+      <textarea rows="8" cols="44" class="form-control" name="desc" id="desc" style="resize:none;"><% if !@empresa.nil? %><%= @empresa.description %><% end %></textarea>
     </div>
   </div>
 
-
-
-  <div class="btn-group">
-    <button type="submit" class="btn btn-default" id="btnSave" <% if @empresa.nil? %> disabled <% end %> >Guardar cambios</button>
+  <div style="width:10%;float:left;">
   </div>
 
-  <% end %>
-
-<% else %>
-
-  <div class="alert alert-danger">
-    No tiene autorización para acceder a este recurso.
+  <div style="width:45%;float:left;">
+    <p>Logo de la empresa:</p>
+    <div class="input-group">
+      <input type="file" class="form-control" name="logo">
+      <center>
+        <img style="margin-top:70px;max-width:260px;max-height:230px;" id="logoImg" <% if !@empresa.nil? && !@empresa.logo_file_name.blank? %> src="/system/logos/<%= @empresa.id.to_s%>/<%= @empresa.logo_file_name %>" <% else %> src="../assets/no_logo.png" <% end %> >
+      </center>
+    </div>
   </div>
+</div>
 
-  <div class="btn-group">
-    <button type="button" class="btn btn-default" onclick="location.href='../inicio/inicio'">Inicio</button>
-  </div>
 
+
+<div class="btn-group">
+  <button type="submit" class="btn btn-default" id="btnSave" <% if @empresa.nil? %> disabled <% end %> >Guardar cambios</button>
+</div>
 
 <% end %>
-

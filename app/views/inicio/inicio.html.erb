@@ -2,17 +2,8 @@
 
 $( document ).ready(function() {
 
-  var mod0 = false; var mod1 = false; var mod2 = false; var mod3 = false;
+  var mod0 = true; var mod1 = true; var mod2 = true; var mod3 = true;
   //var mod0 = true; var mod1 = true; var mod2 = true; var mod3 = true;
-
-  // Carga el acceso a los modulos desde el inicio:
-  $.get('/inicio/modulos', function(data)
-  {
-    if (data[0]) { mod0 = true;};
-    if (data[1]) { mod1 = true;};
-    if (data[2]) { mod2 = true;};
-    if (data[3]) { mod3 = true;};
-  });
 
   // Sólo activa los botones de las acciones, cuando se ha seleccionado al menos una empresa:
   $("#select_empresas").change(function(){
@@ -77,16 +68,9 @@ $( document ).ready(function() {
 
 <% 
 emp = getMyEnterprise
-mod0 = current_user.has_role? ROLE_USER_CONFIG
-mod1 = current_user.has_role? ROLE_USER_GOV
-mod2 = current_user.has_role? ROLE_USER_SIMULATION
-admin = current_user.has_role? ROLE_ADMIN
-if (current_user.has_role? ROLE_EVAL) || (current_user.has_role? ROLE_ADMIN)
-   mod0 = true
-   mod1 = true
-   mod2 = true
-end
-
+mod0 = true
+mod1 = true
+mod2 = true
 %>
 
 
@@ -102,10 +86,8 @@ end
     <% end %>
   </select>
   <!-- La creación de empresas sólo está disponible para los administradores -->
-  <% if current_user.has_role? ROLE_ADMIN %>
   <a href="../enterprises/new" style="margin-left:10px;" title="Agregar nueva empresa"><img src="/assets/add.png"></a>
   <a href="../enterprises/edit" style="margin-left:20px;" title="Editar empresa"><img src="/assets/edit_26.png"></a>
-  <% end %>
 </div>
 
 <span style="color:red;margin-left:37px;" id="errorEmpresa"></span>
@@ -147,40 +129,6 @@ end
         </div>
       </div>
 
-    </div>
-
-    <!--  SIMULACION -->
-    <div style="min-height:200px;border:solid 1px #DDD;margin:0 0 5px 0;">
-      <div style="width:20%;float:left;padding:36px 20px 36px 20px;">
-        <img src="/assets/escenario.png">
-      </div>
-
-      <div style="width:80%;float:left;text-align:left;">
-        <h3 style="margin-top:36px;font-weight:100;">Simulación Toma de Decisiones</h3>
-        <p style="margin-top:20px;font-size:14px;">Genere nuevas simulaciones, y compare los resultados de ejecuciones pasadas.</p>
-        <div class="btn-group">
-          <button id="btnSimular" type="button" class="btn btn-default" onclick="location.href='../eS/simulacion/inicio'" <% if (emp.nil?) || (!mod2) %> disabled <% end %> >Simular</button>      
-          <button id="btnVisualizar" type="button" class="btn btn-default" onclick="location.href='../eS/escenarios'" <% if (emp.nil?) || (!mod2) %> disabled <% end %> >Configurar</button>     
-          <button id="btnComparar" type="button" class="btn btn-default" onclick="location.href='../eS/comparacion/inicio'" <% if (emp.nil?) || (!mod2) %> disabled <% end %> >Comparar</button>
-        </div>
-      </div>    
-    </div>
-
-    <!--  CUANTIFICACION -->
-    <div style="min-height:200px;border:solid 1px #DDD;">
-      <div style="width:20%;float:left;padding:36px 20px 36px 20px;">
-        <img src="/assets/portfolio.png">
-      </div>
-
-      <div style="width:80%;float:left;text-align:left;">
-        <h3 style="margin-top:36px;font-weight:100;">Cuantificación Negocio/TI</h3>
-        <p style="margin-top:20px;font-size:14px;"></p>   
-        <% if admin %>
-          <div class="btn-group">
-            <button id="btnSimularQ" type="button" class="btn btn-default" onclick="location.href='../eQ/distribuciones/index'">Simular</button>
-          </div>     
-        <% end %>
-      </div>    
     </div>
 
   </div>

@@ -2,24 +2,12 @@
 
 class EnterprisesController < ApplicationController
   def new
-    begin
-      authorize! :create, Enterprise
-    rescue
-      raise CanCan::AccessDenied.new("No tiene autorización para crear empresas")
-    end
   end
   # ==========
 
   def edit
     @empresa = view_context.getMyEnterprise
     @empresas = Enterprise.all
-
-    begin
-      authorize! :update, Enterprise
-    rescue
-      raise CanCan::AccessDenied.new("No tiene autorización para editar empresas")
-    end
-
   end
   # ===========
 
@@ -34,9 +22,9 @@ class EnterprisesController < ApplicationController
     
 
     if empresa.save
-      flash[:notice] = 'La empresa ' << empresa.name << ' fue actualizada con éxito!'
+      flash[:notice] = 'The enterprise ' << empresa.name << ' was updated successfully'
     else
-      flash[:alert] = 'ERROR: Actualizando la empresa ' << empresa.name
+      flash[:alert] = 'ERROR: Updating the enterprise ' << empresa.name
     end
 
     # Redirige al inicio!
@@ -50,7 +38,7 @@ class EnterprisesController < ApplicationController
   	@error = ''
 
   	if nombre == nil or nombre.empty?
-  		@error = 'Debe definir un nombre'
+  		@error = 'The field name is mandatory'
   	end
 
     if @error.empty?

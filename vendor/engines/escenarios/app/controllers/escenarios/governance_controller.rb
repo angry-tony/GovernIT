@@ -1,29 +1,5 @@
 #encoding: utf-8
 
-# ==========================================================================
-# GovernIT: A Software for Creating and Controlling IT Governance Models
-
-# Copyright (C) 2015  Oscar González Rojas - Sebastián Lesmes Alvarado
-
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/
-
-# Authors' contact information (e-mail):
-# Oscar González Rojas: o-gonza1@uniandes.edu.co
-# Sebastián Lesmes Alvarado: s.lesmes798@uniandes.edu.co
-
-# ==========================================================================
-
 require_dependency "escenarios/application_controller"
 
 module Escenarios
@@ -41,17 +17,9 @@ module Escenarios
 			arrayIdsRiesgos.each do |r|
 				risks = Risk.where(id: r)
 				@riesgos.push(risks)
-			end
-
-			@escs.each do |e|
-				begin
-		    	  authorize! :manage, e
-			    rescue 
-			      raise CanCan::AccessDenied.new("No tiene autorización para acceder a los escenarios de evaluación de riesgos de la empresa: " << @empresa.name )
-			    end
-			end
+			end			
 		else
-			redirect_to root_url, :alert => 'ERROR: Empresa no encontrada. Debe seleccionar una empresa en el menú inicial'
+			redirect_to root_url, :alert => 'ERROR: Enterprise not found. Select one from the initial menu.'
 		end
 	end
 
@@ -60,15 +28,8 @@ module Escenarios
 		@empresa = getMyEnterpriseAPP
 		if !@empresa.nil?
 			@escs = GoalEscenario.where("enterprise_id = ?", @empresa.id).order(id: :asc)
-			@escs.each do |e|
-				begin
-		    	  authorize! :manage, e
-			    rescue 
-			      raise CanCan::AccessDenied.new("No tiene autorización para acceder a los escenarios de evaluación de objetivos de la empresa: " << @empresa.name )
-			    end
-			end
 		else
-			redirect_to root_url, :alert => 'ERROR: Empresa no encontrada. Debe seleccionar una empresa en el menú inicial'
+			redirect_to root_url, :alert => 'ERROR: Enterprise not found. Select one from the initial menu.'
 		end
 	end
 	# -------------
@@ -88,12 +49,6 @@ module Escenarios
 		risk.enterprise_id = emp.id 
 		#risk.risk_escenario_id = risk_escenario_id
 
-		begin
-		  authorize! :create, risk
-		rescue 
-		  raise CanCan::AccessDenied.new("No tiene autorización para crear riesgos específicos para la empresa: " << emp.name )
-		end
-
         respond_to do |format|
         	if risk.save # OK
         		format.json {render json: risk}
@@ -109,17 +64,10 @@ module Escenarios
 		name = params[:name]
 		est = params[:est]
 
-		authorize! :create, RiskEscenario
 		esc = RiskEscenario.new
 		esc.name = name
 		esc.enterprise_id = @empresa.id
 		esc.governance_structure_id = est.to_i
-
-		begin
-		  authorize! :create, esc
-		rescue 
-		  raise CanCan::AccessDenied.new("No tiene autorización para crear escenarios de evaluación de riesgos en la empresa: " << @empresa.name )
-		end
 
 		respond_to do |format|
         	if esc.save # OK
@@ -136,17 +84,10 @@ module Escenarios
 		name = params[:name]
 		est = params[:est]
 
-		authorize! :create, RiskEscenario
 		esc = GoalEscenario.new
 		esc.name = name
 		esc.enterprise_id = @empresa.id
 		esc.governance_structure_id = est.to_i
-
-		begin
-		  authorize! :create, esc
-		rescue 
-		  raise CanCan::AccessDenied.new("No tiene autorización para crear escenarios de evaluación de objetivos en la empresa: " << @empresa.name )
-		end
 
 		respond_to do |format|
         	if esc.save # OK
@@ -170,12 +111,6 @@ module Escenarios
 		esc.goalsWeight = wgoal
 		esc.enterprise_id = @empresa.id
 
-		begin
-		  authorize! :create, esc
-		rescue 
-		  raise CanCan::AccessDenied.new("No tiene autorización para crear escenarios de priorización en la empresa: " << @empresa.name )
-		end
-
 		respond_to do |format|
         	if esc.save # OK
         		format.json {render json: esc}
@@ -194,12 +129,6 @@ module Escenarios
 		if !@empresa.nil?
 			@categories = RiskCategory.where("id_padre IS NULL")
 			@escenario = RiskEscenario.find(params[:idEsc].to_i)
-
-			begin
-			  authorize! :manage, @escenario
-			rescue 
-			  raise CanCan::AccessDenied.new("No tiene autorización para acceder al escenario de evaluación de riesgos: " << @escenario.name )
-			end
 
 			@cals = @escenario.califications
 			@tipoEscenario = ''
@@ -240,12 +169,6 @@ module Escenarios
 
 		if !@empresa.nil?
 			@escenario = GoalEscenario.find(params[:idEsc].to_i)
-			begin
-			  authorize! :manage, @escenario
-			rescue 
-			  raise CanCan::AccessDenied.new("No tiene autorización para acceder al escenario de evaluación de objetivos: " << @escenario.name )
-			end
-
 			@cals = @escenario.goal_califications
 			# Objetivos de Negocio:
 			@bGoals = Goal.where("goal_type = ? AND scope = ?", GENERIC_TYPE, B_GOAL)
@@ -552,7 +475,7 @@ module Escenarios
 			# Si no existia, no importa, prosigue con la creación
 			# Construye el escenario:
 			consEsc = RiskEscenario.new
-			consEsc.name = 'Riesgos consolidados de TI'
+			consEsc.name = 'IT Consolidated Risks'
 			consEsc.enterprise_id = getMyEnterpriseAPP.id
 		else
 			# Si, si existia, debe editarlo, borra las calificaciones viejas, y crea unas nuevas:
@@ -668,14 +591,14 @@ module Escenarios
 					end
 					
 					if regenerados > 0
-						flash[:notice] = 'El escenario de evaluación de riesgos consolidado, fue generado exitosamente!, adicionalmente se re-generaron nuevos escenarios de priorización (' << regenerados.to_s << ' escenarios)'
+						flash[:notice] = 'The consolidated risk assessment scenario was generated successfully!, additionally new prioritization scenarios were re-generated (' << regenerados.to_s << ' scenarios)'
 					elsif errados > 0
-						flash[:alert] = 'ERROR: De los nuevos escenario de priorización que debían generarse, no se pudieron guardar ' << errados.to_s << ' de ellos!'						
+						flash[:alert] = 'ERROR: From the new prioritization scenarios to be re-generated, ' << errados.to_s << ' could not be saved!'						
 					end
 				end
 			else
 				# OK:
-				flash[:notice] = 'El escenario de evaluación de riesgos consolidado, fue generado exitosamente!'
+				flash[:notice] = 'The consolidated risk assessment scenario was generated successfully!'
 			end
 
 			# Redirige al menú de escenarios de riesgos:
@@ -683,7 +606,7 @@ module Escenarios
 			
 		else
 			# ERROR:
-			flash[:error] = 'ERROR: Generando el escenario de evaluación de riesgos consolidado!'
+			flash[:error] = 'ERROR: Generating the consolidated risk assessment scenario!'
 			# Redirige al menú de escenarios de riesgos:
 			redirect_to action: :risks
 		end		
@@ -756,9 +679,9 @@ module Escenarios
 		idMapa = params[:imported].to_i
 		creado = importRiskEscenarioFromDecisionMap(idMapa)
 		if creado
-			flash[:notice] = 'La información fue importada correctamente. Escenario de evaluación de riesgos generado exitosamente.'
+			flash[:notice] = 'The information was imported correctly. Risk assessment scenario generated successfully.'
 		else
-			flash[:error] = 'ERROR: Importando la información necesaria para generar el escenario de evaluación de riesgos!'
+			flash[:error] = 'ERROR: Importing the information needed to generate the risk assessment scenario!'
 		end
 
 		# Redirige al menú de escenarios de riesgos:

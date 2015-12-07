@@ -3,10 +3,6 @@ class ApplicationController < ActionController::Base
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
 
-  rescue_from CanCan::AccessDenied do |exception|
-    redirect_to root_url, :alert => exception.message
-  end
-
   # Helper usado DESDE el engine de Mapas de Decision:
   helper Mapas::SharedHelper
 
@@ -99,7 +95,7 @@ class ApplicationController < ActionController::Base
     # Return TRUE: Si la creacion y asociacion fue exitosa
     #        FALSE: Si hubo algun inconveniente creando el escenario de evaluacion de riesgos
     riskEsc = Escenarios::RiskEscenario.new
-    riskEsc.name = 'Riesgos asociados al mapa de decisiones: ' << mapa.name
+    riskEsc.name = 'Risk related to the Decision Map: ' << mapa.name
     riskEsc.enterprise_id = view_context.getMyEnterprise.id
     riskEsc.decision_map_id = idMap
     if riskEsc.save

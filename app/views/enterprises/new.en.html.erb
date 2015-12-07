@@ -1,8 +1,7 @@
-<% if current_user.has_role? ROLE_ADMIN %>
 
-	<h2>New Enterprise</h2>
+<h2>New Enterprise</h2>
 
-	<%= form_tag( "../enterprises/resultado", method: "post", multipart: true) do %>
+<%= form_tag( "../enterprises/resultado", method: "post", multipart: true) do %>
 
 	<div style="width:100%;height:340px;">
 		<div style="width:45%;float:left;">
@@ -34,17 +33,5 @@
 		<button type="submit" class="btn btn-default" >Save</button>
 	</div>
 
-
 <% end %>
 
-<% else %>
-
-	<div class="alert alert-danger">
-		Unauthorized area!.
-	</div>
-
-	<div class="btn-group">
-	  <button type="button" class="btn btn-default" onclick="location.href='../inicio/inicio'">Home</button>
-	</div>
-
-<% end %>

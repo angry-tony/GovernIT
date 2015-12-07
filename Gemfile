@@ -18,12 +18,6 @@ gem 'coffee-rails', '~> 4.0.0'
 # Arreglar los warnings de contenido
 gem 'webrick', '1.3.1'
 
-# Gema CANCAN para seguridad:
-gem 'cancancan', '~> 1.9'
-
-# Gema DEVISE de autenticacion
-gem 'devise'
-
 # Paperclip para adjuntar archivos:
 #gem "paperclip", "~> 4.2" -> BUG!
 gem "paperclip", "~> 3.5.3"

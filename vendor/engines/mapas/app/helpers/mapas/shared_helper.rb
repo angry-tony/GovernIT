@@ -1,29 +1,5 @@
 #encoding: utf-8
 
-# ==========================================================================
-# GovernIT: A Software for Creating and Controlling IT Governance Models
-
-# Copyright (C) 2015  Oscar González Rojas - Sebastián Lesmes Alvarado
-
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/
-
-# Authors' contact information (e-mail):
-# Oscar González Rojas: o-gonza1@uniandes.edu.co
-# Sebastián Lesmes Alvarado: s.lesmes798@uniandes.edu.co
-
-# ==========================================================================
-
 module Mapas
   module SharedHelper
   	
@@ -37,7 +13,7 @@ module Mapas
 	    mapas = DecisionMap.where(enterprise_id: empId)
 
 	    # Inserta un registro de separacion:
-	    content.push('Mapas de decisión$:$' << mapas.size.to_s)
+	    content.push('Decision Maps$:$' << mapas.size.to_s)
 
 	    mapas.each do |mapa|
 	      # String: ID_MAP|name
@@ -59,7 +35,7 @@ module Mapas
   	def mapasGenerateMapsHTML(empresa, mapIds, archIds, log)
 	    mapas = DecisionMap.where(id: mapIds)
 
-	  	log.push("Creando contenido de los mapas de decisión...")
+	  	log.push("Creating decision maps content...")
 
 
 	  	# Directorio actual: (El de la empresa)
@@ -70,25 +46,25 @@ module Mapas
 	  	# Crea la carpeta para los mapas de decision y su respectivo archivo index:
 	  	folderName = 'decisionMaps'
 	  	FileUtils.mkdir_p(folderName)
-	  	log.push("Directorio creado: decisionMaps (Para los mapas de decisión)")
+	  	log.push("Directory created: decisionMaps (Decision Maps)")
 	  	Dir.chdir(actualFolder+"/"+folderName) # Ingresa a la carpeta DecisionMaps
 	  	# Crea el archivo index para los mapas de decision:
 	    fileHtml = File.new("indexMaps.html", "w")
 	    lineHtml = '<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	      <link rel="stylesheet" type="text/css" href="../css/styles.css"/></head>'
 	  	fileHtml.puts lineHtml
-	  	lineHtml = '<body><div><ol class="breadcrumb"><li><a href="../index.html">Inicio</a></li>'
+	  	lineHtml = '<body><div><ol class="breadcrumb"><li><a href="../index.html">Home</a></li>'
 	  	fileHtml.puts lineHtml
-	  	lineHtml = '<li class="active">['<< empresa.name << '] Gobierno de TI - Mapas de Decisión</li>'
+	  	lineHtml = '<li class="active">['<< empresa.name << '] IT Governance - Decision Maps</li>'
 	  	fileHtml.puts lineHtml
 	  	lineHtml = '</ol></div>'
 	  	fileHtml.puts lineHtml
-	  	lineHtml = '<h2>Mapas de Decisión</h2>'
+	  	lineHtml = '<h2>Decision Maps</h2>'
 	  	fileHtml.puts lineHtml
 	  	if mapas.size == 0
 	  		lineHtml = '<div class="alert alert-info">'
 	  		fileHtml.puts lineHtml
-	  		lineHtml = 'No hay mapas de decisión en el sistema, para la empresa: '<< empresa.name << '.' << '</div>'
+	  		lineHtml = 'No decision maps in the system, for the enterprise: '<< empresa.name << '.' << '</div>'
 	  		fileHtml.puts lineHtml
 	  	else
 	  		mapas.each do |m|
@@ -101,7 +77,7 @@ module Mapas
 	    fileHtml.puts lineHtml
 
 	  	fileHtml.close()
-	  	log.push("Archivo creado: indexMaps.html (Índice de los mapas de decisión)")
+	  	log.push("File created: indexMaps.html")
 
 	  	# CRea el archivo de estilos para los mapas de decision:
 	  	Dir.chdir(rootEmpresa+"/css")
@@ -131,7 +107,7 @@ module Mapas
 	    fileHtml.puts lineHtml
 
 	    fileHtml.close()
-	  	log.push("Archivo creado: mapStyles.css (Archivo de estilos particular para los mapas de decisión)")
+	  	log.push("File created: mapStyles.css")
 
 	    # Crea el archivo de js para el dialogo en los mapas:
 	    Dir.chdir(rootEmpresa+"/js")
@@ -171,9 +147,9 @@ module Mapas
 				fileHtml.puts lineHtml
 				lineHtml = '<div><ol class="breadcrumb"><li><a href="../index.html">Inicio</a></li>'
 				fileHtml.puts lineHtml
-				lineHtml = '<li class="active">[' << empresa.name << '] Mapa de decisión - ' << m.name << '</li></ol></div>'
+				lineHtml = '<li class="active">[' << empresa.name << '] Decision Map - ' << m.name << '</li></ol></div>'
 				fileHtml.puts lineHtml
-				lineHtml = '<h2>Mapa de decisión: ' << m.name << ' </h2>'
+				lineHtml = '<h2>Decision Map: ' << m.name << ' </h2>'
 				fileHtml.puts lineHtml
 				lineHtml = '<div><table style="font-size:14px;"><tr><th>Decisión</th>'
 				fileHtml.puts lineHtml
@@ -194,7 +170,7 @@ module Mapas
 						fileHtml.puts lineHtml
 						lineHtml = '<td colspan = ' << cols.to_s << ' style="text-align:center;color:#31708f;font-size:18px;">'
 						fileHtml.puts lineHtml
-						lineHtml = 'Dimensión: ' << gen.dimension << '</td></tr>'
+						lineHtml = 'Dimension: ' << gen.dimension << '</td></tr>'
 						fileHtml.puts lineHtml
 						dim_ant = gen.dimension
 					end
@@ -218,17 +194,17 @@ module Mapas
 			  	fileHtml.puts lineHtml
 				lineHtml = '<div><ol class="breadcrumb"><li><a href="../index.html">Inicio</a></li>'
 				fileHtml.puts lineHtml
-				lineHtml = '<li class="active">[' << empresa.name << '] Mapa de decisión - ' << m.name << '</li></ol></div>'
+				lineHtml = '<li class="active">[' << empresa.name << '] Decision Map - ' << m.name << '</li></ol></div>'
 				fileHtml.puts lineHtml
-				lineHtml = '<h2>Mapa de decisión: ' << m.name << ' <span style="color:#428bca;cursor:pointer;margin:0 0 0 7px;font-size:15px;" id="archReport">'
+				lineHtml = '<h2>Decision Map: ' << m.name << ' <span style="color:#428bca;cursor:pointer;margin:0 0 0 7px;font-size:15px;" id="archReport">'
 				fileHtml.puts lineHtml
 				# Si tiene activo el reporte de identificacion, activa el link desde alli:
 				if archIds.include?(m.id.to_s)
-				lineHtml = 'Ver arquetipo identificado'
+				lineHtml = 'Show identified archetype'
 				fileHtml.puts lineHtml
 				end
 
-				lineHtml = '</span></h2><div><table style="font-size:14px;"><tr><th style="width:30%;">Decisión</th>'
+				lineHtml = '</span></h2><div><table style="font-size:14px;"><tr><th style="width:30%;">Decision</th>'
 				fileHtml.puts lineHtml 
 
 				resps.each do |r|
@@ -246,7 +222,7 @@ module Mapas
 					    fileHtml.puts lineHtml
 						lineHtml = '<td colspan = ' << cols.to_s << ' style="text-align:center;color:#31708f;font-size:18px;">'
 						fileHtml.puts lineHtml
-						lineHtml = 'Dimensión: ' << gen.dimension << '</td></tr>'
+						lineHtml = 'Dimension: ' << gen.dimension << '</td></tr>'
 						fileHtml.puts lineHtml
 						dim_ant = gen.dimension
 					end
@@ -265,22 +241,22 @@ module Mapas
 
 					lineHtml = '<div id="dialogArchReport" style="font-size:12px;">'
 					fileHtml.puts lineHtml
-					lineHtml = '<div><table id="arch"><tr class="blank"><td colspan="2" class="blank"></td><td colspan="10">Dominio de Decisión</td></tr><tr class="blank">'
+					lineHtml = '<div><table id="arch"><tr class="blank"><td colspan="2" class="blank"></td><td colspan="10">Decision Domain</td></tr><tr class="blank">'
 					fileHtml.puts lineHtml
 					lineHtml = '<td colspan="2" class="blank"></td>'
 					fileHtml.puts lineHtml
 
 					dimensions.each do |dim|
 					  stat = GovernanceDecision.where("enterprise_id = ? AND dimension = ?", empresa.id, dim).size
-					  lineHtml = '<td colspan="2">' << dim << '<br><span class="totalDBD">' << stat.to_s << ' decisiones</span></td>'
+					  lineHtml = '<td colspan="2">' << dim << '<br><span class="totalDBD">' << stat.to_s << ' decisions</span></td>'
 					  fileHtml.puts lineHtml
 					end
 
-					lineHtml = '</tr><tr class="blank"><td colspan="2" class="blank"></td><td>Decide</td><td>Consultado</td><td>Decide</td><td>Consultado</td>'
+					lineHtml = '</tr><tr class="blank"><td colspan="2" class="blank"></td><td>Decides</td><td>Consulted</td><td>Decides</td><td>Consulted</td>'
 					fileHtml.puts lineHtml
-					lineHtml = '<td>Decide</td><td>Consultado</td><td>Decide</td><td>Consultado</td><td>Decide</td><td>Consultado</td></tr>'
+					lineHtml = '<td>Decides</td><td>Consulted</td><td>Decides</td><td>Consulted</td><td>Decides</td><td>Consulted</td></tr>'
 					fileHtml.puts lineHtml
-					lineHtml = '<tr><td rowspan="7" class="rotate">Arquetipo de Gobierno</td>'
+					lineHtml = '<tr><td rowspan="7" class="rotate">Governance Archetype</td>'
 					fileHtml.puts lineHtml
 					lineHtml = '<td>' << arquetipos[0].name << '</td>'
 					fileHtml.puts lineHtml
@@ -298,7 +274,7 @@ module Mapas
 					  if ((modulo == 0) && (contArchs <= arquetipos.size))
 
 					    if contArchs == arquetipos.size
-					      lineHtml = '</tr><tr><td>Sin responsable</td>'
+					      lineHtml = '</tr><tr><td>No-Responsible</td>'
 					    else
 					      lineHtml = '</tr><tr><td>' << arquetipos[contArchs].name << '</td>'
 					    end            
@@ -370,12 +346,12 @@ module Mapas
 
 					decTemp = GovernanceDecision.find(find.governance_decision_id) # PERFORMANCE_ALERT!
 
-					lineHtml = '<h4 style="font-size:15px;">Decisión:</h4>'
+					lineHtml = '<h4 style="font-size:15px;">Decision:</h4>'
 					fileHtml.puts lineHtml
 					lineHtml = '<p style="font-style:italic;color:#AAA;font-size:13px;font-family: Helvetica,Arial,sans-serif">' << decTemp.description << '</p>'
 					fileHtml.puts lineHtml
 
-					lineHtml = '<h4 style="font-size:15px;">Descripción del hallazgo:</h4>'
+					lineHtml = '<h4 style="font-size:15px;">Finding Description:</h4>'
 					fileHtml.puts lineHtml
 					# Descripcion del hallazgo:
 					lineHtml = '<p'
@@ -383,7 +359,7 @@ module Mapas
 					lineHtml = 'style="font-style:italic;color:#AAA;font-size:12px;">' << find.description << '</p>'
 					fileHtml.puts lineHtml
 
-					lineHtml = '<h4 style="font-size:15px;" >Cambios propuestos:</h4>'
+					lineHtml = '<h4 style="font-size:15px;" >Proposed Changes:</h4>'
 					fileHtml.puts lineHtml
 					# Cambios propuestos:
 					lineHtml = '<p'
@@ -391,12 +367,12 @@ module Mapas
 					updates = find.proposed_updates
 
 					if updates.nil?
-					  updates = 'No definido'          
+					  updates = 'Undefined'          
 					end
 					lineHtml = 'style="font-style:italic;color:#AAA;font-size:12px;">' << updates << '</p>'
 					fileHtml.puts lineHtml
 
-					lineHtml = '<h4 style="font-size:15px;" >Riesgos asociados al hallazgo:</h4>'
+					lineHtml = '<h4 style="font-size:15px;" >Related risks from the finding:</h4>'
 					fileHtml.puts lineHtml
 					# Riesgos asociados:
 					lineHtml = '<div>'
@@ -405,7 +381,7 @@ module Mapas
 					categories.each do |cat|
 					  lineHtml = '<div class="alert alert-info" style="padding:9px;margin-bottom:0px;">'
 					  fileHtml.puts lineHtml
-					  lineHtml = '<span style="font-size:13px;">Categoría de Riesgo: ' << cat.description << '</span></div>' 
+					  lineHtml = '<span style="font-size:13px;">Risk category: ' << cat.description << '</span></div>' 
 					  fileHtml.puts lineHtml
 
 					  myRisks = risks.select{|r| r.risk_category.id_padre == cat.id}
@@ -450,7 +426,7 @@ module Mapas
 	        	fileHtml.puts lineHtml
 	        	funcs = get_functions_method(est.id) 
 	        	if funcs.size == 0
-	        		lineHtml = '<span style="color:#333;"><i>- Esta estructura no tiene funciones definidas</i></span><br>'
+	        		lineHtml = '<span style="color:#333;"><i>- This structure has no defined responsabilities</i></span><br>'
 	        		fileHtml.puts lineHtml
 	        	else
 	        		error = false
@@ -458,7 +434,7 @@ module Mapas
 	        			# Verifica que no sea el registro de separacion de errores
 	        			if f == '#$%&/()='
 	        				error = true
-							lineHtml = '<h3 style="color:red;">Conflictos encontrados:</h3>'
+							lineHtml = '<h3 style="color:red;">Conflicts founded:</h3>'
 							fileHtml.puts lineHtml
 							next
 	        			end
@@ -467,7 +443,7 @@ module Mapas
 	        			if error
 	        				# Formatea el contenido de los errores:
 	        				partes = f.split("|")
-	        				lineHtml = '<span style="color:red;"><i>- ' << partes[0] << ', conflictiva con las siguientes estructuras: </i></span><br>'
+	        				lineHtml = '<span style="color:red;"><i>- ' << partes[0] << ', conflict with the next structures: </i></span><br>'
 	        				fileHtml.puts lineHtml
 
 	        				for i in 1..(partes.size - 1)
@@ -533,7 +509,7 @@ module Mapas
 			myFile.puts lineHtml
 			seleccionadas.each do |sel|
 				idStr = 'par_' << sel.governance_structure.id.to_s << '_' << myDec.id.to_s << '_' << i.to_s
-				lineHtml = '<p title="Ver funciones" class="showFuncs" id="' << idStr << '">- ' << sel.governance_structure.name << '</p>'
+				lineHtml = '<p title="Show responsabilities" class="showFuncs" id="' << idStr << '">- ' << sel.governance_structure.name << '</p>'
 			    myFile.puts lineHtml
 			end
 			lineHtml = '</td>'
@@ -603,7 +579,7 @@ module Mapas
 	    myFile.puts lineHtml
 
 	    if hallazgos
-	      lineHtml = 'Ver hallazgos'
+	      lineHtml = 'Show findings'
 	      myFile.puts lineHtml
 	    end
 
@@ -636,7 +612,7 @@ module Mapas
 	    else
 	    	seleccionadas.each do |sel|
 	    		idStr = 'par_' << sel.governance_structure.id.to_s << '_' << myDec.id.to_s << '_' << i.to_s
-	    		lineHtml = '<p title="Ver funciones" class="showFuncs" id="' << idStr << '">- ' << sel.governance_structure.name << '</p>'
+	    		lineHtml = '<p title="Show responsabilities" class="showFuncs" id="' << idStr << '">- ' << sel.governance_structure.name << '</p>'
 	    		myFile.puts lineHtml
 	    	end
 	    	

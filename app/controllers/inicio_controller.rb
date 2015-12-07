@@ -6,16 +6,7 @@ class InicioController < ApplicationController
   
   def inicio
     # Las empresas se cargan según los roles del usuario: Si es evaluador, sólo carga su empresa, si es administrador, carga todas
-    if current_user.has_role? ROLE_ADMIN
-      @empresas = Enterprise.all  
-    elsif current_user.has_role? ROLE_EVAL
-      @empresas = Enterprise.all
-    else
-      @empresas = []
-      if !current_user.enterprise.nil?
-        @empresas << current_user.enterprise
-      end
-    end    	
+    @empresas = Enterprise.all  
   end
 
   # Menú de administración, para generar las aplicaciones cliente para cada empresa:
@@ -96,8 +87,8 @@ class InicioController < ApplicationController
   	# Crea la carpeta que contendrá los contenidos HTML:
   	rootFolder = 'HTML_CONTENT'
   	FileUtils.mkdir_p(rootFolder)
-  	log.push("Creando contenido de la página inicial...")
-  	log.push("Directorio creado: " << rootFolder << '(Directorio principal)')
+  	log.push("Creating initial page content...")
+  	log.push("Directory created: " << rootFolder << '(Main directory)')
 
   	# Actualiza el directorio actual: /HTML_CONTENT
   	actualFolder+= '/' + rootFolder
@@ -106,7 +97,7 @@ class InicioController < ApplicationController
   	# Crea la carpeta, cuyo nombre será [ID_Empresa] Nombre
   	folderName = '[' << empresa.id.to_s << '] ' << empresa.name
   	FileUtils.mkdir_p(folderName)
-  	log.push("Directorio creado: " << folderName << '(Directorio de la empresa)')
+  	log.push("Directory created: " << folderName << '(Enterprise directory)')
 
   	# Actualiza el directorio actual: /HTML_CONTENT/[ID_Empresa] Nombre
   	actualFolder+= '/' + folderName
@@ -115,7 +106,7 @@ class InicioController < ApplicationController
 
   	# Crea la carpeta y el archivo de estilos:
   	FileUtils.mkdir_p('css')
-  	log.push("Directorio creado: css (Para archivos .css)" )
+  	log.push("Directory created: css (CSS files)" )
   	Dir.chdir(actualFolder+"/css")
   	FileUtils.cp stylesRoute, 'styles.css'
   	#log.push("Archivo de estilos copiado: styles.css (Archivo de estilos general)")
@@ -128,12 +119,12 @@ class InicioController < ApplicationController
   	# Crea la carpeta de archivos .js:
   	Dir.chdir(actualFolder)
   	FileUtils.mkdir_p('js')
-  	log.push("Directorio creado: js (Para archivos JavaScript)")
+  	log.push("Directory created: js (JavaScript files)")
 
   	# Crea la carpeta de imagenes, y carga la imagen para las jerarquias en los mapas
   	Dir.chdir(actualFolder)
   	FileUtils.mkdir_p('images')
-  	log.push("Directorio creado: images (Para archivos .png)")
+  	log.push("Directory created: images (PNG files)")
   	Dir.chdir(actualFolder+"/images")
   	FileUtils.cp rightRoute, 'right.png'
   	FileUtils.cp mapRoute, 'map_b.png'
@@ -169,7 +160,7 @@ class InicioController < ApplicationController
     fileHtml.puts lineHtml
     lineHtml = '<div style="text-align:center;margin:40px 0px 40px 0px;">'
     fileHtml.puts lineHtml
-    lineHtml = '<h2 style="font-size:60px;">Modelo de Gobierno de TI</h2></div><div style="margin-bottom:35px;">'
+    lineHtml = '<h2 style="font-size:60px;">IT Governance Model</h2></div><div style="margin-bottom:35px;">'
     fileHtml.puts lineHtml
     if addLogo == 'SI'
       lineHtml = '<center><img style="max-width:260px;max-height:230px;" src="./images/' << empresa.id.to_s << '_' << empresa.logo_file_name << '"></center>'
@@ -181,7 +172,7 @@ class InicioController < ApplicationController
   	lineHtml = '<center><img src="./images/map_b.png" style="margin:40px 0 20px 0;"></center>'
   	fileHtml.puts lineHtml
   	#lineHtml = '<a href="decisionMaps/indexMaps.html">Mapas de Decisión</a></h4></div><div class="containerHome">'
-    lineHtml = '<h3 style="color:#333;font-size:22px;">Mapas de Decisión</h3>'
+    lineHtml = '<h3 style="color:#333;font-size:22px;">Decision Maps</h3>'
     fileHtml.puts lineHtml
 
     # Renderiza el link de cada mapa:
@@ -201,7 +192,7 @@ class InicioController < ApplicationController
   	lineHtml = '<center><img src="./images/risk_b.png" style="margin:40px 0 20px 0;"></center>'
   	fileHtml.puts lineHtml
   	#lineHtml = '<a href="riskEscenarios/indexRiskEscenarios.html">Escenarios de Evaluación de Riesgos</a></h4></div>'
-    lineHtml = '<h3 style="color:#333;font-size:22px;">Escenarios de Evaluación de Riesgos</h3>'
+    lineHtml = '<h3 style="color:#333;font-size:22px;">Risk Assessment Scenarios</h3>'
   	fileHtml.puts lineHtml
 
     # Renderiza el link de cada mapa:
@@ -220,7 +211,7 @@ class InicioController < ApplicationController
     # Escenarios de evaluacion de objetivos:
     lineHtml = '<div class="containerHome"><center><img src="./images/goal_b.png" style="margin:40px 0 20px 0;"></center>'
     fileHtml.puts lineHtml
-    lineHtml = '<h3 style="color:#333;font-size:22px;">Escenarios de Evaluación de Objetivos</h3>'   
+    lineHtml = '<h3 style="color:#333;font-size:22px;">Goal Assessment Scenarios</h3>'   
     fileHtml.puts lineHtml
 
     # Renderiza el link de cada escenario:
@@ -237,7 +228,7 @@ class InicioController < ApplicationController
   	lineHtml = '</div><div class="containerHome"><center><img src="./images/sort_b.png" style="margin:40px 0 20px 0;"></center>'
   	fileHtml.puts lineHtml
   	#lineHtml = '<h4 style="text-align:center;"><a href="priorizationEscenarios/indexPriorizationEscenarios.html">Escenarios de Priorización</a></h4>'
-    lineHtml = '<h3 style="color:#333;font-size:22px;">Escenarios de Priorización</h3>'  	
+    lineHtml = '<h3 style="color:#333;font-size:22px;">Prioritization Scenarios</h3>'  	
     fileHtml.puts lineHtml
 
     # Renderiza el link de cada mapa:
@@ -256,7 +247,7 @@ class InicioController < ApplicationController
   	timeFin = Time.now
   	timeExpend = (timeFin - timeInit).to_f
   	#log.push("Archivo creado: index.html (Inicio)")
-  	log.push("Finaliza creación contenido de la página inicial - Tiempo requerido: " << timeExpend.to_s << ' (segundos)')
+  	log.push("Initial page content creation finished - Time required: " << timeExpend.to_s << ' (seconds)')
 
     	respond_to do |format|
     		format.json {render json: log}
@@ -281,7 +272,7 @@ class InicioController < ApplicationController
 
   	timeFin = Time.now
     timeExpend = (timeFin - timeInit).to_f
-  	log.push("Finaliza creación contenido mapas de decisión - Tiempo requerido: " << timeExpend.to_s << ' (segundos)')
+  	log.push("Decision maps creation finished - Time required: " << timeExpend.to_s << ' (seconds)')
 
   	respond_to do |format|
   		format.json {render json: log}
@@ -300,7 +291,7 @@ class InicioController < ApplicationController
   	#escenarios = empresa.risk_escenarios
     riskIds = params[:riskIds].split("|")
 
-  	log.push("Creando contenido de los escenarios de evaluación de riesgos...")
+  	log.push("Creating risk assessment scenarios content...")
 
     # ::ESCENARIOS:: Comentar si el engine no esta activo!
     log2 = view_context.escenariosGenerateRisksHTML(empresa, riskIds,log)
@@ -308,7 +299,7 @@ class InicioController < ApplicationController
 
     timeFin = Time.now
     timeExpend = (timeFin - timeInit).to_f
-    log.push("Finaliza creación contenido escenarios de evaluación de riesgos - Tiempo requerido: " << timeExpend.to_s << ' (segundos)')
+    log.push("Risk assessment scenarios content creation finished - Time required: " << timeExpend.to_s << ' (seconds)')
 
   	respond_to do |format|
   		format.json {render json: log}
@@ -324,7 +315,7 @@ class InicioController < ApplicationController
     log = []
     goalIds = params[:goalIds].split("|")
 
-    log.push("Creando contenido de los escenarios de evaluación de objetivos...")
+    log.push("Creating goal assessment scenarios content...")
 
     # ::ESCENARIOS:: Comentar si el engine no esta activo!
     log2 = view_context.escenariosGenerateGoalsHTML(empresa, goalIds, log)
@@ -332,7 +323,7 @@ class InicioController < ApplicationController
     
     timeFin = Time.now
     timeExpend = (timeFin - timeInit).to_f
-    log.push("Finaliza creación contenido escenarios de evaluación de objetivos - Tiempo requerido: " << timeExpend.to_s << ' (segundos)')
+    log.push("Goal assessment scenarios content creation finished - Time required: " << timeExpend.to_s << ' (seconds)')
 
     respond_to do |format|
       format.json {render json: log}
@@ -350,7 +341,7 @@ class InicioController < ApplicationController
   	#escenarios = empresa.priorization_escenarios
     priorIds = params[:priorIds].split("|")
 
-  	log.push("Creando contenido de los escenarios de priorización...")
+  	log.push("Creating prioritization scenarios content...")
 
     # ::ESCENARIOS:: Comentar si el engine no esta activo!
     log2 = view_context.escenariosGeneratePriorsHTML(empresa, priorIds, log)
@@ -358,7 +349,7 @@ class InicioController < ApplicationController
 
     timeFin = Time.now
     timeExpend = (timeFin - timeInit).to_f
-    log.push("Finaliza creación contenido escenarios de priorización - Tiempo requerido: " << timeExpend.to_s << ' (segundos)')
+    log.push("Prioritization scenarios content creation finished - Time required: " << timeExpend.to_s << ' (seconds)')
 
     respond_to do |format|
       format.json {render json: log}
@@ -366,57 +357,12 @@ class InicioController < ApplicationController
   end
   # ------- g_priorization_escenarios
 
-  def modulos
-    accesos = [false, false, false, false]
-
-    if !current_user.nil?
-      # Está logueado
-      if current_user.has_role? ROLE_ADMIN
-        accesos = [true, true, true, true]
-      elsif current_user.has_role? ROLE_EVAL
-        accesos = [true, true, true, true]
-      else
-		  if current_user.has_role? ROLE_USER_CONFIG
-        accesos[0] = true
-		  end
-		  if current_user.has_role? ROLE_USER_GOV
-			  accesos[1] = true
-		  end	
-		  if current_user.has_role? ROLE_USER_SIMULATION
-			  accesos[2] = true
-		  end
-		  if current_user.has_role? ROLE_USER_QUANTIFY
-			  accesos[3] = true
-		  end 
-	  end
-
-    end
-
-    respond_to do |format|
-      format.json {render json: accesos}
-    end
-
-  end # FIN MODULOS
 
   # Configura la sesion con el valor de la empresa seleccionada:
   def session_config
-    # Antes de crear la sesion, verifica que el usuario pueda tener acceso a esa empresa:
-    autorizado = true
-    if !current_user.enterprise.nil?
-      # Está limitado a una sola empresa, verifica que sea esa la que llego como parametro:
-      if params[:idEmpresa].to_i != current_user.enterprise.id
-        # No tiene acceso
-        autorizado = false
-      end
-    end
-
     # Crea la sesion, si el usuario está autorizado, si no, lo bloquea:
-    if autorizado
-      user_session[:empresa] = params[:idEmpresa].to_i;
-      toRender = 'OK'
-    else
-      toRender = 'ERROR'
-    end
+    session[:empresa] = params[:idEmpresa].to_i;
+    toRender = 'OK'
 
     respond_to do |format|
       format.json {render text: toRender}

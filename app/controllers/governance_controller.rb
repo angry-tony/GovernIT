@@ -6,24 +6,10 @@ class GovernanceController < ApplicationController
 		@empresa = view_context.getMyEnterprise		
 		if !@empresa.nil?
 		    @estructuras = GovernanceStructure.where("enterprise_id = ?", @empresa.id).order(id: :asc)
-		    @estructuras.each do |e|
-		    	begin
-		    	  authorize! :manage, e
-			    rescue 
-			      raise CanCan::AccessDenied.new("No tiene autorización para acceder a las estructuras de gobierno de la empresa: " << @empresa.name )
-			    end
-		    end
 		    @padres = GovernanceStructure.where("enterprise_id = ? AND parent_id IS NULL", @empresa.id).order(id: :asc)
-		    @padres.each do |p|
-		    	begin
-		    	  authorize! :manage, p
-			    rescue 
-			      raise CanCan::AccessDenied.new("No tiene autorización para acceder a las estructuras de gobierno de la empresa: " << @empresa.name )
-			    end
-		    end
 		    @perfiles = [PERFIL_EST_1,PERFIL_EST_2,PERFIL_EST_3,PERFIL_EST_4,PERFIL_EST_5,PERFIL_EST_6,PERFIL_EST_7]
 		else
-			redirect_to root_url, :alert => 'ERROR: Empresa no encontrada. Debe seleccionar una empresa en el menú inicial'
+			redirect_to root_url, :alert => 'ERROR: Enterprise not found. Select one from the initial menu.'
 		end
 	end
 	# -----------------
@@ -52,12 +38,6 @@ class GovernanceController < ApplicationController
 			estG.parent = GovernanceStructure.find(padre.to_i)
 		end
 
-		begin
-		  authorize! :create, estG
-		rescue 
-		  raise CanCan::AccessDenied.new("No tiene autorización para crear estructuras de gobierno para la empresa: " << @empresa.name )
-		end
-
 		respond_to do |format|
 			if estG.save
 				# Todo OK
@@ -76,12 +56,6 @@ class GovernanceController < ApplicationController
 		gr = GovernanceResponsability.new
 		gr.name = name
 
-		begin
-		  authorize! :create, GovernanceResponsability
-		rescue 
-		  raise CanCan::AccessDenied.new("No tiene autorización para crear funciones")
-		end
-
         respond_to do |format|
         	if gr.save # OK
         		format.json {render json: gr}
@@ -94,11 +68,6 @@ class GovernanceController < ApplicationController
 
 	def get_structure
 		est = GovernanceStructure.find(params[:id])
-		begin
-		  authorize! :read, est
-		rescue 
-		  raise CanCan::AccessDenied.new("No tiene autorización para acceder a la estructura de gobierno: " << est.name )
-		end
 
 		respond_to do |format|
         	if !est.nil? # OK
@@ -178,12 +147,6 @@ class GovernanceController < ApplicationController
 		est.structure_type = n_tipo
 		est.profile = n_perfil
 		est.governance_responsabilities = resps
-
-		begin
-		  authorize! :update, est
-		rescue 
-		  raise CanCan::AccessDenied.new("No tiene autorización para modificar la estructura de gobierno: " << est.name )
-		end
 
 		respond_to do |format|
         	if est.save # OK

@@ -3,12 +3,6 @@
 class ConfigController < ApplicationController
 
   def riskmap
-    begin
-      authorize! :riskmap, Configuracion
-    rescue
-      raise CanCan::AccessDenied.new("No tiene autorización para acceder al menú de configuración")
-    end
-
     # La empresa se carga, si la sesión está definida:
     emp = view_context.getMyEnterprise
 
@@ -28,17 +22,12 @@ class ConfigController < ApplicationController
           @default = RISK_SCALE  
           @niveles = @default.split('|')
         else
-          begin
-            authorize! :read, @riskmap
-          rescue
-            raise CanCan::AccessDenied.new("No tiene autorización para acceder a la configuración de la empresa: " << @empresa.name)
-          end
           @niveles = @riskmap.riskmap.split('|')
         end
       end
 
     else
-      redirect_to root_url, :alert => 'ERROR: Empresa no encontrada. Debe seleccionar una empresa en el menú inicial'
+      redirect_to root_url, :alert => 'ERROR: Enterprise not found. Select one from the initial menu.'
     end
   end
 
@@ -55,29 +44,18 @@ class ConfigController < ApplicationController
         config = Configuracion.new
         config.enterprise_id = emp.id
         config.riskmap = string
-        begin
-          authorize! :create, config
-        rescue
-          raise CanCan::AccessDenied.new("No tiene autorización para crear configuraciones de la empresa: " << emp.name)
-        end
         config.save
       else     
-        begin
-          authorize! :update, config
-        rescue
-          raise CanCan::AccessDenied.new("No tiene autorización para modificar la configuración de la empresa: " << emp.name)
-        end
-
         if config.update(riskmap: string)
         # Actualizo bien, no hace nada
         else
         # No actualizo, informa:
-        @error = 'ERROR: No se pudo actualizar el registro'
+        @error = 'ERROR: Updating the configuration record.'
         end    
       end
 
     else # Sesión invalida
-      redirect_to root_url, :alert => 'ERROR: Empresa no encontrada. Debe seleccionar una empresa en el menú inicial'
+      redirect_to root_url, :alert => 'ERROR: Enterprise not found. Select one from the initial menu.'
     end
 
   end

@@ -1,29 +1,4 @@
 #encoding: utf-8
-
-# ==========================================================================
-# GovernIT: A Software for Creating and Controlling IT Governance Models
-
-# Copyright (C) 2015  Oscar González Rojas - Sebastián Lesmes Alvarado
-
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/
-
-# Authors' contact information (e-mail):
-# Oscar González Rojas: o-gonza1@uniandes.edu.co
-# Sebastián Lesmes Alvarado: s.lesmes798@uniandes.edu.co
-
-# ==========================================================================
-
 module Escenarios
   module SharedHelper
   	# SLA: Helper que puede ser utilizado desde la aplicacion principal.
@@ -33,7 +8,7 @@ module Escenarios
   		content = []
   		risks = RiskEscenario.where(enterprise_id: empId)
 	    # Inserta un registro de separacion:
-	    content.push('Escenarios de evaluación de riesgos$:$' << risks.size.to_s)
+	    content.push('Risk Assessment Scenarios$:$' << risks.size.to_s)
 
 	    risks.each do |risk|
 	      # String: ID_RISK|name
@@ -50,7 +25,7 @@ module Escenarios
   		content = []
   		goals = GoalEscenario.where(enterprise_id: empId)
 	    # Inserta un registro de separacion:
-	    content.push('Escenarios de evaluación de objetivos$:$' << goals.size.to_s)
+	    content.push('Goal Assessment Scenarios$:$' << goals.size.to_s)
 
 	    goals.each do |goal|
 	      # String: ID_GOAL|name
@@ -67,7 +42,7 @@ module Escenarios
   		content = []
   		priors = PriorizationEscenario.where(enterprise_id: empId)
 	    # Inserta un registro de separacion:
-	    content.push('Escenarios de priorización$:$' << priors.size.to_s)
+	    content.push('Prioritization Scenarios$:$' << priors.size.to_s)
 
 	    priors.each do |prior|
 
@@ -105,7 +80,7 @@ module Escenarios
 	  	# Crea la carpeta para los escenarios de riesgo y su respectivo archivo index:
 	  	folderName = 'riskEscenarios'
 	  	FileUtils.mkdir_p(folderName)
-	  	log.push("Directorio creado: riskEscenarios (Para los escenarios de evaluación de riesgos)")
+	  	log.push("Directory created: riskEscenarios (Risk Assessment Scenarios)")
 
 	    # CRea el archivo de estilos para los mapas de decision:
 	    Dir.chdir(rootEmpresa+"/css")
@@ -117,7 +92,7 @@ module Escenarios
 	    fileHtml.puts lineHtml
 
 	    fileHtml.close()
-	    log.push("Archivo creado: riskStyles.css (Archivo de estilos particular para los escenarios de riesgo)")
+	    log.push("File created: riskStyles.css")
 
 	    # Crea el archivo de js para el dialogo en los escenarios de riesgo:
 	    Dir.chdir(rootEmpresa+"/js")
@@ -130,24 +105,24 @@ module Escenarios
 	  	lineHtml = '<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	    <link rel="stylesheet" type="text/css" href="../css/styles.css"/></head>'
 	  	fileHtml.puts lineHtml
-	  	lineHtml = '<body><div><ol class="breadcrumb"><li><a href="../index.html">Inicio</a></li>'
+	  	lineHtml = '<body><div><ol class="breadcrumb"><li><a href="../index.html">Home</a></li>'
 	  	fileHtml.puts lineHtml
-	  	lineHtml = '<li class="active">['<< empresa.name << '] Gobierno de TI - Escenarios de Evaluación de Riesgos</li>'
+	  	lineHtml = '<li class="active">['<< empresa.name << '] IT Governance - Risk Assessment Scenarios</li>'
 	  	fileHtml.puts lineHtml
 	  	lineHtml = '</ol></div>'
 	  	fileHtml.puts lineHtml
-	  	lineHtml = '<h2>Escenarios de Evaluación de Riesgos:</h2>'
+	  	lineHtml = '<h2>Risk Assessment Scenarios:</h2>'
 	  	fileHtml.puts lineHtml
 	  	if escenarios.size == 0
 	  		lineHtml = '<div class="alert alert-info">'
 	  		fileHtml.puts lineHtml
-	  		lineHtml = 'No hay escenarios de evaluación de riesgos en el sistema, para la empresa: '<< empresa.name << '.' << '</div>'
+	  		lineHtml = 'No risk assessment scenarios in the system, for the enterprise: '<< empresa.name << '.' << '</div>'
 	  		fileHtml.puts lineHtml
 	  	else
 	  		escenarios.each do |e|
 	        strName = e.governance_structure
 	        if strName.nil?
-	          strName = 'Escenario generado por el sistema'
+	          strName = 'System-Generated Scenario'
 	        else
 	          strName = e.governance_structure.name
 	        end
@@ -160,7 +135,7 @@ module Escenarios
 	    fileHtml.puts lineHtml
 
 	  	fileHtml.close()
-	  	log.push("Archivo creado: riskEscenarios.html (Índice de los escenarios de evaluación de riesgos)")
+	  	log.push("File created: riskEscenarios.html")
 
 
 	    # Crea el archivo de cada escenario de riesgos:
@@ -206,15 +181,15 @@ module Escenarios
 			fileHtml.puts lineHtml
 	  		lineHtml = '</head><body>'
 	  		fileHtml.puts lineHtml
-	  		lineHtml = '<div><ol class="breadcrumb"><li><a href="../index.html">Inicio</a></li>'
+	  		lineHtml = '<div><ol class="breadcrumb"><li><a href="../index.html">Home</a></li>'
 	  		fileHtml.puts lineHtml
-	  		lineHtml = '<li class="active">[' << empresa.name << '] Evaluación de Riesgos: ' << esc.name << '</li></ol></div>'
+	  		lineHtml = '<li class="active">[' << empresa.name << '] Risks Assessment: ' << esc.name << '</li></ol></div>'
 	  		fileHtml.puts lineHtml
-	  		lineHtml = '<h2>Escenario: ' << esc.name << '<span id="showRiskScaleHTML" title="Ver escala de evaluación de riesgos">Ver escala de evaluación de riesgos</span></h2>'
+	  		lineHtml = '<h2>Scenario: ' << esc.name << '<span id="showRiskScaleHTML" title="Show risk assessment scale">Show risk assessment scale</span></h2>'
 	  		fileHtml.puts lineHtml
 
 	  		categories.each do |cat|
-	  			lineHtml = '<div class="alert alert-info"><span style="font-size:18px;">Categoría de Riesgo: ' << cat.description << '</span></div>'
+	  			lineHtml = '<div class="alert alert-info"><span style="font-size:18px;">Risk Category: ' << cat.description << '</span></div>'
 				fileHtml.puts lineHtml
 
 				myRisks = risksGen.select{|r| r.risk_category.id_padre == cat.id}
@@ -225,7 +200,7 @@ module Escenarios
 					calGen = cals.select { |cal|  cal.risk == risk  }.first
 					lineHtml = '<div style="float:left;width:3%;"><span style="width:35px;height:25px;margin-right:5px;'
 					fileHtml.puts lineHtml
-					lineHtml = 'border:solid 2px #4A8AFA;display:inline-block;" title="Calificación promedio de sus riesgos específicos">'
+					lineHtml = 'border:solid 2px #4A8AFA;display:inline-block;" title="Average score of its specific risks">'
 					fileHtml.puts lineHtml
 
 					if !calGen.nil?
@@ -270,30 +245,30 @@ module Escenarios
 					            end
 
 					            color = 'yellow'
-					            importancia = 'Media/Tolerable'
+					            importancia = 'Medium/Tolerable'
 					            
 					            if cont == 19 || cont == 25 || cont == 26 || cont == 31 || cont == 32 || cont == 33 
 					                # VERDE:  
 					               color = 'green'
-					               importancia = 'Baja/Aceptable'
+					               importancia = 'Low/Acceptable'
 					            elsif cont == 4 || cont == 5 || cont == 6 || cont == 11 || cont == 12 || cont == 18 
 					              # ROJO
 					              color = 'red'
-					              importancia = 'Muy Alta/Inadmisible'
+					              importancia = 'Highest/Inadmissible'
 					            elsif cont == 2 || cont == 3 || cont == 9 || cont == 10 || cont == 16 || cont == 17 || cont == 23 || cont == 24 || cont == 30
 					               # NARANJA 
 					               color = 'orange'
-					               importancia = 'Alta/Inaceptable'
+					               importancia = 'High/Unacceptable'
 					            end
 
 					            if myCal.risk_type.nil?
-					            	r_t = 'No definido'
+					            	r_t = 'Undefined'
 					            else
 					            	r_t = myCal.risk_type
 					            end
 
 					            if myCal.evidence.nil? || myCal.evidence.blank?
-					            	evi = 'No definida'
+					            	evi = 'Undefined'
 					            else
 					            	evi = myCal.evidence
 					            end
@@ -304,9 +279,9 @@ module Escenarios
 					            fileHtml.puts lineHtml
 					            lineHtml = '</span><i>- ' << h.descripcion << '</i><br><span style="font-size:12px;color:#AAA;">'
 					            fileHtml.puts lineHtml
-					            lineHtml = '<i>Impacto financiero: ' << myCal.cantidad.to_s << ' (USD), Tipo de Riesgo: ' << r_t << ',' 
+					            lineHtml = '<i>Financial Impact: ' << myCal.cantidad.to_s << ' (USD), Risk Type: ' << r_t << ',' 
 					            fileHtml.puts lineHtml
-					            lineHtml = 'Importancia/Tolerancia: ' << importancia << ', Evidencia: ' << evi << '</i></span></p>'
+					            lineHtml = 'Importance/Tolerance: ' << importancia << ', Evidence: ' << evi << '</i></span></p>'
 					            fileHtml.puts lineHtml 						
 							end # Cierra calificado
 
@@ -325,9 +300,9 @@ module Escenarios
                "green", "green", "yellow", "yellow", "yellow", "orange",
                "green", "green", "green", "yellow", "yellow", "yellow"]
 
-		    lineHtml = '<div id="dialogRiskScale" title="Escala de evaluación de riesgos"><div style="width:100%;"><div style="float:left;width:130px;">'
+		    lineHtml = '<div id="dialogRiskScale" title="Risk assessment scale"><div style="width:100%;"><div style="float:left;width:130px;">'
 		    fileHtml.puts lineHtml
-		    lineHtml = '<img src="../images/y-axis.png" style="margin-top:35px;"></div><div style="float:left;width:240px;">'
+		    lineHtml = '<img src="../images/y-axis_en.png" style="margin-top:35px;"></div><div style="float:left;width:240px;">'
 		    fileHtml.puts lineHtml
 		    lineHtml = '<table style="margin-top:20px;color:black;text-align:center;font-size:13px;">'
 		    fileHtml.puts lineHtml
@@ -346,15 +321,15 @@ module Escenarios
 		      fileHtml.puts lineHtml
 		    end
 
-		    lineHtml = '</tr></table></div><div style="float:left;width:220px;"><img src="../images/imp_tol.png" style="margin:17px 0 10px 55px">'
+		    lineHtml = '</tr></table></div><div style="float:left;width:220px;"><img src="../images/imp_tol_en.png" style="margin:17px 0 10px 55px">'
 		    fileHtml.puts lineHtml
 		    lineHtml = '<img align="left" src="../images/money.png" style="width:30px;height:30px;margin: 10px 5px 0 70px;">'
 		    fileHtml.puts lineHtml
-		    lineHtml = '<p style="font-size:11px;width:70%;margin-left:45%;">Impacto financiero (aproximado) por unidad de riesgo (en USD):</p></img>'
+		    lineHtml = '<p style="font-size:11px;width:70%;margin-left:45%;">Financial impact (aprox.) per risk unit (USD):</p></img>'
 		    fileHtml.puts lineHtml
 		    lineHtml = '<input type="number" style="margin:8px 0 10px 70px;width:150px;" min="0" disabled value="' << niveles[36] << '"></div>'
 		    fileHtml.puts lineHtml
-		    lineHtml = '</div><div style="width:100%;"><img src="../images/x-axis.png" style="margin:9px 0 0 130px;"></div></div>'
+		    lineHtml = '</div><div style="width:100%;"><img src="../images/x-axis_en.png" style="margin:9px 0 0 130px;"></div></div>'
 		    fileHtml.puts lineHtml
 
 			lineHtml = '</body></html>'
@@ -388,7 +363,7 @@ module Escenarios
 	    # Crea la carpeta para los escenarios de objetivos:
 	    folderName = 'goalEscenarios'
 	    FileUtils.mkdir_p(folderName)
-	    log.push("Directorio creado: goalEscenarios (Para los escenarios de evaluación de objetivos)")
+	    log.push("Directory created: goalEscenarios (Goal Assessment Scenarios)")
 	    Dir.chdir(actualFolder+"/"+folderName) # Ingresa a la carpeta goalEscenarios
 
 
@@ -424,15 +399,15 @@ module Escenarios
 			fileHtml.puts lineHtml
 			lineHtml = '</head><body>'
 			fileHtml.puts lineHtml
-			lineHtml = '<div><ol class="breadcrumb"><li><a href="../index.html">Inicio</a></li>'
+			lineHtml = '<div><ol class="breadcrumb"><li><a href="../index.html">Home</a></li>'
 			fileHtml.puts lineHtml
-			lineHtml = '<li class="active">[' << empresa.name << '] Evaluación de Objetivos: ' << esc.name << '</li></ol></div>'
+			lineHtml = '<li class="active">[' << empresa.name << '] Goal Assessment: ' << esc.name << '</li></ol></div>'
 			fileHtml.puts lineHtml
-			lineHtml = '<h2>Escenario: ' << esc.name << '</h2>'
+			lineHtml = '<h2>Scenario: ' << esc.name << '</h2>'
 			fileHtml.puts lineHtml
-			lineHtml = '<ul class="nav nav-pills"><li class="active" id="pill_b_generated"><a>Objetivos de Negocio</a></li>'
+			lineHtml = '<ul class="nav nav-pills"><li class="active" id="pill_b_generated"><a>Business Goals</a></li>'
 			fileHtml.puts lineHtml
-			lineHtml = '<li id="pill_it_generated" style="cursor:pointer;"><a>Objetivos de TI</a></li></ul>'
+			lineHtml = '<li id="pill_it_generated" style="cursor:pointer;"><a>IT Goals</a></li></ul>'
 			fileHtml.puts lineHtml
 			lineHtml = '<div id="business_goals" style="border:solid 1px #DDD;min-height:500px;padding:10px;overflow:auto;">'
 			fileHtml.puts lineHtml
@@ -442,12 +417,12 @@ module Escenarios
 
 				lineHtml = '<div class="alert alert-info"><span style="text-align:center;font-size:18px;">'
 				fileHtml.puts lineHtml
-				lineHtml = 'Dimensión: ' << dim << '</span></div>'
+				lineHtml = 'Dimension: ' << dim << '</span></div>'
 				fileHtml.puts lineHtml
 
 				temp_goals = bGoals.select { |goal|  goal.dimension == dim  }
 				if temp_goals.size == 0
-				  lineHtml = '<p>No existen objetivos de negocio bajo esta dimensión.</p>'
+				  lineHtml = '<p>No business goals under this dimension.</p>'
 				  fileHtml.puts lineHtml
 				else
 				  temp_goals.each do |goal|
@@ -461,7 +436,7 @@ module Escenarios
 				    else
 				      lineHtml = '<div class="alert alert-success" style="width:378px;margin-left:1%;margin-bottom:10px;padding: 5px 15px 5px 15px;">'
 				      fileHtml.puts lineHtml
-				      lineHtml = '<label>Calificación actual: </label> Importancia: '
+				      lineHtml = '<label>Current score: </label> Importance: '
 				      fileHtml.puts lineHtml
 				      
 				      if myCal.importance == 0
@@ -472,7 +447,7 @@ module Escenarios
 				        fileHtml.puts lineHtml
 				      end
 
-				      lineHtml = ', Desempeño: '
+				      lineHtml = ', Performance: '
 				      fileHtml.puts lineHtml
 
 				      if myCal.performance == 0
@@ -512,13 +487,13 @@ module Escenarios
 			it_dims.each do |dim|
 				lineHtml = '<div class="alert alert-info"><span style="text-align:center;font-size:18px;">'
 				fileHtml.puts lineHtml 
-				lineHtml = 'Dimensión: ' << dim << '</span></div>'
+				lineHtml = 'Dimension: ' << dim << '</span></div>'
 				fileHtml.puts lineHtml 
 
 				temp_goals = itGoals.select { |goal|  goal.dimension == dim  }
 
 				if temp_goals.size == 0
-				  lineHtml = '<p>No existen objetivos de TI bajo esta dimensión.</p>'
+				  lineHtml = '<p>No IT goals under this dimension.</p>'
 				  fileHtml.puts lineHtml
 				else
 
@@ -534,7 +509,7 @@ module Escenarios
 				    else
 				      lineHtml = '<div class="alert alert-success" style="width:378px;margin-left:1%;margin-bottom:10px;padding: 5px 15px 5px 15px;">'
 				      fileHtml.puts lineHtml
-				      lineHtml = '<label>Calificación actual: </label> Importancia: '
+				      lineHtml = '<label>Current score: </label> Importance: '
 				      fileHtml.puts lineHtml
 				      
 				      if myCal.importance == 0
@@ -545,7 +520,7 @@ module Escenarios
 				        fileHtml.puts lineHtml
 				      end
 
-				      lineHtml = ', Desempeño: '
+				      lineHtml = ', Performance: '
 				      fileHtml.puts lineHtml
 
 				      if myCal.performance == 0
@@ -601,7 +576,7 @@ module Escenarios
 	  	# Crea la carpeta para los escenarios de priorización y su respectivo archivo index:
 	  	folderName = 'priorizationEscenarios'
 	  	FileUtils.mkdir_p(folderName)
-	  	log.push("Directorio creado: prioriozationEscenarios (Para los escenarios de priorización)")
+	  	log.push("Directory created: prioriozationEscenarios (Prioritization Scenarios)")
 	  	Dir.chdir(actualFolder+"/"+folderName) # Ingresa a la carpeta priorizationEscenarios
 	  	# Crea el archivo index para los escenarios de priorizacion:
 	  	fileHtml = File.new("indexPriorizationEscenarios.html", "w")
@@ -610,29 +585,29 @@ module Escenarios
 	  	fileHtml.puts lineHtml
 	    lineHtml = '<link rel="stylesheet" type="text/css" href="../css/priorizationStyles.css"/></head>'
 	  	fileHtml.puts lineHtml
-	  	lineHtml = '<body><div><ol class="breadcrumb"><li><a href="../index.html">Inicio</a></li>'
+	  	lineHtml = '<body><div><ol class="breadcrumb"><li><a href="../index.html">Home</a></li>'
 	  	fileHtml.puts lineHtml
-	  	lineHtml = '<li class="active">['<< empresa.name << '] Gobierno de TI - Escenarios de Priorización</li>'
+	  	lineHtml = '<li class="active">['<< empresa.name << '] IT Governance - Prioritization Scenarios</li>'
 	  	fileHtml.puts lineHtml
 	  	lineHtml = '</ol></div>'
 	  	fileHtml.puts lineHtml
-	  	lineHtml = '<h2>Escenarios de Priorización:</h2>'
+	  	lineHtml = '<h2>Prioritization Scenarios:</h2>'
 	  	fileHtml.puts lineHtml
 
 	  	if escenarios.size == 0
 	  		lineHtml = '<div class="alert alert-info">'
 	  		fileHtml.puts lineHtml
-	  		lineHtml = 'No hay escenarios de priorización en el sistema, para la empresa: '<< empresa.name << '.' << '</div>'
+	  		lineHtml = 'No prioritization scenarios, in the system for the enterprise: '<< empresa.name << '.' << '</div>'
 	  		fileHtml.puts lineHtml
 	  	else
 			escenarios.each do |e|
 				porcRiesgos = getPorcentajeRiesgos(e.risk_escenario)
 			  	porcObjs = getPorcentajeObjetivos(e.goal_escenario)
-				lineHtml = '<p><span>Escenario: <a href="escP' << e.id.to_s << '.html">' << e.name << '</a></span><br>'
+				lineHtml = '<p><span>Scenario: <a href="escP' << e.id.to_s << '.html">' << e.name << '</a></span><br>'
 				fileHtml.puts lineHtml
-				lineHtml = '<span class="info"><i>[Completado: ' << porcRiesgos.to_s << ' %] Escenario de evaluación de riesgos: ' << e.risk_escenario.name << ', Peso Riesgos: ' << e.risksWeight.to_s << '</i></span><br>'
+				lineHtml = '<span class="info"><i>[Completed: ' << porcRiesgos.to_s << ' %] Risk Assessment Scenario: ' << e.risk_escenario.name << ', Risks Weight: ' << e.risksWeight.to_s << '</i></span><br>'
 				fileHtml.puts lineHtml
-				lineHtml = '<span class="info"><i>[Completado: ' << porcObjs.to_s << ' %] Escenario de evaluación de objetivos: ' << e.goal_escenario.name << ', Peso Objetivos: ' << e.goalsWeight.to_s << '</i></span><br></p>' 
+				lineHtml = '<span class="info"><i>[Completed: ' << porcObjs.to_s << ' %] Goal Assessment Scenario: ' << e.goal_escenario.name << ', Goals Weight: ' << e.goalsWeight.to_s << '</i></span><br></p>' 
 	            fileHtml.puts lineHtml
 			end
 		end
@@ -642,7 +617,7 @@ module Escenarios
 	    fileHtml.puts lineHtml
 
 		fileHtml.close()
-		log.push("Archivo creado: indexPriorizationEscenarios.html (Índice de los escenarios de priorización)")
+		log.push("File created: indexPriorizationEscenarios.html")
 
 		# CRea el archivo de estilos para los mapas de decision:
 		Dir.chdir(rootEmpresa+"/css")
@@ -660,7 +635,7 @@ module Escenarios
 		fileHtml.puts lineHtml
 
 		fileHtml.close()
-		log.push("Archivo creado: priorizationStyles.css (Archivo de estilos particular para los escenarios de priorización)")
+		log.push("File created: priorizationStyles.css")
 
 		Dir.chdir(actualFolder+"/"+folderName) # Ingresa a la carpeta priorizationEscenarios
 
@@ -676,13 +651,13 @@ module Escenarios
 			fileHtml.puts lineHtml
 			lineHtml = '</head><body>'
 			fileHtml.puts lineHtml
-			lineHtml = '<div><ol class="breadcrumb"><li><a href="../index.html">Inicio</a></li>'
+			lineHtml = '<div><ol class="breadcrumb"><li><a href="../index.html">Home</a></li>'
 			fileHtml.puts lineHtml
 			#lineHtml = '<li><a href="indexPriorizationEscenarios.html">Escenarios de priorización</a></li>'
 			#fileHtml.puts lineHtml
-			lineHtml = '<li class="active">[' << empresa.name << '] Priorización: ' << esc.name << '</li></ol></div>'
+			lineHtml = '<li class="active">[' << empresa.name << '] Prioritization: ' << esc.name << '</li></ol></div>'
 			fileHtml.puts lineHtml
-			lineHtml = '<h2>Escenario: ' << esc.name << '    [ ' << esc.fecha_ejecucion.to_s << ' ]' << '</h2>'
+			lineHtml = '<h2>Scenario: ' << esc.name << '    [ ' << esc.fecha_ejecucion.to_s << ' ]' << '</h2>'
 			fileHtml.puts lineHtml
 		    toFormat = esc.stats.split("_$$_")
 		    stats = []
@@ -707,16 +682,16 @@ module Escenarios
 		    end
 
 		    # Imprime la tabla:
-			lineHtml = '<table style="font-size:13px;"><tr><th>ID Proceso</th><th>Descripción</th>'
+			lineHtml = '<table style="font-size:13px;"><tr><th>Process ID</th><th>Description</th>'
 			fileHtml.puts lineHtml
 			escalaRisk = ( ( esc.risksWeight / 100.0 ) * 5.0).round(2).to_s
 			escalaGoal = ( ( esc.goalsWeight / 100.0 ) * 5.0).round(2).to_s
 
-			lineHtml = '<th>Importancia de Riesgos <br> (' << stats[1] << '%)<br><span style="font-size:10px;color:blue;font-style:italic;">[ Escala: 0 - ' <<  escalaRisk << ' ]</span></th>'
+			lineHtml = '<th>Risk Importance <br> (' << stats[1] << '%)<br><span style="font-size:10px;color:blue;font-style:italic;">[ Scale: 0 - ' <<  escalaRisk << ' ]</span></th>'
 			fileHtml.puts lineHtml
-			lineHtml = '<th>Importancia Objetivos de TI <br> (' << stats[2] << '%)<br><span style="font-size:10px;color:blue;font-style:italic;">[ Escala: 0 - ' <<  escalaGoal << ' ]</span></th>'
+			lineHtml = '<th>IT Goal Importance <br> (' << stats[2] << '%)<br><span style="font-size:10px;color:blue;font-style:italic;">[ Scale: 0 - ' <<  escalaGoal << ' ]</span></th>'
 			fileHtml.puts lineHtml
-			lineHtml = '<th>Importancia General<br><span style="font-size:10px;color:blue;font-style:italic;">[ Escala: 0 - 5 ]</span></th><th>Orden</th></tr>'
+			lineHtml = '<th>Global Importance<br><span style="font-size:10px;color:blue;font-style:italic;">[ Scale: 0 - 5 ]</span></th><th>Order</th></tr>'
 			fileHtml.puts lineHtml
 
 			limit = stats.size - 1

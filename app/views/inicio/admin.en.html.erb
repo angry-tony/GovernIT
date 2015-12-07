@@ -1,548 +1,518 @@
-<% if current_user.has_role? ROLE_ADMIN %>
 
-	<% if @empresas.size == 0 %>
-	<div class="alert alert-info">
-		<p>No enterprises available to generate client applications.</p>
-	</div>
-
-	<div class="btn-group">
-	  <button type="button" class="btn btn-default" onclick="location.href='../inicio/inicio'">Home</button>
-	</div>
-
-	<% else %>
-
-	<style>
-
-	a.button:hover, a.button:visited, a.button:link, a.button:active
-	{
-	    text-decoration: none;
-	    color: #428bca;
-	}
-
-	span#selectState
-	{
-		color:green;
-		text-decoration:underline;
-		cursor:pointer;
-		font-size:12px;
-	}
-
-
-
-	</style>
-
-	<script>
-
-	$(function () {
-	  $("#dialogFilter").dialog({
-	    autoOpen: false,
-	    modal: true,
-	    buttons: {
-	      "Generar HTML": function()
-	      {
-	      	// Construye strings con los ids de cada categoria para la generacion:
-	      	var mapIds = ''; var riskIds = ''; var goalIds = ''; var priorIds = ''; var checked = false; var id; var category;
-	      	var archsIds = ''; var logo = 'NO';
-	      	var idEmp = $("#dialogFilter").data('idEmp'); var checkeados = 0;
-
-	      	$(".filterArch").each(function(){
-	          checked = $(this).prop("checked");
-
-	          if (checked) 
-	          {
-	          	  id = $(this).val().split("_")[0];
-	          	  if (archsIds == '') 
-				  {
-				  	archsIds = id;
-				  } 
-				  else
-				  {
-				  	archsIds += '|' + id;
-				  };
-	          };
-	        });
-
-	        checked = $("#filterLogo").prop("checked");
-
-	        if (checked) 
-	        {
-	        	logo = 'SI';
-	        };
-
-
-
-	      	$(".filter").each(function(){
-	          checked = $(this).prop("checked");
-	          if (checked) 
-	          {
-	          	checkeados+= 1;
-	          	id = $(this).val().split("_")[0];
-	          	category = $(this).val().split("_")[1];
-	          	// Dependiendo de la categoria lo agrega a su respectivo string:
-	          	switch (category)
-				{
-				case 'MAP':
-				  if (mapIds == '') 
-				  {
-				  	mapIds = id;
-				  } 
-				  else
-				  {
-				  	mapIds += '|' + id;
-				  };
-				  break;
-				case 'MAPD':
-				  if (mapIds == '') 
-				  {
-				  	mapIds = id;
-				  } 
-				  else
-				  {
-				  	mapIds += '|' + id;
-				  };
-				  break;
-				case 'RISK':
-				  if (riskIds == '') 
-				  {
-				  	riskIds = id;
-				  } 
-				  else
-				  {
-				  	riskIds += '|' + id;
-				  };
-				  break;
-				case 'GOAL':
-				  if (goalIds == '') 
-				  {
-				  	goalIds = id;
-				  } 
-				  else
-				  {
-				  	goalIds += '|' + id;
-				  };
-				  break;
-				case 'PRIOR':
-				  if (priorIds == '') 
-				  {
-				  	priorIds = id;
-				  } 
-				  else
-				  {
-				  	priorIds += '|' + id;
-				  };
-				  break;
-				} // Cierra switch
-	          };
-	        });
-
-            // Al final agrega los arquetipos seleccionados, al string de mapas ids
-            mapIds += '%' + archsIds;
-
-
-	        // Cierra el dialogo:
-			$("#dialogFilter").dialog("close");
-			$("#dialogFilter").html("");
-
-			if (checkeados > 0) 
-			{
-				// Carga el icono de cargando:
-			    $("#generate").html('<img src="<%= LOADING_GIF %>"> Generating HTML...');
-
-		        // Genera el contenido HTML:
-				$.post('/inicio/g_home', {'idEmp' : idEmp, 'mapIds': mapIds, 'riskIds': riskIds, 'goalIds': goalIds, 'priorIds': priorIds, 'logo': logo}, function(data)
-	    		{
-	    			var html = '';    		
-	    			if (data.length > 0) 
-	    			{
-	    				// Genera el titulo y el log de la pantala de inicio:
-	    				html+= '<h2 id="enCurso">Proceso en curso...</h2>';
-	    				for (var i = 0; i < data.length; i++) 
-	    				{
-	    					if (i == 0) 
-	    					{
-	    						html+= '<span style="font-size:12px;font-style:italic;color:green;">'+data[i]+'</span><br>';
-	    					} 
-	    					else
-	    					{
-	    						html+= '<span style="font-size:12px;font-style:italic;color:#333;">'+data[i]+'</span><br>';
-	    					};
-	    					
-	    				};
-
-	    				$("#logDiv").html(html);
-	    				// Genera el contenido HTML  de los mapas de decision:
-						$.post('/inicio/g_decision_maps', {'idEmp' : idEmp, 'mapIds': mapIds}, function(data)
-			    		{
-			    			if (data.length > 0) 
-			    			{
-			    				html = $("#logDiv").html();
-			    				for (var i = 0; i < data.length; i++) 
-			    				{
-			    					if (i == 0) 
-			    					{
-			    						html+= '<span style="font-size:12px;font-style:italic;color:green;">'+data[i]+'</span><br>';
-			    					} 
-			    					else
-			    					{
-			    						html+= '<span style="font-size:12px;font-style:italic;color:#333;">'+data[i]+'</span><br>';
-			    					};
-			    				};
-			    				$("#logDiv").html(html);
-			    				$.post('/inicio/g_risk_escenarios', {'idEmp' : idEmp, 'riskIds': riskIds}, function(data)
-			    				{
-			    					if (data.length > 0) 
-			    					{
-			    						html = $("#logDiv").html();
-					    				for (var i = 0; i < data.length; i++) 
-					    				{
-					    					if (i == 0) 
-					    					{
-					    						html+= '<span style="font-size:12px;font-style:italic;color:green;">'+data[i]+'</span><br>';
-					    					} 
-					    					else
-					    					{
-					    						html+= '<span style="font-size:12px;font-style:italic;color:#333;">'+data[i]+'</span><br>';
-					    					};
-					    				};
-					    				$("#logDiv").html(html);
-					    				$.post('/inicio/g_priorization_escenarios', {'idEmp' : idEmp, 'priorIds': priorIds}, function(data)
-					    				{
-					    					if (data.length > 0) 
-					    					{
-					    						html = $("#logDiv").html();
-							    				for (var i = 0; i < data.length; i++) 
-							    				{
-							    					if (i == 0) 
-							    					{
-							    						html+= '<span style="font-size:12px;font-style:italic;color:green;">'+data[i]+'</span><br>';
-							    					} 
-							    					else
-							    					{
-							    						html+= '<span style="font-size:12px;font-style:italic;color:#333;">'+data[i]+'</span><br>';
-							    					};
-							    				};
-							    				$("#logDiv").html(html);		    				
-					    					};
-					    					$.post('/inicio/g_goal_escenarios', {'idEmp' : idEmp, 'goalIds': goalIds}, function(data)
-						    					{
-						    						if (data.length > 0) 
-						    						{
-						    							html = $("#logDiv").html();
-									    				for (var i = 0; i < data.length; i++) 
-									    				{
-									    					if (i == 0) 
-									    					{
-									    						html+= '<span style="font-size:12px;font-style:italic;color:green;">'+data[i]+'</span><br>';
-									    					} 
-									    					else
-									    					{
-									    						html+= '<span style="font-size:12px;font-style:italic;color:#333;">'+data[i]+'</span><br>';
-									    					};
-									    				};
-									    				$("#logDiv").html(html);
-						    						};
-						    						// Cambia el mensaje de en curso.., a terminado, y habilita de nuevo todo:
-								    				$("#enCurso").html('<span style="color:green;">HTML Generation terminated successfully!</span>');
-								    				$("#select_empresas").prop("disabled", false);
-													// Carga el icono de cargando:
-													$("#generate").html('<img src="/assets/generate_html.png"> Generate HTML');
-													$("#generate").prop("disabled", false);
-						    					});
-					    					
-					    				});
-			    					};
-			    					
-			    				});
-			    			};
-			    		});
-	    			};
-
-	    		}); 
-            }
-            else
-            {
-            	$("#select_empresas").prop("disabled", false);
-				// Carga el icono de cargando:
-				$("#generate").html('<img src="/assets/generate_html.png"> Generate HTML');
-				$("#generate").prop("disabled", false);
-			}; // Cierra IF-checkeados
-			
-	        
-	      },
-	      "Cancelar": function () 
-	      {	 
-	      	$(this).html("");
-	      	$("#select_empresas").prop("disabled", false);
-	      	$("#generate").html('<img src="/assets/generate_html.png"> Generate HTML');
-			$("#generate").prop("disabled", false);
-	        $(this).dialog("close");
-	      }
-	    },
-	    close: function() 
-	    {
-	      $(this).html("");
-	      $("#select_empresas").prop("disabled", false);
-	      $("#generate").html('<img src="/assets/generate_html.png"> Generate HTML');
-		  $("#generate").prop("disabled", false);
-	      $(this).dialog("close");
-	    }
-	  });
-
-	});
-	</script>
-
-
-	<script>
-
-	$( document ).ready(function() {
-
-		// Generar HTML:
-		$("#generate").click(function(){
-			var idEmp = $("#select_empresas option:selected").val();
-
-			if (idEmp == 'N') 
-			{
-				//Selección invalida
-				$("#select_empresas").focus();
-			} 
-			else
-			{
-				// Elimina contenido anteriormente obtenido:
-				$("#logDiv").html("");
-				// Bloquea el listado de empresas:
-				$("#select_empresas").prop("disabled", true);
-				// Bloquea el propio link:
-				$("#generate").prop("disabled", true);
-				// Carga el icono de cargando:
-				$("#generate").html('<img src="<%= LOADING_GIF %>"> Generating HTML...');
-
-				// Construye el contenido HTML y muestra el dialogo para seleccionar qué generar:
-				$.post('/inicio/getFilterEmpresa', {'idEmp' : idEmp}, function(data)
-	    		{
-	    			var html = '';
-	    			html+= '<h5 style="font-size:15px;color:blue;">Select the components to generate:</h5>';
-	    			// Agrega las opciones seleccionar/deseleccionar todo:
-	    			html+= '<span class="selectAll" id="selectState">Select all [+]</span>';
-
-                    var chkReporte = false;
-	    			for (var i = 1; i < data.length; i++) 
-	    			{
-	    				// Revisa si es un titulo:
-	    				if (data[i].split("$:$").length > 1) 
-	    				{
-	    					// Es un titulo:
-	    					html+= '<h5 style="color:blue;">'+ data[i].split("$:$")[0] +'</h5>';
-	    					// Si el titulo es de los mapas, activa el flag para ello:
-	    					if (data[i].split("$:$")[0] == 'Mapas de decisión') 
-	    					{
-	    						chkReporte = true;
-	    					} 
-	    					else
-	    					{
-	    						chkReporte = false;
-	    					};
-
-	    					// Si viene vacío lo informa:
-	    					if (data[i].split("$:$")[1] == '0') 
-	    					{
-	    						html+= '<span style="font-size:13px;color:orange;">No data available!</span><br>';
-	    					};
-	    				}
-	    				else
-	    				{
-	    					// No es un titulo:
-	    					// Si el | divide en 3, debe identarse:
-	    					var identar = data[i].split("|").length;
-
-	    					if (identar == 3) 
-	    					{
-	    						// Debe identarlo
-	    						html+= '<input type="checkbox" style="margin-left:28px;" class="filter" value="'+ data[i].split("|")[0] +'">   ' + data[i].split("|")[1] + '<br>';
-	    					} 
-	    					else
-	    					{
-	    						// Lo muestra normal
-	    						html+= '<input type="checkbox" style="margin-left:10px;" class="filter" value="'+ data[i].split("|")[0] +'">   ' + data[i].split("|")[1] + '<br>';
-	    						// Verifica si debe validar su check de reporte:
-	    						if (chkReporte) 
-	    						{
-	    							if (data[i].split("|")[0].split("_")[1] == 'MAPD') 
-	    							{
-	    								html+= '<span style="font-style:italic;font-size:11px;"><input type="checkbox" style="margin-left:28px;" class="filterArch" value="'+ 
-	    										data[i].split("|")[0].split("_")[0] +
-	    										'_ARCH" id="filterArch'+data[i].split("|")[0].split("_")[0]+'" disabled>  Archetype Identification Report</span><br>';
-	    							};
-	    							
-	    						};
-	    					};
-
-
-	    					
-	    				};
-	    				
-	    			};
-
-	    			// Agrega la opcion fina para el logo:
-	    			if (data[0] == 'SI_LOGO') 
-	    			{
-	    				html+= '<h5 style="color:blue;">Other options</h5><input type="checkbox" style="margin-left:10px;" id="filterLogo" value="LOGO"> Include logo<br>';
-	    			};
-
-
-	    			html+='<div id="loadingDiv"></div>';
-
-	    			$("#dialogFilter").html(html); 
-
-	    			$("#dialogFilter").dialog("option", "width", 600);
-				    $("#dialogFilter").dialog("option", "height", 500);
-				    $("#dialogFilter").dialog("option", "resizable", false);
-				    $("#dialogFilter").data('idEmp', idEmp);
-				    $("#dialogFilter").dialog("open");
-
-	    		});	
-			};
-		});
-
-        // Gestión de usuarios en masa:
-        $("#users").click(function(){
-        	var ruta = $("#file").val();
-        	if (ruta != null && ruta != '') 
-        	{
-        		// Bloquea el listado de empresas:
-				$("#select_empresas").prop("disabled", true);
-				// Bloquea el otro link:
-				$("#generate").prop("disabled", true);
-				// Bloquea el propio link:
-				$("#users").prop("disabled", true);
-				// Carga el icono de cargando:
-				$("#users").html('<img src="<%= LOADING_GIF %>"> Generating HTML...');
-
-        		$("#form_users").submit();
-        	};
-        });
-	});
-
-    $(document).on('click', "span#selectState", function() 
-    {
-    	var clase = $(this).attr("class");
-    	if (clase == 'selectAll') 
-    	{
-    		// Debe seleccionar todo, cambiar el texto y cambiar la clase:
-    		$(".filter").prop("checked", true);
-    		$("#filterLogo").prop("checked", true);
-    		$(".filterArch").prop("disabled", false); $(".filterArch").prop("checked", true);
-    		$(this).attr("class", "deselectAll");
-    		$(this).text("Remove selection [-]");
-    	} 
-    	else
-    	{
-    		// Debe de-seleccionar todo, cambiar el texto y cambiar la clase:
-    		$(".filter").prop("checked", false);
-    		$("#filterLogo").prop("checked", false);
-    		$(".filterArch").prop("checked",false); $(".filterArch").prop("disabled", true); 
-    		$(this).attr("class", "selectAll");
-    		$(this).text("Select all [+]");
-    	};
-    	
-    });
-
-    // Al hacer click sobre un filter, activa/desactiva su opcion de mapa:
-    $(document).on('click', "input.filter", function() 
-    {
-    	var checked = $(this).prop("checked");
-	    var id = $(this).val().split("_")[0];
-	    var category = $(this).val().split("_")[1];
-
-	    if (checked) 
-	    {
-	    	// Ahora esta checked, activa su opcion de mapa si debe hacerlo:
-	    	if (category == 'MAPD') 
-	    	{
-	    		$("#filterArch"+id).prop("disabled", false);
-	    		$("#filterArch"+id).prop("checked", true);
-	    	};
-	    }
-	    else
-	    {
-	    	// Ahora esta unchecked, desactiva su opcion de mapa si debe hacerlo:
-	    	if (category == 'MAPD') 
-	    	{
-	    		$("#filterArch"+id).prop("checked", false);
-	    		$("#filterArch"+id).prop("disabled", true);
-	    	};
-	    };
-    }); 
-
-
-
-	</script>
-
-
-	<div>
-		<ol class="breadcrumb">
-			<li><a href="../inicio/inicio">Home</a></li>
-			<li class="active">Administration</li>
-		</ol>
-	</div>
-
-	<h2>HTML Generation:</h2>
-	<div style="width:100%;">
-		<div style="float:left;width:25%;">
-			<select style="width:300px;border-color:#DDD;height:30px;" id="select_empresas">
-				<option selected disabled value="N">--- Select enterprise to generate ---</option>
-			    <% @empresas.each do |e|%>
-			    <option value='<%= e.id %>'>&nbsp;&nbsp;<%= e.name %></option>
-			    <% end %>
-			</select>
-		</div>
-
-		<div style="float:left;width:75%;">
-			<a style="cursor:pointer;" class="button" id="generate"><img src="/assets/generate_html.png"> Generate HTML</a>
-		</div>
-	</div>
-
-	<div id="dialogFilter" title="HTML Generation">
-
-	</div>
-
-	<br><br>
-	<hr>
-
-	<h2>User Management:</h2>
-	<div style="width:100%;">
-		<div style="float:left;width:25%;">
-			<%= form_tag( "../admin/file_users", method: "post" , id: "form_users", multipart: true) do %>
-			<input style="width:300px;border-color:#DDD;height:30px;" type="file" name="file" id="file">
-			<% end %>
-		</div>
-
-		<div style="float:left;width:75%;">
-			<a style="cursor:pointer;" class="button" id="users"><img src="/assets/load_users.png"> Process file</a>
-		</div>
-	</div>
-
-	<br><br>
-	<hr>
-
-	<div style="width:100%;" id="logDiv">
-	</div>
-
-
-	<% end %>
-
-
-
-<% else %>
-
-<div class="alert alert-danger">
-	Unauthorized area!.
+<% if @empresas.size == 0 %>
+<div class="alert alert-info">
+	<p>No enterprises available to generate client applications.</p>
 </div>
 
 <div class="btn-group">
   <button type="button" class="btn btn-default" onclick="location.href='../inicio/inicio'">Home</button>
 </div>
 
+<% else %>
+
+<style>
+
+a.button:hover, a.button:visited, a.button:link, a.button:active
+{
+    text-decoration: none;
+    color: #428bca;
+}
+
+span#selectState
+{
+	color:green;
+	text-decoration:underline;
+	cursor:pointer;
+	font-size:12px;
+}
+
+
+
+</style>
+
+<script>
+
+$(function () {
+  $("#dialogFilter").dialog({
+    autoOpen: false,
+    modal: true,
+    buttons: {
+      "Generate HTML": function()
+      {
+      	// Construye strings con los ids de cada categoria para la generacion:
+      	var mapIds = ''; var riskIds = ''; var goalIds = ''; var priorIds = ''; var checked = false; var id; var category;
+      	var archsIds = ''; var logo = 'NO';
+      	var idEmp = $("#dialogFilter").data('idEmp'); var checkeados = 0;
+
+      	$(".filterArch").each(function(){
+          checked = $(this).prop("checked");
+
+          if (checked) 
+          {
+          	  id = $(this).val().split("_")[0];
+          	  if (archsIds == '') 
+			  {
+			  	archsIds = id;
+			  } 
+			  else
+			  {
+			  	archsIds += '|' + id;
+			  };
+          };
+        });
+
+        checked = $("#filterLogo").prop("checked");
+
+        if (checked) 
+        {
+        	logo = 'SI';
+        };
+
+
+
+      	$(".filter").each(function(){
+          checked = $(this).prop("checked");
+          if (checked) 
+          {
+          	checkeados+= 1;
+          	id = $(this).val().split("_")[0];
+          	category = $(this).val().split("_")[1];
+          	// Dependiendo de la categoria lo agrega a su respectivo string:
+          	switch (category)
+			{
+			case 'MAP':
+			  if (mapIds == '') 
+			  {
+			  	mapIds = id;
+			  } 
+			  else
+			  {
+			  	mapIds += '|' + id;
+			  };
+			  break;
+			case 'MAPD':
+			  if (mapIds == '') 
+			  {
+			  	mapIds = id;
+			  } 
+			  else
+			  {
+			  	mapIds += '|' + id;
+			  };
+			  break;
+			case 'RISK':
+			  if (riskIds == '') 
+			  {
+			  	riskIds = id;
+			  } 
+			  else
+			  {
+			  	riskIds += '|' + id;
+			  };
+			  break;
+			case 'GOAL':
+			  if (goalIds == '') 
+			  {
+			  	goalIds = id;
+			  } 
+			  else
+			  {
+			  	goalIds += '|' + id;
+			  };
+			  break;
+			case 'PRIOR':
+			  if (priorIds == '') 
+			  {
+			  	priorIds = id;
+			  } 
+			  else
+			  {
+			  	priorIds += '|' + id;
+			  };
+			  break;
+			} // Cierra switch
+          };
+        });
+
+        // Al final agrega los arquetipos seleccionados, al string de mapas ids
+        mapIds += '%' + archsIds;
+
+
+        // Cierra el dialogo:
+		$("#dialogFilter").dialog("close");
+		$("#dialogFilter").html("");
+
+		if (checkeados > 0) 
+		{
+			// Carga el icono de cargando:
+		    $("#generate").html('<img src="<%= LOADING_GIF %>"> Generating HTML...');
+
+	        // Genera el contenido HTML:
+			$.post('/inicio/g_home', {'idEmp' : idEmp, 'mapIds': mapIds, 'riskIds': riskIds, 'goalIds': goalIds, 'priorIds': priorIds, 'logo': logo}, function(data)
+    		{
+    			var html = '';    		
+    			if (data.length > 0) 
+    			{
+    				// Genera el titulo y el log de la pantala de inicio:
+    				html+= '<h2 id="enCurso">Processing...</h2>';
+    				for (var i = 0; i < data.length; i++) 
+    				{
+    					if (i == 0) 
+    					{
+    						html+= '<span style="font-size:12px;font-style:italic;color:green;">'+data[i]+'</span><br>';
+    					} 
+    					else
+    					{
+    						html+= '<span style="font-size:12px;font-style:italic;color:#333;">'+data[i]+'</span><br>';
+    					};
+    					
+    				};
+
+    				$("#logDiv").html(html);
+    				// Genera el contenido HTML  de los mapas de decision:
+					$.post('/inicio/g_decision_maps', {'idEmp' : idEmp, 'mapIds': mapIds}, function(data)
+		    		{
+		    			if (data.length > 0) 
+		    			{
+		    				html = $("#logDiv").html();
+		    				for (var i = 0; i < data.length; i++) 
+		    				{
+		    					if (i == 0) 
+		    					{
+		    						html+= '<span style="font-size:12px;font-style:italic;color:green;">'+data[i]+'</span><br>';
+		    					} 
+		    					else
+		    					{
+		    						html+= '<span style="font-size:12px;font-style:italic;color:#333;">'+data[i]+'</span><br>';
+		    					};
+		    				};
+		    				$("#logDiv").html(html);
+		    				$.post('/inicio/g_risk_escenarios', {'idEmp' : idEmp, 'riskIds': riskIds}, function(data)
+		    				{
+		    					if (data.length > 0) 
+		    					{
+		    						html = $("#logDiv").html();
+				    				for (var i = 0; i < data.length; i++) 
+				    				{
+				    					if (i == 0) 
+				    					{
+				    						html+= '<span style="font-size:12px;font-style:italic;color:green;">'+data[i]+'</span><br>';
+				    					} 
+				    					else
+				    					{
+				    						html+= '<span style="font-size:12px;font-style:italic;color:#333;">'+data[i]+'</span><br>';
+				    					};
+				    				};
+				    				$("#logDiv").html(html);
+				    				$.post('/inicio/g_priorization_escenarios', {'idEmp' : idEmp, 'priorIds': priorIds}, function(data)
+				    				{
+				    					if (data.length > 0) 
+				    					{
+				    						html = $("#logDiv").html();
+						    				for (var i = 0; i < data.length; i++) 
+						    				{
+						    					if (i == 0) 
+						    					{
+						    						html+= '<span style="font-size:12px;font-style:italic;color:green;">'+data[i]+'</span><br>';
+						    					} 
+						    					else
+						    					{
+						    						html+= '<span style="font-size:12px;font-style:italic;color:#333;">'+data[i]+'</span><br>';
+						    					};
+						    				};
+						    				$("#logDiv").html(html);		    				
+				    					};
+				    					$.post('/inicio/g_goal_escenarios', {'idEmp' : idEmp, 'goalIds': goalIds}, function(data)
+					    					{
+					    						if (data.length > 0) 
+					    						{
+					    							html = $("#logDiv").html();
+								    				for (var i = 0; i < data.length; i++) 
+								    				{
+								    					if (i == 0) 
+								    					{
+								    						html+= '<span style="font-size:12px;font-style:italic;color:green;">'+data[i]+'</span><br>';
+								    					} 
+								    					else
+								    					{
+								    						html+= '<span style="font-size:12px;font-style:italic;color:#333;">'+data[i]+'</span><br>';
+								    					};
+								    				};
+								    				$("#logDiv").html(html);
+					    						};
+					    						// Cambia el mensaje de en curso.., a terminado, y habilita de nuevo todo:
+							    				$("#enCurso").html('<span style="color:green;">HTML Generation terminated successfully!</span>');
+							    				$("#select_empresas").prop("disabled", false);
+												// Carga el icono de cargando:
+												$("#generate").html('<img src="/assets/generate_html.png"> Generate HTML');
+												$("#generate").prop("disabled", false);
+					    					});
+				    					
+				    				});
+		    					};
+		    					
+		    				});
+		    			};
+		    		});
+    			};
+
+    		}); 
+        }
+        else
+        {
+        	$("#select_empresas").prop("disabled", false);
+			// Carga el icono de cargando:
+			$("#generate").html('<img src="/assets/generate_html.png"> Generate HTML');
+			$("#generate").prop("disabled", false);
+		}; // Cierra IF-checkeados
+		
+        
+      },
+      "Cancel": function () 
+      {	 
+      	$(this).html("");
+      	$("#select_empresas").prop("disabled", false);
+      	$("#generate").html('<img src="/assets/generate_html.png"> Generate HTML');
+		$("#generate").prop("disabled", false);
+        $(this).dialog("close");
+      }
+    },
+    close: function() 
+    {
+      $(this).html("");
+      $("#select_empresas").prop("disabled", false);
+      $("#generate").html('<img src="/assets/generate_html.png"> Generate HTML');
+	  $("#generate").prop("disabled", false);
+      $(this).dialog("close");
+    }
+  });
+
+});
+</script>
+
+
+<script>
+
+$( document ).ready(function() {
+
+	// Generar HTML:
+	$("#generate").click(function(){
+		var idEmp = $("#select_empresas option:selected").val();
+
+		if (idEmp == 'N') 
+		{
+			//Selección invalida
+			$("#select_empresas").focus();
+		} 
+		else
+		{
+			// Elimina contenido anteriormente obtenido:
+			$("#logDiv").html("");
+			// Bloquea el listado de empresas:
+			$("#select_empresas").prop("disabled", true);
+			// Bloquea el propio link:
+			$("#generate").prop("disabled", true);
+			// Carga el icono de cargando:
+			$("#generate").html('<img src="<%= LOADING_GIF %>"> Generating HTML...');
+
+			// Construye el contenido HTML y muestra el dialogo para seleccionar qué generar:
+			$.post('/inicio/getFilterEmpresa', {'idEmp' : idEmp}, function(data)
+    		{
+    			var html = '';
+    			html+= '<h5 style="font-size:15px;color:blue;">Select the components to generate:</h5>';
+    			// Agrega las opciones seleccionar/deseleccionar todo:
+    			html+= '<span class="selectAll" id="selectState">Select all [+]</span>';
+
+                var chkReporte = false;
+    			for (var i = 1; i < data.length; i++) 
+    			{
+    				// Revisa si es un titulo:
+    				if (data[i].split("$:$").length > 1) 
+    				{
+    					// Es un titulo:
+    					html+= '<h5 style="color:blue;">'+ data[i].split("$:$")[0] +'</h5>';
+    					// Si el titulo es de los mapas, activa el flag para ello:
+    					if (data[i].split("$:$")[0] == 'Mapas de decisión') 
+    					{
+    						chkReporte = true;
+    					} 
+    					else
+    					{
+    						chkReporte = false;
+    					};
+
+    					// Si viene vacío lo informa:
+    					if (data[i].split("$:$")[1] == '0') 
+    					{
+    						html+= '<span style="font-size:13px;color:orange;">No data available!</span><br>';
+    					};
+    				}
+    				else
+    				{
+    					// No es un titulo:
+    					// Si el | divide en 3, debe identarse:
+    					var identar = data[i].split("|").length;
+
+    					if (identar == 3) 
+    					{
+    						// Debe identarlo
+    						html+= '<input type="checkbox" style="margin-left:28px;" class="filter" value="'+ data[i].split("|")[0] +'">   ' + data[i].split("|")[1] + '<br>';
+    					} 
+    					else
+    					{
+    						// Lo muestra normal
+    						html+= '<input type="checkbox" style="margin-left:10px;" class="filter" value="'+ data[i].split("|")[0] +'">   ' + data[i].split("|")[1] + '<br>';
+    						// Verifica si debe validar su check de reporte:
+    						if (chkReporte) 
+    						{
+    							if (data[i].split("|")[0].split("_")[1] == 'MAPD') 
+    							{
+    								html+= '<span style="font-style:italic;font-size:11px;"><input type="checkbox" style="margin-left:28px;" class="filterArch" value="'+ 
+    										data[i].split("|")[0].split("_")[0] +
+    										'_ARCH" id="filterArch'+data[i].split("|")[0].split("_")[0]+'" disabled>  Archetype Identification Report</span><br>';
+    							};
+    							
+    						};
+    					};
+
+
+    					
+    				};
+    				
+    			};
+
+    			// Agrega la opcion fina para el logo:
+    			if (data[0] == 'SI_LOGO') 
+    			{
+    				html+= '<h5 style="color:blue;">Other options</h5><input type="checkbox" style="margin-left:10px;" id="filterLogo" value="LOGO"> Include logo<br>';
+    			};
+
+
+    			html+='<div id="loadingDiv"></div>';
+
+    			$("#dialogFilter").html(html); 
+
+    			$("#dialogFilter").dialog("option", "width", 600);
+			    $("#dialogFilter").dialog("option", "height", 500);
+			    $("#dialogFilter").dialog("option", "resizable", false);
+			    $("#dialogFilter").data('idEmp', idEmp);
+			    $("#dialogFilter").dialog("open");
+
+    		});	
+		};
+	});
+
+    // Gestión de usuarios en masa:
+    $("#users").click(function(){
+    	var ruta = $("#file").val();
+    	if (ruta != null && ruta != '') 
+    	{
+    		// Bloquea el listado de empresas:
+			$("#select_empresas").prop("disabled", true);
+			// Bloquea el otro link:
+			$("#generate").prop("disabled", true);
+			// Bloquea el propio link:
+			$("#users").prop("disabled", true);
+			// Carga el icono de cargando:
+			$("#users").html('<img src="<%= LOADING_GIF %>"> Generating HTML...');
+
+    		$("#form_users").submit();
+    	};
+    });
+});
+
+$(document).on('click', "span#selectState", function() 
+{
+	var clase = $(this).attr("class");
+	if (clase == 'selectAll') 
+	{
+		// Debe seleccionar todo, cambiar el texto y cambiar la clase:
+		$(".filter").prop("checked", true);
+		$("#filterLogo").prop("checked", true);
+		$(".filterArch").prop("disabled", false); $(".filterArch").prop("checked", true);
+		$(this).attr("class", "deselectAll");
+		$(this).text("Remove selection [-]");
+	} 
+	else
+	{
+		// Debe de-seleccionar todo, cambiar el texto y cambiar la clase:
+		$(".filter").prop("checked", false);
+		$("#filterLogo").prop("checked", false);
+		$(".filterArch").prop("checked",false); $(".filterArch").prop("disabled", true); 
+		$(this).attr("class", "selectAll");
+		$(this).text("Select all [+]");
+	};
+	
+});
+
+// Al hacer click sobre un filter, activa/desactiva su opcion de mapa:
+$(document).on('click', "input.filter", function() 
+{
+	var checked = $(this).prop("checked");
+    var id = $(this).val().split("_")[0];
+    var category = $(this).val().split("_")[1];
+
+    if (checked) 
+    {
+    	// Ahora esta checked, activa su opcion de mapa si debe hacerlo:
+    	if (category == 'MAPD') 
+    	{
+    		$("#filterArch"+id).prop("disabled", false);
+    		$("#filterArch"+id).prop("checked", true);
+    	};
+    }
+    else
+    {
+    	// Ahora esta unchecked, desactiva su opcion de mapa si debe hacerlo:
+    	if (category == 'MAPD') 
+    	{
+    		$("#filterArch"+id).prop("checked", false);
+    		$("#filterArch"+id).prop("disabled", true);
+    	};
+    };
+}); 
+
+
+
+</script>
+
+
+<div>
+	<ol class="breadcrumb">
+		<li><a href="../inicio/inicio">Home</a></li>
+		<li class="active">Administration</li>
+	</ol>
+</div>
+
+<h2>HTML Generation:</h2>
+<div style="width:100%;">
+	<div style="float:left;width:25%;">
+		<select style="width:300px;border-color:#DDD;height:30px;" id="select_empresas">
+			<option selected disabled value="N">--- Select enterprise to generate ---</option>
+		    <% @empresas.each do |e|%>
+		    <option value='<%= e.id %>'>&nbsp;&nbsp;<%= e.name %></option>
+		    <% end %>
+		</select>
+	</div>
+
+	<div style="float:left;width:75%;">
+		<a style="cursor:pointer;" class="button" id="generate"><img src="/assets/generate_html.png"> Generate HTML</a>
+	</div>
+</div>
+
+<div id="dialogFilter" title="HTML Generation">
+
+</div>
+
+<br><br>
+<hr>
+
+<div style="width:100%;" id="logDiv">
+</div>
+
+
 <% end %>
+
 
 
 

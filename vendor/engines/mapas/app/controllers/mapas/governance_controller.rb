@@ -1,29 +1,5 @@
 #encoding: utf-8
 
-# ==========================================================================
-# GovernIT: A Software for Creating and Controlling IT Governance Models
-
-# Copyright (C) 2015  Oscar González Rojas - Sebastián Lesmes Alvarado
-
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/
-
-# Authors' contact information (e-mail):
-# Oscar González Rojas: o-gonza1@uniandes.edu.co
-# Sebastián Lesmes Alvarado: s.lesmes798@uniandes.edu.co
-
-# ==========================================================================
-
 require_dependency "mapas/application_controller"
 
 module Mapas
@@ -42,16 +18,8 @@ module Mapas
 			# Envia las especificas ordenadas por su padre, para realizar el agrupamiento:
 		    @genericas.size == 0 ? @tieneDecisiones = false : @tieneDecisiones = true
 		    @especificas = GovernanceDecision.where("decision_type = ? AND enterprise_id = ?", SPECIFIC_TYPE, @empresa.id).order(parent_id: :asc)
-		    @especificas.each do |e|
-		    	begin
-		    	  authorize! :manage, e
-			    rescue 
-			      raise CanCan::AccessDenied.new("No tiene autorización para acceder a las decisiones de la empresa: " << @empresa.name )
-			    end
-		    end
-
 		else
-			redirect_to main_app.root_url, :alert => 'ERROR: Empresa no encontrada. Debe seleccionar una empresa en el menú inicial'
+			redirect_to main_app.root_url, :alert => 'ERROR: Enterprise not found. Select one from the initial menu'
 		end
 	end
 	# ----------- Decisiones
@@ -71,12 +39,6 @@ module Mapas
 		decSpe.decision_type = SPECIFIC_TYPE
 		decSpe.parent_id = padre.id
 		decSpe.enterprise_id = @empresa.id
-
-		begin
-		  authorize! :create, decSpe
-		rescue 
-		  raise CanCan::AccessDenied.new("No tiene autorización para crear decisiones específicas para la empresa: " << @empresa.name )
-		end
 
 		respond_to do |format|
 			if decSpe.save
@@ -103,12 +65,6 @@ module Mapas
 		decGen.decision_type = GENERIC_TYPE
 		decGen.enterprise_id = emp.id
 
-		begin
-		  authorize! :create, decGen
-		rescue 
-		  raise CanCan::AccessDenied.new("No tiene autorización para crear decisiones genéricas en la empresa: " << emp.name)
-		end
-
 		respond_to do |format|
 			if decGen.save
 				# Todo OK
@@ -126,23 +82,9 @@ module Mapas
 		@empresa = getMyEnterpriseAPP
 		if !@empresa.nil?
 			@maps = DecisionMap.where("enterprise_id = ?", @empresa.id)
-			@maps.each do |map|
-				begin
-				  authorize! :manage, map
-				rescue 
-				  raise CanCan::AccessDenied.new("No tiene autorización para acceder a los mapas de decisión de la empresa: " << @empresa.name )
-				end
-			end
 			@ests = GovernanceStructure.where("enterprise_id = ?", @empresa.id)
-			@ests.each do |est|
-				begin
-				  authorize! :read, est
-				rescue 
-				  raise CanCan::AccessDenied.new("No tiene autorización para acceder a las estructuras de gobierno de la empresa: " << @empresa.name )
-				end
-			end
 		else
-			redirect_to main_app.root_url, :alert => 'ERROR: Empresa no encontrada. Debe seleccionar una empresa en el menú inicial'
+			redirect_to main_app.root_url, :alert => 'ERROR: Enterprise not found. Select one from the initial menu'
 		end
 	end
 	# -------------
@@ -155,19 +97,12 @@ module Mapas
 		est = params[:est]
 		type = params[:type]
 
-		authorize! :create, DecisionMap
 		map = DecisionMap.new
 		map.name = name
 		map.description = desc
 		map.map_type = type
 		map.enterprise_id = @empresa.id
 		map.governance_structure_id = est.to_i
-
-		begin
-		  authorize! :create, map
-		rescue 
-		  raise CanCan::AccessDenied.new("No tiene autorización para crear mapas de decisión en la empresa: " << @empresa.name )
-		end
 
 		respond_to do |format|
         	if map.save # OK
@@ -184,25 +119,10 @@ module Mapas
 
 		if !@empresa.nil?
 		    @estructuras = GovernanceStructure.where("enterprise_id = ?", @empresa.id).order(id: :asc)
-
-		    @estructuras.each do |est|
-		    	begin
-				  authorize! :read, est
-				rescue 
-				  raise CanCan::AccessDenied.new("No tiene autorización para ver las estructuras de gobierno de la empresa" << @empresa.name )
-				end
-		    end
-
 			@genericas = GovernanceDecision.where("decision_type = ? AND enterprise_id = ?", GENERIC_TYPE, @empresa.id).order(dimension: :asc)
 
 			# Según el tipo de mapa, lo redirige:
 			@map = DecisionMap.find(params[:idMap].to_i)
-			begin
-			  authorize! :read, @map
-			rescue 
-			  raise CanCan::AccessDenied.new("No tiene autorización para acceder al mapa de decisión: " << @map.name )
-			end
-
 			@details = @map.map_details
 
 			if @map.map_type.nil?
@@ -234,24 +154,10 @@ module Mapas
 
     		@risks = Risk.where("nivel = ?", 'GENERICO').order(id: :asc)
     		@categories = RiskCategory.where("id_padre IS NULL")
-
-		    @estructuras.each do |ests|
-		    	begin
-				  authorize! :read, ests
-				rescue 
-				  raise CanCan::AccessDenied.new("No tiene autorización para ver las estructuras de gobierno de la empresa" << @empresa.name )
-				end
-		    end
-
 			@genericas = GovernanceDecision.where("decision_type = ? AND enterprise_id = ?", GENERIC_TYPE, @empresa.id).order(dimension: :asc)
 
 			# Según el tipo de mapa, lo redirige:
 			@map = DecisionMap.find(params[:idMap].to_i)
-			begin
-			  authorize! :read, @map
-			rescue 
-			  raise CanCan::AccessDenied.new("No tiene autorización para acceder al mapa de decisión: " << @map.name )
-			end
 			@details = @map.map_details
 			@resps = [DELEG_RESP_1,DELEG_RESP_2,DELEG_RESP_3,DELEG_RESP_4,DELEG_RESP_5]
 		end
@@ -262,12 +168,6 @@ module Mapas
 
 	def get_decision
 		dec = GovernanceDecision.find(params[:id])
-		begin
-		  authorize! :read, dec
-		rescue 
-		  raise CanCan::AccessDenied.new("No tiene autorización para acceder a la decisión: " << dec.id.to_s )
-		end
-
 		respond_to do |format|
         	if !dec.nil? # OK
         		format.json {render json: dec}
@@ -283,15 +183,6 @@ module Mapas
 		myDec = GovernanceDecision.find(params[:me].to_i)
 		decsGen = GovernanceDecision.where("decision_type = ? AND dimension = ?", GENERIC_TYPE, params[:dim])
 		decsEsp = GovernanceDecision.where("decision_type = ? AND dimension = ? AND enterprise_id = ?", SPECIFIC_TYPE, params[:dim], view_context.getMyEnterprise.id)
-		
-		decsEsp.each do |d|
-			begin
-			  authorize! :read, d
-			rescue 
-			  raise CanCan::AccessDenied.new("No tiene autorización para acceder a las decisiones específicas de la empresa: " << view_context.getMyEnterprise.name )
-			end
-		end
-
 		decs = decsEsp + decsGen
 	    # Remueve la propia decisión que se está tratando:
 	    decs.delete(myDec)
@@ -326,12 +217,6 @@ module Mapas
 		# Actualiza:
 		dec.description = newDesc
 		dec.dimension = newDim
-
-		begin
-		  authorize! :update, dec
-		rescue 
-		  raise CanCan::AccessDenied.new("No tiene autorización para modificar la decisión: " << dec.id.to_s )
-		end
 
 		respond_to do |format|
         	if dec.save # OK
@@ -734,11 +619,11 @@ module Mapas
 		end
 
         if erradas > 0
-        	flash[:alert] = 'ERROR: ' << erradas.to_s << '  decisiones genéricas no se pudieron crear!'
+        	flash[:alert] = 'ERROR: ' << erradas.to_s << '  generic decisions could not be created!'
         end
 
         if creadas > 0
-        	flash[:notice] = 'Se crearon ' << creadas.to_s << ' decisiones genéricas con éxito para la empresa ' << emp.name
+        	flash[:notice] = creadas.to_s << ' generic decisions were created successfully for the enterprise ' << emp.name
         	if I18n.default_locale.to_s.eql?("en")
         		# Mensaje en ingles!
         		flash[:notice] = creadas.to_s << ' generic decisions were created successfully for the enterprise ' << emp.name
