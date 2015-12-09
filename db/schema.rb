@@ -13,9 +13,6 @@
 
 ActiveRecord::Schema.define(version: 20151005204125) do
 
-  # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
-
   create_table "configuracions", force: true do |t|
     t.string  "riskmap"
     t.integer "enterprise_id"
