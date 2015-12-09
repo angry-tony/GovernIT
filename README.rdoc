@@ -7,11 +7,13 @@
   4.0.2
 
 * Deployment instructions
-  1. Open a command window and navigate to the root folder of the project (e.g ..../InvestIT)
-  2. Install all the required gems for the project: Run 'bundle install'
-  3. Create the database to support the application: Set the user, password and database name in the file located in "InvestIT/config/database.yml". If you are going to use another database other than PostgreSQL, you need to include the respective gem in the Gemfile and re-run bundle install. Run 'rake db:create' or 'bundle exec rake db:create' (if the first one triggers a version conflict)
-  4. Load the data into the database: Set a valid email for the administrator in the file located in "InvestIT/db/seeds.rb", line 19. Save the file with the changes. Run 'rake db:seed' or 'bundle exec rake db:seed' (if the first one triggers a version conflict)
-  5. Activate your account and start using InvestIT: Run 'rails s' to start the application server and start using InvestIT.
+  1. Download the zip file with the source code, and un-zip it into a proper location in your system. 
+  2. Open a command window and navigate to the location chosen in the previous step to the root folder of the project (e.g ..../InvestIT)
+  3. Install all the required gems for the project: Run 'bundle install'
+  4. Create the database to support the application: Run 'rake db:create' or 'bundle exec rake db:create' (if the first one triggers a version conflict)
+  5. Create all the required tables and database models required to support the application: Run 'rake db:migrate' or 'bundle exec rake db:migrate' (if the first one triggers a version conflict)
+  6. Load the data into the database: Run 'rake db:seed' or 'bundle exec rake db:seed' (if the first one triggers a version conflict)
+  7. Start using InvestIT: Run 'rails s' to start the application server and start using InvestIT in the route 'localhost:3000' in your prefered web browser.
 
 * Digital Object Identifier: https://zenodo.org/badge/latestdoi/18809/governit/GovernIT
 
