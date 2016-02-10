@@ -32,7 +32,7 @@ module Mapas
 	end
 	# -----------
 
-	# Metodo que traduce la visualizacion de las dimensiones:
+	# Metodo que traduce la visualizacion de las dimensiones (desde el español):
 	def translateDimension(dimension)
 		case dimension
 		when DIM_DEC_1 then I18n.t 'EM_dimension1'
@@ -45,7 +45,7 @@ module Mapas
 	end
 	# ------- translateDimension
 
-	# Metodo que traduce la visualizacion de las columnas de un mapa de delgacion de responsabilidades:
+	# Metodo que traduce la visualizacion de las columnas de un mapa de delgacion de responsabilidades (desde el español):
 	def translateDelegResp(resp)
 		case resp
 		when DELEG_RESP_1 then I18n.t 'EM_delegResp1'
@@ -56,6 +56,26 @@ module Mapas
 		end
 	end
 	# ------- translateDelegResp
+
+	# Metodo que traduce la visualizacion de las dimensiones (hacia el español):
+	def translateDimensionToES(dimension)
+		dim1 = I18n.t 'EM_dimension1'
+		dim2 = I18n.t 'EM_dimension2'
+		dim3 = I18n.t 'EM_dimension3'
+		dim4 = I18n.t 'EM_dimension4'
+		dim5 = I18n.t 'EM_dimension5'
+		dim6 = I18n.t 'EM_dimension6'
+
+		case dimension
+		when dim1 then DIM_DEC_1
+		when dim2 then DIM_DEC_2
+		when dim3 then DIM_DEC_3
+		when dim4 then DIM_DEC_4
+		when dim5 then DIM_DEC_5
+		when dim6 then DIM_DEC_6
+		end
+	end
+	# ------- translateDimensionToES
 	
 	
 

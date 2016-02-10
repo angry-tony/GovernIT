@@ -27,7 +27,7 @@ en:
    EM_dimension4: 'IT Applications'
    EM_dimension5: 'Investment and Prioritization'
    EM_dimension6: 'Pending for classification'
-   # Responsabilities delegation's map type columns
+   # Responsibilities delegation's map type columns
    EM_delegResp1: 'Decides'
    EM_delegResp2: 'Acts'
    EM_delegResp3: 'Consulted'

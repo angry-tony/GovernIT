@@ -426,7 +426,7 @@ module Mapas
 	        	fileHtml.puts lineHtml
 	        	funcs = get_functions_method(est.id) 
 	        	if funcs.size == 0
-	        		lineHtml = '<span style="color:#333;"><i>- This structure has no defined responsabilities</i></span><br>'
+	        		lineHtml = '<span style="color:#333;"><i>- This structure has no defined responsibilities</i></span><br>'
 	        		fileHtml.puts lineHtml
 	        	else
 	        		error = false
@@ -509,7 +509,7 @@ module Mapas
 			myFile.puts lineHtml
 			seleccionadas.each do |sel|
 				idStr = 'par_' << sel.governance_structure.id.to_s << '_' << myDec.id.to_s << '_' << i.to_s
-				lineHtml = '<p title="Show responsabilities" class="showFuncs" id="' << idStr << '">- ' << sel.governance_structure.name << '</p>'
+				lineHtml = '<p title="Show responsibilities" class="showFuncs" id="' << idStr << '">- ' << sel.governance_structure.name << '</p>'
 			    myFile.puts lineHtml
 			end
 			lineHtml = '</td>'
@@ -612,7 +612,7 @@ module Mapas
 	    else
 	    	seleccionadas.each do |sel|
 	    		idStr = 'par_' << sel.governance_structure.id.to_s << '_' << myDec.id.to_s << '_' << i.to_s
-	    		lineHtml = '<p title="Show responsabilities" class="showFuncs" id="' << idStr << '">- ' << sel.governance_structure.name << '</p>'
+	    		lineHtml = '<p title="Show responsibilities" class="showFuncs" id="' << idStr << '">- ' << sel.governance_structure.name << '</p>'
 	    		myFile.puts lineHtml
 	    	end
 	    	

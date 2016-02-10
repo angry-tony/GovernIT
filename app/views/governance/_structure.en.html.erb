@@ -13,7 +13,7 @@ hijos = myEst.hijas
 %>
 
 <p id="<%= id %>" style="margin:0 0 0 <%= margin %>px;">
-	<img src="/assets/list_option.png" title="Add a new governance structure, under the hierarchy of this governance structure" style="margin-right:6px;cursor:pointer;" class="new_est" id="<%= id_img %>">[<%= myEst.structure_type%>] - <%= myEst.name %> <span id="<%= id_span %>" class="tool" style="color:#428bca;cursor:pointer;">| Responsabilities</span> <span id="<%= id_edit %>" class="update" style="color:#428bca;cursor:pointer;">| Edit</span>
+	<img src="/assets/list_option.png" title="Add a new governance structure, under the hierarchy of this governance structure" style="margin-right:6px;cursor:pointer;" class="new_est" id="<%= id_img %>">[<%= myEst.structure_type%>] - <%= myEst.name %> <span id="<%= id_span %>" class="tool" style="color:#428bca;cursor:pointer;">| Responsibilities</span> <span id="<%= id_edit %>" class="update" style="color:#428bca;cursor:pointer;">| Edit</span>
 </p>
 <%
 funcs = ''
@@ -22,7 +22,7 @@ myEst.governance_responsabilities.each do |gr|
 end
 
 if funcs == ''
-	funcs = "This governance structure has no defined responsabilities."
+	funcs = "This governance structure has no defined responsibilities."
 end
 
 # Dibuja los hijos, si los hay:

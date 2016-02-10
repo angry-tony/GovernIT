@@ -57,6 +57,12 @@ module Mapas
 	def add_generic
 		emp = getMyEnterpriseAPP
 		dim = params[:dimension]
+		# La dimension puede venir en español o en ingles, verifica y ajusta (En la BD SIEMPRE EN ESPAÑOL!)
+		if !I18n.default_locale.to_s.eql?("es")
+			# Viene en ingles, debe pasarla a español:
+			dim = view_context.translateDimensionToES(dim)
+		end
+		
 		desc = params[:description]
 		# Crea una decision generica:
 		decGen = GovernanceDecision.new

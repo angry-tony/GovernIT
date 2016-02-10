@@ -403,6 +403,13 @@ $(document).on('click', "img.add_new_gen", function() {
 	var idPar = 'par_' + dim;
 	var desc = $("#"+idInput).val();
 	var dimension = $("#"+idPar).text().replace("Dimensión: ", "").trim(); // par_[dim]
+	var dimension = $("#"+idPar).text();
+	var textoEN_ES = 'Dimensión';
+	<% if I18n.default_locale.to_s.eql?("en") %>
+		textoEN_ES = 'Dimension'
+	<% end %>
+	dimension = dimension.replace(textoEN_ES+": ", "").trim(); // par_[dim]
+
 	dimension = dimension.replace("[+]","").trim();
 	// Realiza la petición AJAX:
 	
