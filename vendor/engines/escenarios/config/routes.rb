@@ -1,7 +1,8 @@
 Escenarios::Engine.routes.draw do
 
-	# Rutas Escenarios de Priorización:
-	get "priorization/escenarios" # Cambio a GET, por sesiones
+	# ES: Rutas Escenarios de Priorización:
+	# EN: Routes Prioritization Scenarios:
+	get "priorization/escenarios" # ES: Cambio a GET, por sesiones - EN: Change to GET, because of sessions support
 	post "priorization/get_priorization_stats_html"
 	post "priorization/add_escenario"
 	get "priorization/get_risk_escenarios"
@@ -23,8 +24,8 @@ Escenarios::Engine.routes.draw do
 	post "governance/add_risk_escenario"  
 	post "governance/add_goal_escenario"  
 	get "governance/get_risk_cal"
-	get "governance/risks" # Cambio a GET, por sesiones
-	get "governance/goals" # Cambio a GET, por sesiones
+	get "governance/risks" # ES: Cambio a GET, por sesiones - EN: Change to GET, because of sessions support
+	get "governance/goals" # ES: Cambio a GET, por sesiones - EN: Change to GET, because of sessions support
 	post "governance/risk_escenario"
 	post "governance/goal_escenario"
 	post "governance/get_info_risk"

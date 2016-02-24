@@ -1,11 +1,11 @@
 DSS::Application.routes.draw do
 
 
-  # Acceso al engine de mapas de decision:
+  # Access to engine: Decision Maps:
   mount Mapas::Engine, at: "/eM"
   
 
-  # Acceso al engine de escenarios de evaluacion:
+  # Access to engine: Assessment Scenarios:
   mount Escenarios::Engine, at: "/eEE"
   
 
@@ -19,7 +19,7 @@ DSS::Application.routes.draw do
    #root 'inicio#inicio'
 
   root :to => 'inicio#inicio'
-  # Rutas para la creacion y modificacion de estructuras de gobierno
+  # Routes to creation and modification of governance structures
   get "governance/get_functions"
   post "governance/get_structure"
   post "governance/update_structure"
@@ -29,7 +29,7 @@ DSS::Application.routes.draw do
   post "governance/add_responsability"
   get "autocomplete/responsabilities"
 
-  # Rutas Gobierno de TI - FIN
+  # Routes IT Governance - END
 
   get "enterprises/new"
   get "enterprises/get_enterprise"
@@ -37,67 +37,17 @@ DSS::Application.routes.draw do
   post "enterprises/update"
   post "enterprises/resultado"
   post "config/resultado"
-  get "config/riskmap" # Cambio a GET, por el uso de sesiones
+  get "config/riskmap" # Change to GET, provided the session use
   
   get "inicio/inicio"
   get '/admin', to: 'inicio#admin', :as => 'administrar'
 
-  # Rutas para generar los archivos html de las aplicaicones cliente:
-  post "inicio/getFilterEmpresa" # Informacion para seleccionar qué generar
-  post "inicio/g_home" # Pantalla inicial
-  post "inicio/g_decision_maps" # Mapas de decision
-  post "inicio/g_goal_escenarios" # Escenarios de evaluacion de objetivos 
-  post "inicio/g_risk_escenarios" # Escenarios de evaluacion de riesgos
-  post "inicio/g_priorization_escenarios" # Escenarios de priorización
-  post "inicio/session_config" # Configuracion de la sesion
-   
-
-  # Example of regular route:
-  #   get 'products/:id' => 'catalog#view'
-
-  # Example of named route that can be invoked with purchase_url(id: product.id)
-  #   get 'products/:id/purchase' => 'catalog#purchase', as: :purchase
-
-  # Example resource route (maps HTTP verbs to controller actions automatically):
-  #   resources :products
-
-  # Example resource route with options:
-  #   resources :products do
-  #     member do
-  #       get 'short'
-  #       post 'toggle'
-  #     end
-  #
-  #     collection do
-  #       get 'sold'
-  #     end
-  #   end
-
-  # Example resource route with sub-resources:
-  #   resources :products do
-  #     resources :comments, :sales
-  #     resource :seller
-  #   end
-
-  # Example resource route with more complex sub-resources:
-  #   resources :products do
-  #     resources :comments
-  #     resources :sales do
-  #       get 'recent', on: :collection
-  #     end
-  #   end
-
-  # Example resource route with concerns:
-  #   concern :toggleable do
-  #     post 'toggle'
-  #   end
-  #   resources :posts, concerns: :toggleable
-  #   resources :photos, concerns: :toggleable
-
-  # Example resource route within a namespace:
-  #   namespace :admin do
-  #     # Directs /admin/products/* to Admin::ProductsController
-  #     # (app/controllers/admin/products_controller.rb)
-  #     resources :products
-  #   end
+  # Routes to generate HTML files to build the client apps:
+  post "inicio/getFilterEmpresa" # Information to select what-to-generate
+  post "inicio/g_home" # Initial screen
+  post "inicio/g_decision_maps" # Decision Maps
+  post "inicio/g_goal_escenarios" # Goal Assessment Scenarios 
+  post "inicio/g_risk_escenarios" # Risk Assessment Scenarios
+  post "inicio/g_priorization_escenarios" # Prioritization Scenarios
+  post "inicio/session_config" # Session Configuration
 end

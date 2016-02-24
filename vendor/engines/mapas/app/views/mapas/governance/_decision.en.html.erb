@@ -1,6 +1,6 @@
 <%
-myDec = decision # Decision actual
-myLvl = nivel # Nivel de profundidad -> Para las margenes
+myDec = decision # Current decision
+myLvl = nivel # Deep level -> For the margins
 margin = myLvl * 35
 id = 'par' << myDec.id.to_s
 id_img = 'img' << myDec.id.to_s 
@@ -9,7 +9,7 @@ id_edit = 'update' << myDec.id.to_s
 hijos = myDec.hijas
 
 
-# Dibuja la estructura actual:
+# Renders the current structure:
 %>
 
 <p id="<%= id %>" style="margin:0 0 0 <%= margin %>px;" title="Add a new specific decision under this generic decision">
@@ -18,9 +18,9 @@ hijos = myDec.hijas
 
 <% 
 
-# Dibuja los hijos, si los hay:
+# Renders the sons if they exists:
 if hijos.size > 0
-	# Aumenta el nivel:
+	# Raise the level:
 	myLvl+= 1
 	hijos.each do |h| %>
 		<%= render :partial => 'decision', :locals => {:decision => h, :nivel => myLvl} %>

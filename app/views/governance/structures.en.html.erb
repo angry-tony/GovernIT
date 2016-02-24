@@ -1,9 +1,9 @@
 <script>
 
-// CAMBIO AL SELECCIONAR EL TIPO, PARA RESTRINGIR LA SELECCIÓN:
+// Change selecting the type, to restrict the selection:
 $(document).on('change', "select.selTipo", function() 
 {
-	// Obtiene el id:
+	// Get the id:
 	var id = this.id.replace("tipo_", "").trim();
 	var tipo = $("#tipo_"+id).val();
 
@@ -12,40 +12,40 @@ $(document).on('change', "select.selTipo", function()
 			   '<option value="<%= PERFIL_EST_2 %>">IT Staff</option>'+
 			   '<option value="<%= PERFIL_EST_3 %>">Business-IT</option>';
 
-	// Dependiendo del tipo, construye el contenido para seleccionar el perfil:
+	// Depending the type, builds the content to select the profile:
 	switch(tipo) 
 	{
-    case '<%= ROL %>': // No puede tener el 5
+    case '<%= ROL %>': // Can't have the 5
 	    html +=  '<option value="<%= PERFIL_EST_4 %>">Business Unit Leader</option>'+
 	             '<option value="<%= PERFIL_EST_6 %>">Process Owner(s)</option>';
         break;
-    case '<%= COMITE %>': // No puede tener ni el 4 ni el 6
+    case '<%= COMITE %>': // Can't have the 4 or 6
         html +=  '<option value="<%= PERFIL_EST_5 %>">Business Units Group</option>';
         break;
-    case '<%= UNIDAD_DE_NEGOCIO %>': // No puede tener el 4
+    case '<%= UNIDAD_DE_NEGOCIO %>': // Can't have the 4
         html += '<option value="<%= PERFIL_EST_5 %>">Business Units Group</option>'+
 				'<option value="<%= PERFIL_EST_6 %>">Process Owner(s)</option>';
         break;
-    } // Fin: Switch
+    } // End: Switch
 
     html+= '<option value="<%= PERFIL_EST_7 %>">Individuals</option>'+
 		   '<option value="<%= PERFIL_EST_8 %>">Business Executive</option>';
 
-	// Genera el contenido para el perfil:
+	// Generates the profile content:
 	$("#perfil_"+id).html(html);
 });
 
 
 
-// EDITAR ESTRUCTURA:
+// EDIT STRUCTURE:
 $(document).on('click', "span.update", function() {
-	var id = this.id; // update+ID Estructura
-	id = id.replace("update", "").trim(); // -> ID Estructura
+	var id = this.id; // update+Structure ID
+	id = id.replace("update", "").trim(); // -> Structure ID
 	var name; var funcs; var type; var perfil;
-	var idPar = "par" + id; // ID del parrafo, inserta contenido después de él
+	var idPar = "par" + id; // Paragraph ID, insert content after it
 	var margen = $("#"+idPar).css("margin-left").replace("px","").trim();
 	margen = parseInt(margen) + 35;
-	// Obtiene la información de la estructura vía AJAX:
+	// Get the structure's info through AJAX:
 	$.post('./get_structure', {'id' : id}, function(data)
     {
     	name = data.name;
@@ -55,12 +55,12 @@ $(document).on('click', "span.update", function() {
     	$.post('./get_responsabilities', {'id' : id}, function(data)
     	{
     		funcs = data;
-    		// Genera el div de edicion:
-		    // Sólo lo agrega, si no hay uno antes:
+    		// Generates the update div:
+    		// Only add it, if there is nothing before
 			var anterior = document.getElementById("div_"+id);
 			if (anterior == null) 
 			{
-				// No habia nada, lo agrega
+				// There was nothing, adds it
 				var html = '<div class="alert alert-success" style="height:190px;margin-left:'+ margen +'px;' + 
 				           '" id="div_'+ id +'">'+
 					     	'<div style="width:100%;">'+
@@ -74,7 +74,7 @@ $(document).on('click', "span.update", function() {
 					     				'<select style="width:60%;" class="selTipo" id="tipo_'+ id +'">'+
 					     					'<option disabled>Select...</option>';
 
-					     					// Selecciona su tipo:
+					     					// Select its type:
 					     					if (type == '<%= ROL %>') 
 					     					{
 					     						html+= '<option value="<%= ROL %>" selected>Role</option>';
@@ -110,7 +110,7 @@ $(document).on('click', "span.update", function() {
 					     				'<select style="width:60%;" id="perfil_'+ id +'">'+
 					     					'<option disabled selected>Select...</option>';
 
-					     					// Selecciona su perfil:
+					     					// Selects its profile:
 					     					if (perfil == '<%= PERFIL_EST_1 %>') 
 					     					{
 					     						html+= '<option value="<%= PERFIL_EST_1 %>" selected>IT Executive</option>';
@@ -194,7 +194,7 @@ $(document).on('click', "span.update", function() {
 					     			'<div style="margin:10px 0 0 0;">'+
 					     				'<select multiple style="width:100%;" id="funcs_'+ id +'">';
 
-					     				// Adiciona las funciones:
+					     				// Add responsibilities:
 					     				for (i = 0; i < funcs.length; i++) 
 										{ 
 											html += '<option value=' + funcs[i].id + ' selected>' + funcs[i].name + '</option>';
@@ -215,7 +215,7 @@ $(document).on('click', "span.update", function() {
 					     '</div>';
 
 			    $(html).insertAfter("#"+idPar);
-			    // Agrega el autocomplete:
+			    // Add autocomplete:
 			    $("#auto_"+id).autocomplete({
 		           source: "/autocomplete/responsabilities",
 		           select: function(event, ui) {
@@ -225,10 +225,10 @@ $(document).on('click', "span.update", function() {
 		           var split = selected.value.split(" - ");
 		           id = split[0]; var name = split[1];
 		           var existe = false; var temp;
-		           // Si debe agregarla, lo hace:
+		           // If has to be added, do it
 		           if (id.trim() == '(Add)') 
 		           {
-		      	     // Debe agregarla:
+		      	     // Must add it:
 		      	     $.post('./add_responsability', {'name' : name}, function(data)
 		      	     {
 		      	    	if (data.id == null) 
@@ -245,7 +245,7 @@ $(document).on('click', "span.update", function() {
 		      	        };
 
 		      	        html = "<option value='" + id + "' selected>" + name + "</option>";
-				        // Agrega la opcion del objeto seleccionado si no existia antes:
+				        // Add the option of the selected object, if there was nothing before
 				        $('#'+select_id +' > option').each(function() 
 				        {
 				          temp = $(this).text().trim();
@@ -265,7 +265,7 @@ $(document).on('click', "span.update", function() {
 		      	    else
 		      	    {
 		      	    	html = "<option value='" + id + "' selected>" + name + "</option>";
-				        // Agrega la opcion del objeto seleccionado si no existia antes:
+				        // Add the option of the selected object, if there was nothing before
 				        $('#'+select_id +' > option').each(function() 
 				        {
 				          temp = $(this).text().trim();
@@ -283,7 +283,7 @@ $(document).on('click', "span.update", function() {
 
 
 
-		        /* Borra para agregar nuevo contenido */
+		        /* Delete to add new content */
 		        $(this).val(''); return false;
 		        }
 		      
@@ -297,20 +297,20 @@ $(document).on('click', "span.update", function() {
 
 
 
-// DESCARTAR ESTRUCTURA:
+// DISCARD STRUCTURE:
 $(document).on('click', "img.del_new", function() {
 	var id = this.id;
 	id = id.replace("del", "div"); // -> div_par1_1
-	// Elimina todo el div:
+	// Remove the entire div:
 	$("#"+id).remove();
 });
 
-// ACTUALIZAR ESTRUCTURA:
+// UPDATE STRUCTURE:
 $(document).on('click', "img.update", function() {
 	var id = this.id; // Original -> update_idPadre
 	var idDiv = id.replace("update", "div"); // -> div_idPadre
 
-	// IDS de las variables:
+	// Variable's ids:
     var idNombre = id.replace("update", "nombre");
     var idTipo = id.replace("update", "tipo");
     var idFuncs = id.replace("update", "funcs");
@@ -320,45 +320,45 @@ $(document).on('click', "img.update", function() {
     var tipo = $("#"+idTipo).val();
     var perfil = $("#"+idPerfil).val();
     var funcs = []; var bool = false; var funcs_text = [];
-    // Agrega las funciones:
+    // Add responsibilities:
     $("#"+idFuncs+ "> option").each(function(){
       bool = $(this).is( ":selected" );
       if (bool) 
         {
-          funcs.push($(this).val()); // Agrega el ID de la función
-          funcs_text.push($(this).text()); // Agrega el texto de la función
+          funcs.push($(this).val()); // Add the responsibility id
+          funcs_text.push($(this).text()); // Add the responsibility text
         };
     });
 
     var idPadre = id.split("_")[1];
-	// Realiza la petición AJAX:
+	// Send AJAX request:
 	
 	var html = ''; var margen = 0; var funcion = '';
-	// Si el perfil esta definido lo envia, antes no:
+	// If the profile is defined, send it, not before
 	if (perfil == null) 
 	{
-		// No definido
+		// Not defined
 		$("#"+idPerfil).focus();
 	} 
 	else
 	{
-		// Envia una peticion AJAX para obtener el texto de la implicacion:
+		// Send an AJAX request to update the structure
 	    $.post('./update_structure', {'id' : idPadre, 'name' : nombre, 'tipo' : tipo, 'funcs' : funcs, 'perfil' : perfil}, function(data)
 	    {
 	    	
-	    	// En data viene la estructura recien actualizada:
+	    	// Data contains the recently updated structure:
 	    	if (data.id != null) 
 	    	{
-	    		// OK - Creado con éxito, elimina el div que lo contenía, y el registro actual:
+	    		// OK - Succesfully created, remove the container div and the current record:
 	    		$("#"+idDiv).remove();
 	    		$("#par"+idPadre).remove();
-	    		// Inserta el registro donde está actualmente:
+	    		// Insert the record where is it currently:
 	    		if (data.parent_id != null) 
 	    		{
 	    			idPadre = 'par' + data.parent_id;
-	    			// Obtiene la margen del padre:
+	    			// Get the father's margin:
 	    			margen = $("#"+idPadre).css("margin-left");
-	    			// Le agrega 5 px, para construir el arbol:
+	    			// Add 5 px to build the hierarchy:
 	    			margen = parseInt(margen.replace("px", "").trim()) + 35;
 	    		} 
 	    	    else
@@ -389,7 +389,7 @@ $(document).on('click', "img.update", function() {
 	    	} 
 	    	else
 	    	{
-	    		// Informa el error:
+	    		// Inform the error:
 	    		$("#"+idDiv).attr("class", "alert alert-danger");
 	    	};
 	    });
@@ -397,12 +397,12 @@ $(document).on('click', "img.update", function() {
 });
 
 
-// GUARDAR ESTRUCTURA:
+// SAVE STRUCTURE:
 $(document).on('click', "img.add_new", function() {
 	var id = this.id; // Original -> add_idPadre
 	var idDiv = id.replace("add", "div"); // -> div_idPadre
 
-	// IDS de las variables:
+	// Variables' ids:
     var idNombre = id.replace("add", "nombre");
     var idTipo = id.replace("add", "tipo");
     var idFuncs = id.replace("add", "funcs");
@@ -413,13 +413,13 @@ $(document).on('click', "img.add_new", function() {
     var tipo = $("#"+idTipo).val();
     var perfil = $("#"+idPerfil).val();
     var funcs = []; var bool = false; var funcs_text = [];
-    // Agrega las funciones:
+    // Add the responsibilities:
     $("#"+idFuncs+ "> option").each(function(){
       bool = $(this).is( ":selected" );
       if (bool) 
         {
-          funcs.push($(this).val()); // Agrega el ID de la función
-          funcs_text.push($(this).text()); // Agrega el texto de la función
+          funcs.push($(this).val()); // Add the responsibility id
+          funcs_text.push($(this).text()); // Add the responsibility text
         };
     });
 
@@ -433,31 +433,31 @@ $(document).on('click', "img.add_new", function() {
     {
     	type = 'SPECIFIC';
     };
-	// Realiza la petición AJAX:
+	// Make an AJAX request:
 	
 	var html = ''; var margen = 0; var funcion = '';
-	// Revisa si el perfil se definio:
+	// Check if the profile was defined
 	if (perfil == null) 
 	{
 		$("#"+idPerfil).focus();
 	} 
 	else
 	{
-		// Envia una peticion AJAX para obtener el texto de la implicacion:
+		// Post an AJAX request to add the structure:
 	    $.post('./add_structure', {'name' : nombre, 'id_padre' : idPadre, 'tipo' : tipo, 'funcs' : funcs, 'type' : type, 'perfil' : perfil}, function(data)
 	    {	    	
-	    	// En data viene la estructura recien creada:
+	    	// Data contains the recently created structure:
 	    	if (data.id != null) 
 	    	{
-	    		// OK - Creado con éxito, elimina el div que lo contenía:
+	    		// OK - Succesfully created:
 	    		$("#"+idDiv).remove();
-	    		// Inserta el registro después de su padre:
+	    		// Insert eh record after it's father:
 	    		if (data.parent_id != null) 
 	    		{
 	    			idPadre = 'par' + data.parent_id;
-	    			// Obtiene la margen del padre:
+	    			// Get the father's margin:
 	    			margen = $("#"+idPadre).css("margin-left");
-	    			// Le agrega 5 px, para construir el arbol:
+	    			// Add 5 px, to build the hierarchy:
 	    			margen = parseInt(margen.replace("px", "").trim()) + 35;
 	    		} 
 	    	    else
@@ -485,7 +485,7 @@ $(document).on('click', "img.add_new", function() {
 	    		html = '<p id="par' + data.id + '" style="margin:0 0 0 '+ margen +'px;">' + funcion + '[' + englishType + '] - ' + data.name + '<span id="span' + data.id +'" class="tool" style="color:#428bca;cursor:pointer;"> | Responsibilities</span><span id="update'+data.id+'" class="update" style="color:#428bca;cursor:pointer;"> | Edit</span>'+
 	    		    '<span style="color:green;font-weight:bold;">' +' SAVED!</span></p>';
 
-	            // Elimina el aviso de no estructuras,si existe:
+	            // Remove the "No structures" div, if exists:
 	            if (document.getElementById("noStructures") != null) 
 	            {
 	            	$("#noStructures").remove();
@@ -495,7 +495,7 @@ $(document).on('click', "img.add_new", function() {
 	    	} 
 	    	else
 	    	{
-	    		// Informa el error:
+	    		// Inform the error:
 	    		$("#"+idDiv).attr("class", "alert alert-danger");
 	    	};
 	    });
@@ -503,12 +503,12 @@ $(document).on('click', "img.add_new", function() {
 
 });
 
-// MOSTRAR DIALOGO DEL TOOLTIP:
+// SHOW TOOLTIP DIALOG:
 $(document).on('click', "span.tool", function() 
 {
 	var idEst = this.id.replace("span","").trim();
 
-	// Realiza el llamado para obtener la información de las funciones:
+	// Make an AJAX request to get the responsibilities' information
 	$.get('./get_functions', {'idEst' : idEst}, function(data)
     {
     	var html = "<h3>Responsibilities: </h3>";
@@ -523,7 +523,7 @@ $(document).on('click', "span.tool", function()
 			{ 
 				if (data[i] == '#$%&/()=') 
 				{
-					// Viene el caracter de separacion, vienen errores
+					// It comes with the separator, errors found
 					error = true;
 					html += '<h3 style="color:red;">Conflicts founded:</h3>';
 					continue;
@@ -531,7 +531,7 @@ $(document).on('click', "span.tool", function()
 
 				if (error) 
 				{
-					// Formatea el contenido de los errores:
+					// Format the errors' contents:
 					partes = data[i].split("|");
 					html+= '<p style="color:red;"><i>- ' + partes[0] + ', conflicted with the next governance structures: </i></p>';
 					for (var k = 1; k < partes.length; k++) 
@@ -541,20 +541,19 @@ $(document).on('click', "span.tool", function()
 				} 
 				else
 				{
-					// Renderiza las funciones normalmente:
+					// Renders the responsibilities normally:
 					html += '<p style="color:#333;"><i>- ' + data[i] + '</i></p>';
 				};
 			}
 		};
 
 		$("#dialogFuncs").html(html);
-		// Abre el dialogo:
+		// Open the dialog:
 		$("#dialogFuncs").dialog("option", "width", 600);
-		// Asigna el titulo al dialogo:
+		// Assign the dialog's title:
 		$("#dialogFuncs").dialog('option', 'title', 'Responsibilities per governance structure');
 		$("#dialogFuncs").dialog("option", "height", 500);
 		$("#dialogFuncs").dialog("option", "resizable", false);
-		// Pasa el id de la implicacion, como parametro al dialogo:
 	    $("#dialogFuncs").dialog("open");
     });
 
@@ -562,19 +561,19 @@ $(document).on('click', "span.tool", function()
 
 
 
-// AGREGAR ESTRUCTURA:
+// ADD STRUCTURE:
 $(document).on('click', "img.new_est", function() {
-	var id = this.id; // ID de la imagen del parrafo al que se hizo click
-	var idPar = id.replace("img", "par"); // ID del parrafo, inserta contenido después de él
+	var id = this.id; // Image id from the clicked paragrah
+	var idPar = id.replace("img", "par"); // Paragraph id, insert content after it
 	var idPadre = id.replace("img", "").trim();
 	var margen = $("#"+idPar).css("margin-left").replace("px","").trim();
 	margen = parseInt(margen) + 35;
 
-	// Sólo lo agrega, si no hay uno antes:
+	// Only adds it, if the was nothing before:
 	var anterior = document.getElementById("div_"+idPadre);
 	if (anterior == null) 
 	{
-		// No habia nada, lo agrega
+		// There was nothing, adds it
 		var html = '<div class="alert alert-info" style="height:190px;margin-left:'+ margen +'px;color:#333;' + 
 		           'background-color:#eeeeee;border-color:#cacaca;" id="div_'+ idPadre +'">'+
 			     	'<div style="width:100%;">'+
@@ -619,7 +618,7 @@ $(document).on('click', "img.new_est", function() {
 			     '</div>';
 
 	    $(html).insertAfter("#"+idPar);
-	    // Agrega el autocomplete:
+	    // Add the autocomplete:
 	    $("#auto_"+idPadre).autocomplete({
            source: "/autocomplete/responsabilities",
            select: function(event, ui) {
@@ -629,10 +628,10 @@ $(document).on('click', "img.new_est", function() {
            var split = selected.value.split(" - ");
            id = split[0]; var name = split[1];
            var existe = false; var temp;
-           // Si debe agregarla, lo hace:
+           // If needs to be added, do it:
            if (id.trim() == '(Add)') 
            {
-      	     // Debe agregarla:
+      	     // Needs to be added:
       	     $.post('./add_responsability', {'name' : name}, function(data)
       	     {
       	    	if (data.id == null) 
@@ -649,7 +648,7 @@ $(document).on('click', "img.new_est", function() {
       	        };
 
       	        html = "<option value='" + id + "' selected>" + name + "</option>";
-		        // Agrega la opcion del objeto seleccionado si no existia antes:
+		        // Add the selected object's option, if there was nothing before:
 		        $('#'+select_id +' > option').each(function() 
 		        {
 		          temp = $(this).text().trim();
@@ -669,7 +668,7 @@ $(document).on('click', "img.new_est", function() {
       	    else
       	    {
       	    	html = "<option value='" + id + "' selected>" + name + "</option>";
-		        // Agrega la opcion del objeto seleccionado si no existia antes:
+		        // Add the selected object's option, if there was nothing before:
 		        $('#'+select_id +' > option').each(function() 
 		        {
 		          temp = $(this).text().trim();
@@ -687,7 +686,7 @@ $(document).on('click', "img.new_est", function() {
 
 
 
-        /* Borra para agregar nuevo contenido */
+        /* Delete to add new content */
         $(this).val(''); return false;
         }
       
@@ -698,15 +697,15 @@ $(document).on('click', "img.new_est", function() {
 });
 
 
-// AGREGAR ESTRUCTURA GENERICA:
+// ADD GENERIC STRUCTURE:
 $(document).on('click', "span.new_est", function() {
 	var margen = 35;
 
-	// Sólo lo agrega, si no hay uno antes:
+	// Only add it, if there was nothing before:
 	var anterior = document.getElementById("div_0");
 	if (anterior == null) 
 	{
-		// No habia nada, lo agrega
+		// There was nothing before, adds it
 		var html = '<div class="alert alert-info" style="height:190px;margin-left:'+ margen +'px;color:#333;' + 
 		           'background-color:#eeeeee;border-color:#cacaca;" id="div_0">'+
 			     	'<div style="width:100%;">'+
@@ -751,7 +750,7 @@ $(document).on('click', "span.new_est", function() {
 			     '</div>';
 
 	    $(html).insertAfter("#title");
-	    // Agrega el autocomplete:
+	    // Add the autocomplete:
 	    $("#auto_0").autocomplete({
            source: "/autocomplete/responsabilities",
            select: function(event, ui) {
@@ -761,10 +760,10 @@ $(document).on('click', "span.new_est", function() {
            var split = selected.value.split(" - ");
            id = split[0]; var name = split[1];
            var existe = false; var temp;
-           // Si debe agregarla, lo hace:
+           // If has to be added, do it:
            if (id.trim() == '(Add)') 
            {
-      	     // Debe agregarla:
+      	     // Has to be added:
       	     $.post('./add_responsability', {'name' : name}, function(data)
       	     {
       	    	if (data.id == null) 
@@ -781,7 +780,7 @@ $(document).on('click', "span.new_est", function() {
       	        };
 
       	        html = "<option value='" + id + "' selected>" + name + "</option>"; 
-      	        // Agrega la opcion del objeto seleccionado si no existia antes:
+      	        // Add the selected object's option if there was nothing before:
 		        $('#'+select_id +' > option').each(function() 
 		        {
 		          temp = $(this).text().trim();
@@ -800,7 +799,7 @@ $(document).on('click', "span.new_est", function() {
           	else
           	{
           		html = "<option value='" + id + "' selected>" + name + "</option>"; 
-      	        // Agrega la opcion del objeto seleccionado si no existia antes:
+      	        // Add the selected object's option if there was nothing before:
 		        $('#'+select_id +' > option').each(function() 
 		        {
 		          temp = $(this).text().trim();
@@ -817,7 +816,7 @@ $(document).on('click', "span.new_est", function() {
 
         	};
 
-        /* Borra para agregar nuevo contenido */
+        /* Delete to add new content */
         $(this).val(''); return false;
         }
       
@@ -828,14 +827,14 @@ $(document).on('click', "span.new_est", function() {
 });
 
 
-// Dialogo de funciones
+// Responsibilities dialog
 $(function () {
   $("#dialogFuncs").dialog({
     autoOpen: false,
     modal: true,
     buttons: {
       "Accept": function(){
-      	// Borra todo su contenido
+      	// Dele all it's content
       	$("#dialogFuncs").html("");
         $(this).dialog("close");
       },
@@ -862,7 +861,7 @@ $(function () {
 </div>
 <% end %>
 
-<!-- Estructuras de Gobierno -->
+<!-- Governance Structure -->
 <div id="divEstr">
 	<div>
 		<h2 id="title"><span style="margin:0 10px 0 0;color:#333;font-size:22px;cursor:pointer;" class="new_est">[+]</span>IT Governance Structures:</h2>

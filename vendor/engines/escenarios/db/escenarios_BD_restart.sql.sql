@@ -1,6 +1,8 @@
------------------- MÓDULO DE ESCENARIOS DE EVALUACIÓN ----------------------
+------------------ ENGINE: ASSESSMENT SCENARIOS ----------------------
 
--- Borrado de toda la información de las 10 tablas del módulo de Escenarios de Evaluación --
+-- ES: Borrado de toda la información de las 10 tablas del módulo de Escenarios de Evaluación --
+-- EN: Script to delete all the information of the 10 tables that conform the Engine: Assessment Scenarios --
+
 delete from escenarios_business_goal_it_matrices
 delete from escenarios_goal_califications
 delete from escenarios_goal_escenarios
@@ -13,7 +15,8 @@ delete from escenarios_risk_escenarios
 delete from escenarios_process_matrices
 
 
--- Reinicio de secuencias de las tablas del módulo de Escenarios de Evaluación --
+-- ES: Reinicio de secuencias de las tablas del módulo de Escenarios de Evaluación --
+-- EN: Restart the sequences of the tables that conforms the Engine: Assessment Scenarios --
 alter sequence escenarios_goal_califications_id_seq restart with 1;
 alter sequence escenarios_goal_escenarios_id_seq restart with 1;
 alter sequence escenarios_goals_id_seq restart with 1;

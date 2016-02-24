@@ -5,20 +5,24 @@ class InicioController < ApplicationController
 
   
   def inicio
-    # Las empresas se cargan según los roles del usuario: Si es evaluador, sólo carga su empresa, si es administrador, carga todas
+    # ES: Las empresas se cargan según los roles del usuario: Si es evaluador, sólo carga su empresa, si es administrador, carga todas
+    # EN: The enterprises are loaded according to the user's roles: If its an evaluator, only load its enterprise, if its an administratos, load all
     @empresas = Enterprise.all  
   end
 
-  # Menú de administración, para generar las aplicaciones cliente para cada empresa:
+  # ES: Menú de administración, para generar las aplicaciones cliente para cada empresa:
+  # EN: Administration menu, to generate the client apps for each enterprise:
   def admin
   	@empresas = Enterprise.all
   end
 
-  # Todo el contenido seleccionable para generar el HTML:
+  # ES: Todo el contenido seleccionable para generar el HTML:
+  # EN: All the selectable content to generate the HTML:
   def getFilterEmpresa
     empresa = Enterprise.find(params[:idEmp].to_i)
     content = []
-    # El primer registro valida si la empresa tiene logo o no:
+    # ES: El primer registro valida si la empresa tiene logo o no:
+    # EN: The first record validates if the enterprise has logo or not:
     if empresa.logo.blank?
       content[0] = 'NO_LOGO'
     else
@@ -26,24 +30,32 @@ class InicioController < ApplicationController
     end
 
 
-    # Mapas de decision:
+    # ES: Mapas de decision:
+    # EN: Decision Maps:
     mapasFormateados = view_context.mapasListDecisionMaps(empresa.id)
-    # Agrega los mapas formateados:
+    # ES: Agrega los mapas formateados:
+    # EN: Add the formated maps
     content.concat(mapasFormateados)
 
-    # Escenarios de Evaluacion de Riesgos:
+    # ES: Escenarios de Evaluacion de Riesgos:
+    # EN: Risk Assessment Scenarios:
     riesgosFormateados = view_context.escenariosListRiskEscenarios(empresa.id)
-    # Agrega los mapas formateados:
+    # ES: Agrega los escenarios formateados:
+    # EN: Add the formated scenarios:
     content.concat(riesgosFormateados)
 
-    # Escenarios de Evaluacion de Objetivos:
+    # ES: Escenarios de Evaluacion de Objetivos:
+    # EN: Goal Assessment Scenarios:
     goalsFormateados = view_context.escenariosListGoalEscenarios(empresa.id)
-    # Agrega los mapas formateados:
+    # ES: Agrega los escenarios formateados:
+    # EN: Add the formated scenarios:
     content.concat(goalsFormateados)
 
-    # Escenarios de Priorizacion:
+    # ES: Escenarios de Priorizacion:
+    # EN: Prioritization Scenarios:
     priorsFormateados = view_context.escenariosListPriorEscenarios(empresa.id)
-    # Agrega los mapas formateados:
+    # ES: Agrega los escenarios formateados:
+    # EN: Add the formated scenarios:
     content.concat(priorsFormateados)
 
     respond_to do |format|
@@ -52,76 +64,86 @@ class InicioController < ApplicationController
   
   end 
 
-  # Genera la carpeta raiz de la empresa y las carpetas de imagenes y hojas de estilo, y alli crea el archivo inicial: index
+  # ES: Genera la carpeta raiz de la empresa y las carpetas de imagenes y hojas de estilo, y alli crea el archivo inicial: index
+  # EN: Generates the enterprise's root folder and the images and css folders, and there creates the initial file: index
   def g_home
   	timeInit = Time.now
   	empresa = Enterprise.find(params[:idEmp].to_i)
   	log = []
 
 
-  	# Directorio actual:
+  	# ES: Directorio actual:
+    # EN: Current directory
   	actualFolder = Rails.root.to_s
   	Dir.chdir(actualFolder)
 
-  	# Ruta archivo de estilos:
+  	# ES: Ruta archivo de estilos:
+    # EN: CSS file path:
   	stylesRoute = actualFolder+'/app/assets/stylesheets/metro-bootstrap.css'
     stylesJqRoute = actualFolder+'/app/assets/stylesheets/my_jquery.css'
     imagesJqRoute = actualFolder+'/app/assets/stylesheets/images'
-  	# Ruta de la imagen de las jerarquias:
+  	# ES: Ruta de la imagen de las jerarquias:
+    # EN: Hierarchy image path
   	rightRoute = actualFolder+'/app/assets/images/right.png'
-  	# Rutas de las imagenes para la pantalla inicial:
+  	# ES: Rutas de las imagenes para la pantalla inicial:
+    # EN: Paths of the images in the initial screen
   	mapRoute = actualFolder+'/app/assets/images/map_b.png'
   	riskRoute = actualFolder+'/app/assets/images/risk_b.png'
   	sortRoute = actualFolder+'/app/assets/images/sort_b.png'
     goalRoute = actualFolder+'/app/assets/images/goal_b.png'
-    # Rutas de las imagenes de uniandes y pacific
-    #uniandesRoute = actualFolder+'/app/assets/images/uniandes.png'
-    #pacificRoute = actualFolder+'/app/assets/images/pacific.jpg'
-    # Rutas para las imagenes del dialogo de niveles de evaluacion de riesgos:
+    # ES: Rutas para las imagenes del dialogo de niveles de evaluacion de riesgos:
+    # EN: Paths for the images in the dialog of risks assessment levels
     xAxisRoute = actualFolder+'/app/assets/images/x-axis.png'
     yAxisRoute = actualFolder+'/app/assets/images/y-axis.png'
     moneyRoute = actualFolder+'/app/assets/images/money.png'
     impTolRoute = actualFolder+'/app/assets/images/imp_tol.png'
 
 
-  	# Crea la carpeta que contendrá los contenidos HTML:
+  	# ES: Crea la carpeta que contendrá los contenidos HTML:
+    # EN: Creates the directory that will contain the HTML contents:
   	rootFolder = 'HTML_CONTENT'
   	FileUtils.mkdir_p(rootFolder)
   	log.push("Creating initial page content...")
   	log.push("Directory created: " << rootFolder << '(Main directory)')
 
-  	# Actualiza el directorio actual: /HTML_CONTENT
+  	# ES: Actualiza el directorio actual: /HTML_CONTENT
+    # EN: Updates the current directory: /HTML_CONTENT
   	actualFolder+= '/' + rootFolder
   	Dir.chdir(actualFolder)
 
-  	# Crea la carpeta, cuyo nombre será [ID_Empresa] Nombre
+  	# ES: Crea la carpeta, cuyo nombre será [ID_Empresa] Nombre
+    # EN: Creates the folder, whose name will be [ENTERPRISE_ID] Name
   	folderName = '[' << empresa.id.to_s << '] ' << empresa.name
   	FileUtils.mkdir_p(folderName)
   	log.push("Directory created: " << folderName << '(Enterprise directory)')
 
-  	# Actualiza el directorio actual: /HTML_CONTENT/[ID_Empresa] Nombre
+  	# ES: Actualiza el directorio actual: /HTML_CONTENT/[ID_Empresa] Nombre
+    # EN: Updates the current directory: /HTML_CONTENT/[ENTERPRISE_ID] Name
   	actualFolder+= '/' + folderName
   	Dir.chdir(actualFolder)
   	rootEmpresa = actualFolder
 
-  	# Crea la carpeta y el archivo de estilos:
+  	# ES: Crea la carpeta y el archivo de estilos:
+    # EN: Creates the folder and css file:
   	FileUtils.mkdir_p('css')
   	log.push("Directory created: css (CSS files)" )
   	Dir.chdir(actualFolder+"/css")
   	FileUtils.cp stylesRoute, 'styles.css'
-  	#log.push("Archivo de estilos copiado: styles.css (Archivo de estilos general)")
 
-    # Adentro copia el archivo de estilos de jquery, y su carpeta propia de imagenes:
+    # ES: Adentro copia el archivo de estilos de jquery, y su carpeta propia de imagenes:
+    # EN: Inside copies the jquery css file, and its own images folder
     FileUtils.cp stylesJqRoute, 'my_jquery.css'
     FileUtils.mkdir_p('images')
     FileUtils.cp_r(Dir.glob(imagesJqRoute << '/*'), 'images')
 
-  	# Crea la carpeta de archivos .js:
+  	# ES: Crea la carpeta de archivos .js:
+    # EN: Creates the folder of .js files:
   	Dir.chdir(actualFolder)
   	FileUtils.mkdir_p('js')
   	log.push("Directory created: js (JavaScript files)")
 
-  	# Crea la carpeta de imagenes, y carga la imagen para las jerarquias en los mapas
+  	# ES: Crea la carpeta de imagenes, y carga la imagen para las jerarquias en los mapas
+    # EN: Create the images folder, and load the maps's hierarchy image
   	Dir.chdir(actualFolder)
   	FileUtils.mkdir_p('images')
   	log.push("Directory created: images (PNG files)")
@@ -136,8 +158,8 @@ class InicioController < ApplicationController
     FileUtils.cp moneyRoute, 'money.png'
     FileUtils.cp impTolRoute, 'imp_tol.png'
 
-    #FileUtils.cp uniandesRoute, 'uniandes.png'
-    # Define la ruta del logo si es necesario:
+    # ES: Define la ruta del logo si es necesario:
+    # EN: Define the logo's path if its necesary:
     addLogo = params[:logo]
     if addLogo == 'SI'
       logoRoute = Rails.root.to_s << '/public/system/logos/' << empresa.id.to_s << '/' << empresa.logo_file_name
@@ -145,11 +167,9 @@ class InicioController < ApplicationController
     end
 
 
-    #FileUtils.cp pacificRoute, 'pacific.jpg'
-  	#log.push("Imagen copiada: right.png (Para las jerarquías)")
-
     Dir.chdir(actualFolder)
-  	# Crea el archivo index:
+  	# ES: Crea el archivo index:
+    # EN: Creates the index file:
   	fileHtml = File.new("index.html", "w")
   	lineHtml = '<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <link rel="stylesheet" type="text/css" href="./css/styles.css"/></head>'
@@ -171,12 +191,11 @@ class InicioController < ApplicationController
   	fileHtml.puts lineHtml
   	lineHtml = '<center><img src="./images/map_b.png" style="margin:40px 0 20px 0;"></center>'
   	fileHtml.puts lineHtml
-  	#lineHtml = '<a href="decisionMaps/indexMaps.html">Mapas de Decisión</a></h4></div><div class="containerHome">'
     lineHtml = '<h3 style="color:#333;font-size:22px;">Decision Maps</h3>'
     fileHtml.puts lineHtml
 
-    # Renderiza el link de cada mapa:
-    #mapas = empresa.decision_maps
+    # ES: Renderiza el link de cada mapa:
+    # EN: Renders each map's link:
     mapIds = params[:mapIds].split("%")[0]
     mapIds.blank? ? mapIds = [] : mapIds = mapIds.split("|")
     mapas = Mapas::DecisionMap.where(id: mapIds)
@@ -191,12 +210,11 @@ class InicioController < ApplicationController
     fileHtml.puts lineHtml
   	lineHtml = '<center><img src="./images/risk_b.png" style="margin:40px 0 20px 0;"></center>'
   	fileHtml.puts lineHtml
-  	#lineHtml = '<a href="riskEscenarios/indexRiskEscenarios.html">Escenarios de Evaluación de Riesgos</a></h4></div>'
     lineHtml = '<h3 style="color:#333;font-size:22px;">Risk Assessment Scenarios</h3>'
   	fileHtml.puts lineHtml
 
-    # Renderiza el link de cada mapa:
-    #riskEsc = empresa.risk_escenarios
+    # ES: Renderiza el link de cada escenario:
+    # EN: Renders each scenarios's link:
     riskIds = params[:riskIds].split("|")
     riskEsc = Escenarios::RiskEscenario.where(id: riskIds)
 
@@ -208,14 +226,15 @@ class InicioController < ApplicationController
     lineHtml = '</div>'
     fileHtml.puts lineHtml
 
-    # Escenarios de evaluacion de objetivos:
+    # ES: Escenarios de evaluacion de objetivos:
+    # EN: Goal Assessment Scenarios:
     lineHtml = '<div class="containerHome"><center><img src="./images/goal_b.png" style="margin:40px 0 20px 0;"></center>'
     fileHtml.puts lineHtml
     lineHtml = '<h3 style="color:#333;font-size:22px;">Goal Assessment Scenarios</h3>'   
     fileHtml.puts lineHtml
 
-    # Renderiza el link de cada escenario:
-    #goalEsc = empresa.goal_escenarios
+    # ES: Renderiza el link de cada escenario:
+    # EN: Renders each scenario's link:
     goalIds = params[:goalIds].split("|")
     goalEsc = Escenarios::GoalEscenario.where(id: goalIds)
 
@@ -227,12 +246,11 @@ class InicioController < ApplicationController
 
   	lineHtml = '</div><div class="containerHome"><center><img src="./images/sort_b.png" style="margin:40px 0 20px 0;"></center>'
   	fileHtml.puts lineHtml
-  	#lineHtml = '<h4 style="text-align:center;"><a href="priorizationEscenarios/indexPriorizationEscenarios.html">Escenarios de Priorización</a></h4>'
     lineHtml = '<h3 style="color:#333;font-size:22px;">Prioritization Scenarios</h3>'  	
     fileHtml.puts lineHtml
 
-    # Renderiza el link de cada mapa:
-    #priorEsc = empresa.priorization_escenarios
+    # ES: Renderiza el link de cada escenario:
+    # EN: Renders each scenario's link:
     priorIds = params[:priorIds].split("|")
     priorEsc = Escenarios::PriorizationEscenario.where(id: priorIds)
 
@@ -246,7 +264,6 @@ class InicioController < ApplicationController
   	fileHtml.close()
   	timeFin = Time.now
   	timeExpend = (timeFin - timeInit).to_f
-  	#log.push("Archivo creado: index.html (Inicio)")
   	log.push("Initial page content creation finished - Time required: " << timeExpend.to_s << ' (seconds)')
 
     	respond_to do |format|
@@ -255,7 +272,8 @@ class InicioController < ApplicationController
 
   end
 
-  # Genera la carpeta raiz de los mapas de decision y sus hojas de estilo, y alli crea el archivo inicial: index
+  # ES: Genera la carpeta raiz de los mapas de decision y sus hojas de estilo, y alli crea el archivo inicial: index
+  # EN: Generates the decision map's root folder, and its css, and there creates the initial file: index
   def g_decision_maps
   	timeInit = Time.now
     empresa = Enterprise.find(params[:idEmp].to_i)
@@ -265,7 +283,8 @@ class InicioController < ApplicationController
     mapIds.blank? ? mapIds = [] : mapIds = mapIds.split("|")
     archIds.blank? ? archIds = [] : archIds = archIds.split("|")
 
-    # Ejecuta la generacion en el engine!: Comentar si el engine no esta activo
+    # ES: Ejecuta la generacion en el engine!: Comentar si el engine no esta activo
+    # EN: Execute the generation in the Engine!: Comment if the engine is not active
     # ::MAPAS::
     log2 = view_context.mapasGenerateMapsHTML(empresa, mapIds, archIds, log)
     log.concat(log2)
@@ -283,17 +302,17 @@ class InicioController < ApplicationController
 
   
 
-  # Genera la carpeta raiz de los escenarios de evaluación de riesgos y sus hojas de estilo, y alli crea el archivo inicial: index
+  # ES: Genera la carpeta raiz de los escenarios de evaluación de riesgos y sus hojas de estilo, y alli crea el archivo inicial: index
+  # EN: Generates the risk assessment scenario's root folder, and its css, and there creates the initial file: index
   def g_risk_escenarios
   	timeInit = Time.now
   	empresa = Enterprise.find(params[:idEmp].to_i)
   	log = []
-  	#escenarios = empresa.risk_escenarios
     riskIds = params[:riskIds].split("|")
 
   	log.push("Creating risk assessment scenarios content...")
 
-    # ::ESCENARIOS:: Comentar si el engine no esta activo!
+    # ::ESCENARIOS:: ES: Comentar si el engine no esta activo! - EN: Comment if the engine is not active!
     log2 = view_context.escenariosGenerateRisksHTML(empresa, riskIds,log)
     log.concat(log2)	
 
@@ -308,7 +327,8 @@ class InicioController < ApplicationController
   end
 
   
-  # Genera los archivos de los escenarios de evaluacion de objetivos:
+  # ES: Genera los archivos de los escenarios de evaluacion de objetivos:
+  # EN: Generates the files of the goal assessment scenarios:
   def g_goal_escenarios
     timeInit = Time.now
     empresa = Enterprise.find(params[:idEmp].to_i)
@@ -317,7 +337,7 @@ class InicioController < ApplicationController
 
     log.push("Creating goal assessment scenarios content...")
 
-    # ::ESCENARIOS:: Comentar si el engine no esta activo!
+    # ::ESCENARIOS:: ES: Comentar si el engine no esta activo! - EN: Comment if the engine is not active!
     log2 = view_context.escenariosGenerateGoalsHTML(empresa, goalIds, log)
     log.concat(log2)  
     
@@ -331,19 +351,18 @@ class InicioController < ApplicationController
 
 
   end 
-  # ============ CIERRA G_GOAL_ESCENARIOS
+  # ============ G_GOAL_ESCENARIOS
 
 
   def g_priorization_escenarios
   	timeInit = Time.now
   	empresa = Enterprise.find(params[:idEmp].to_i)
   	log = []
-  	#escenarios = empresa.priorization_escenarios
     priorIds = params[:priorIds].split("|")
 
   	log.push("Creating prioritization scenarios content...")
 
-    # ::ESCENARIOS:: Comentar si el engine no esta activo!
+    # ::ESCENARIOS:: ES: Comentar si el engine no esta activo! - EN: Comment if the engine is not active!
     log2 = view_context.escenariosGeneratePriorsHTML(empresa, priorIds, log)
     log.concat(log2)
 
@@ -358,15 +377,17 @@ class InicioController < ApplicationController
   # ------- g_priorization_escenarios
 
 
-  # Configura la sesion con el valor de la empresa seleccionada:
+  # ES: Configura la sesion con el valor de la empresa seleccionada:
+  # EN: Configure the session with the value of the selected enterprise:
   def session_config
-    # Crea la sesion, si el usuario está autorizado, si no, lo bloquea:
+    # ES: Crea la sesion, si el usuario está autorizado, si no, lo bloquea:
+    # EN: Creates the session if the user is authorized, if not, block it:
     session[:empresa] = params[:idEmpresa].to_i;
     toRender = 'OK'
 
     respond_to do |format|
       format.json {render text: toRender}
     end
-  end # FIN SESSION_CONFIG
+  end # --- SESSION_CONFIG
   
-end # FIN DEL CONTROLLER
+end # --- CONTROLLER

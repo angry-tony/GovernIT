@@ -12,7 +12,7 @@
   <%= csrf_meta_tags %>
 
   <script>
-    // SLA: Modificacion del autocomplete de JQUERY, para marcar los caracteres que concuerdan con la busqueda
+    // SLA: Modification of the JQUERY autocomplete, to underline the caracters matching the search
   String.prototype.replaceAt = function(index, char) 
   {
     return this.substr(0, index) + "<span style='font-weight:bold;color:#FF8E2B;'>" + char + "</span>";
@@ -32,7 +32,7 @@
     return $("<li></li>").data("item.autocomplete", item).append("<a>" + t + item.label + "</a>").appendTo(ul);
 
   };
-  // SLA: Modificacion del autocomplete de JQUERY, para marcar los caracteres que concuerdan con la busqueda
+  // SLA: Modification of the JQUERY autocomplete, to underline the caracters matching the search
 
   </script>
 

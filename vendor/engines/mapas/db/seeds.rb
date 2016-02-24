@@ -1,7 +1,8 @@
 #encoding: utf-8
 
 
-# Carga de las decisiones genericas en el sistema:
+# ES: Carga de las decisiones genericas en el sistema:
+# EN: Load the generic decisions in the system:
 
 governanceDecisions = Mapas::GovernanceDecision.create([
 {description: 'Which one is the desirable Operational Model of the organization?', decision_type: 'GENERIC', dimension: 'Principios de TI'},
@@ -40,7 +41,8 @@ governanceDecisions = Mapas::GovernanceDecision.create([
 
 
 
-# Carga los arquetipos de toma de decisiones:
+# ES: Carga los arquetipos de toma de decisiones:
+# EN: Load the decision-take archetypes:
 governanceArchetypes = Mapas::DecisionArchetype.create([
 {name: 'Business Monarchy', description: "A group of, or individual, business executives (CxO's)"},
 {name: 'IT Monarchy', description: "Individuals or groups of IT executives"},
@@ -50,14 +52,16 @@ governanceArchetypes = Mapas::DecisionArchetype.create([
 {name: 'Anarchy', description: "Individuals"}
 ])
 
-# Carga los 2 responsables (estructuras de gobierno) ficticias, para modelar los valores: "No aplica" y "No existe"
-# Español:
+# ES: Carga los 2 responsables (estructuras de gobierno) ficticias, para modelar los valores: "No aplica" y "No existe"
+# EN: Load the 2 fake responsibles (governance structures), to modelate the values: "Not Available" and "Not Exists"  
+
+# ES: Español:
 if I18n.default_locale.to_s.eql?("es")
 	resps = GovernanceStructure.create([
 	{name: 'No aplica', structure_type: ROL, enterprise_id: 0, global_type: GENERIC_TYPE, profile: PERFIL_EST_9},
 	{name: 'No existe', structure_type: ROL, enterprise_id: 0, global_type: GENERIC_TYPE, profile: PERFIL_EST_9}
 	])
-# Inglés:
+# EN: English:
 elsif I18n.default_locale.to_s.eql?("en")
 	resps = GovernanceStructure.create([
 	{name: 'Not available', structure_type: ROL, enterprise_id: 0, global_type: GENERIC_TYPE, profile: PERFIL_EST_9},

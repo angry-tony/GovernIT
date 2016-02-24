@@ -1,6 +1,6 @@
 <%
-myEst = structure # Estructura actual
-myLvl = nivel # Nivel de profundidad -> Para las margenes
+myEst = structure # Current structure
+myLvl = nivel # Depth level -> For the margins
 margin = myLvl * 35
 id = 'par' << myEst.id.to_s
 id_img = 'img' << myEst.id.to_s 
@@ -9,7 +9,7 @@ id_edit = 'update' << myEst.id.to_s
 hijos = myEst.hijas
 
 
-# Dibuja la estructura actual:
+# Renders the current structure:
 %>
 
 <p id="<%= id %>" style="margin:0 0 0 <%= margin %>px;">
@@ -25,9 +25,9 @@ if funcs == ''
 	funcs = "This governance structure has no defined responsibilities."
 end
 
-# Dibuja los hijos, si los hay:
+# Renders the sons, if exists:
 if hijos.size > 0
-	# Aumenta el nivel:
+	# Add the level:
 	myLvl+= 1
 	hijos.each do |h| %>
 		<%= render :partial => 'structure', :locals => {:structure => h, :nivel => myLvl} %>

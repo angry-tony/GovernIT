@@ -3,15 +3,15 @@
 $( document ).ready(function() {
 
     var structures;
-	// Obtiene las estructuras desde el inicio, para sólo cargarlas una vez:
+	// Gets the structures from the begining, to load them only once:
 	$.get('../governance/get_structures', function(data)
 	{
 		structures = data;
 	});
 
-	// Crear nuevo mapa:
+	// Create new map:
 	$(".new_esc").click(function(){
-		// Despliega el div de creación, si no está desplegado ya:
+		// Deploys the creation div, if is not deployed already:
 		var anterior = document.getElementById("div_create");
 		var html;
 		if (anterior == null) 
@@ -41,7 +41,7 @@ $( document ).ready(function() {
 					'</div>'+
 				'</div>';
 
-				// Lo agrega justo después del titulo:
+				// Insert it right after the title:
 			$(html).insertAfter("#title");
 		};
 	});
@@ -51,17 +51,17 @@ $( document ).ready(function() {
 });
 
 
-// GUARDAR ESCENARIO DE RIESGO:
+// SAVE RISK ASSESSMENT SCENARIO:
 $(document).on('click', "img.add", function() {
 	var name = $("#nameEsc").val();
 	var est = $("#estEsc option:selected").val();
 	var estName = $("#estEsc option:selected").text();
 
 	var html;
-	// Si alguna de las 2 es vacío, no deja guardar:
+	// If one of the 2 is empty, don't allow to save:
 	if (name == '' || est == 'N') 
 	{
-		// Elimina los bordes y color de fondo:
+		// Remove the borders and the background-color:
 		$("#div_create").css({'border-color': 'none',
                               'background-color': 'none',
                               'color': 'none'});
@@ -70,12 +70,12 @@ $(document).on('click', "img.add", function() {
 	} 
 	else
 	{
-		// Crea el mapa via AJAX:
+		// Creates the map through AJAX:
 	    $.post('./add_goal_escenario', {'name' : name, 'est' : est}, function(data)
     	{
     		if (data.id != null) 
     		{
-    			// Creado con éxito, remueve el div de creación, y lo agrega en el listado:
+    			// Succesfully created, remove the creation div, and add it to the list:
     			$("#div_create").remove();
     			var idEsc = 'img' + data.id;
     			html = 	'<p>'+
@@ -85,7 +85,7 @@ $(document).on('click', "img.add", function() {
 		   					'<span style="color:green;font-weight:bold;">' +' SAVED!</span>'+
 		   				'</p>';
 
-		   		// Remueve el aviso de no mapas, si existe:
+		   		// Remove the no-maps title, if exists:
 		   		if (document.getElementById("noEscenarios") != null) 
 		   		{
 		   			$("#noEscenarios").remove();
@@ -96,7 +96,7 @@ $(document).on('click', "img.add", function() {
     		else
     		{
     			// ERROR:
-    			// Elimina los bordes y color de fondo:
+    			// Removes the borders and the background-color:
 				$("#div_create").css({'border-color': 'none',
 		                              'background-color': 'none',
 		                              'color': 'none'});
@@ -108,20 +108,20 @@ $(document).on('click', "img.add", function() {
 	};
 });
 
-// DESCARTAR ESCENARIO DE RIESGO:
+// DISCARD RISK SCENARIO:
 $(document).on('click', "img.del", function() {
-	// Elimina el div de creacion:
+	// Removes the creation div:
 	$("#div_create").remove();
 });
 
-// EDITAR ESCENARIO DE RIESGO:
+// EDIT RISK SCENARIO:
 $(document).on('click', "img.edit", function() {
-	// Obtiene el id del mapa:
+	// Gets the scenario's id:
 	var idEsc = this.id;
 	idEsc = idEsc.replace("img","").trim();
-	// lo pasa al input hidden:
+	// Pass it to the hidden input:
 	$("#formIdEsc").val(idEsc);
-	// Y envia el formulario:
+	// And submit the form:
 	$("#edit_form").submit();
 });
 
@@ -143,7 +143,7 @@ $(document).on('click', "img.edit", function() {
 <% end %>
 
 
-<!-- Escenarios de evaluación de riesgos -->
+<!-- Risk Assessment Scenarios -->
 <div>
 	<div>
 		<h2 id="title">
@@ -166,7 +166,7 @@ $(document).on('click', "img.edit", function() {
 </div>
 
 
-<% # Form hidden, para tratar la edición: %>
+<% # Hidden form, to treat the edition process: %>
 <%= form_tag( "./goal_escenario" , method: "post", id: "edit_form") do %>
 <input type="text" name="idEsc" id="formIdEsc" hidden readonly>
 <% end %>

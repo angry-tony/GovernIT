@@ -4,7 +4,7 @@ module Mapas
   class AutocompleteController < ApplicationController
 
 	def mechanisms
-	    busq = '%' << params[:term].downcase << '%'  # Todo en minúscula
+	    busq = '%' << params[:term].downcase << '%'  # ES: Todo en minúscula - EN: All in lowercase
 	    resps = ComplementaryMechanism.where('lower(description) LIKE ? AND enterprise_id = ?', busq, params[:idEmp].to_i).map { |m| m.id.to_s + ' - ' + m.description }
 	    if resps.size == 0
 	      m = ComplementaryMechanism.new

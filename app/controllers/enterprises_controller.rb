@@ -13,7 +13,8 @@ class EnterprisesController < ApplicationController
 
   def update
     empresa = Enterprise.find(params[:idEmpresa].to_i)
-    # Actualiza todo lo que encuentre:
+    # ES: Actualiza todo lo que encuentre:
+    # EN: Updates anything founded
     empresa.name = params[:nombre]
     empresa.description = params[:desc]
     if !params[:logo].nil?
@@ -27,7 +28,8 @@ class EnterprisesController < ApplicationController
       flash[:alert] = 'ERROR: Updating the enterprise ' << empresa.name
     end
 
-    # Redirige al inicio!
+    # ES: Redirige al inicio!
+    # EN: Redirect to the home!
     redirect_to root_url
   end
 
@@ -42,12 +44,14 @@ class EnterprisesController < ApplicationController
   	end
 
     if @error.empty?
-      # Crea la empresa
+      # ES: Crea la empresa
+      # EN: Creates the enterprise
   	  @empresa = Enterprise.create(name: nombre, description: descripcion, logo: params[:logo])
     end
   end
 
-  # Obtiene la informacion de la empresa via ajax:
+  # ES: Obtiene la informacion de la empresa via ajax:
+  # EN: Get the enterprise's information through AJAX:
   def get_enterprise
     empresa = Enterprise.find(params[:idEmpresa].to_i)
 

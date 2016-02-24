@@ -13,9 +13,11 @@
 
 $( document ).ready(function() {
 
-	// Gestiona el click en el boton
+	// ES: Gestiona el click en el boton
+	// EN: Manage the button click
 	$("#save").click(function(){
-		// Obtiene los valores de los input de clase risklvl, si falta algún valor, arroja un error:
+		// ES: Obtiene los valores de los input de clase risklvl, si falta algún valor, arroja un error:
+		// EN: Get the values of the inputs from the class risklvl, if any value is missing, throws an error:
 		var niveles = '';
 		var errores = 0;
 		$(".risklvl").each(function(i){
@@ -26,7 +28,8 @@ $( document ).ready(function() {
 			else
 			{
 				niveles+= $(this).val();
-				// Si no es el último index, agrega el separador
+				// ES: Si no es el último index, agrega el separador
+				// EN: If is not the last index, add the separator
 				if (i < 36) 
 				{
 					niveles+= '|';
@@ -34,7 +37,8 @@ $( document ).ready(function() {
 			};
 		});
 
-		// Si existen errores, lo informa y no envía el formulario
+		// ES: Si existen errores, lo informa y no envía el formulario
+		// EN: If there are errors, inform it and don't send the form
 		if (errores > 0) 
 		{
 			$("#err").text("Existen errores en " + errores + " casilla(s), por favor complete los valores antes de guardar los cambios");
@@ -42,7 +46,8 @@ $( document ).ready(function() {
 		} 
 		else
 		{
-			// Agrega el valor de la unidad de impacto:
+			// ES: Agrega el valor de la unidad de impacto:
+			// EN: Add the value of the impact unit:
 			var unidad = $("#qriesgo").val();
 			if (unidad == '') 
 			{
@@ -50,11 +55,14 @@ $( document ).ready(function() {
 			};
 			niveles += unidad;
 
-			// Esconde el label de errores
+			// ES: Esconde el label de errores
+			// EN: Hide error labels
 			$("#err").hide();
-			// Pasa el valor al input hidden:
+			// ES: Pasa el valor al input hidden:
+			// EN: Pass the value to the input hidden:
 			$("#hd_lvl").val(niveles);
-			// Envía el formulario
+			// ES: Envía el formulario
+			// EN: Submit the form:
 			$("#riskmap").submit();
 		};
 
@@ -78,7 +86,8 @@ $( document ).ready(function() {
 
 <h2>Personalizar - Mapa de riesgo</h2>
 
-<!-- Dialogo para evaluar el nivel de riesgo -->
+<!-- ES: Dialogo para evaluar el nivel de riesgo -->
+<!-- EN: Dialog to evaluate the risk level -->
 <p style="font-size:13px;">
 <% if @default != nil %>
 A continuación se presenta la distribución por defecto, puede configurar los valores según los más indicado para su organización:
@@ -90,7 +99,8 @@ A continuación se presenta la distribución almacenada para la empresa: <%= @em
 
 <%= form_tag( "./resultado", method: "post", id: "riskmap") do %>
 <div style="width:100%;height:400px;">
-	<!-- Espacio para el rotulo de la grafica -->
+	<!-- ES: Espacio para el rotulo de la grafica -->
+	<!-- EN: Space for the graph's legend -->
 	<div style="float:left;width:130px;margin-right:10px;">
 		<img src="/assets/y-axis_big.png" style="margin-top:35px;">
 	</div>
@@ -158,7 +168,8 @@ A continuación se presenta la distribución almacenada para la empresa: <%= @em
 <div>
 	<img src="/assets/x-axis_big.png" style="margin-left:135px;">
 </div>
-<!-- Input para pasar la nformacion actualizada de los niveles -->
+<!-- ES: Input para pasar la nformacion actualizada de los niveles -->
+<!-- EN: Input to pass the updated info of the levels -->
 <input name="niveles" id="hd_lvl" type="text" readonly hidden>
 
 <div class="btn-group" style="margin-top:15px;">
@@ -166,7 +177,7 @@ A continuación se presenta la distribución almacenada para la empresa: <%= @em
 </div>
 
 
-<% end # Cierra form_tag %>
+<% end # Close form_tag %>
 
 
 

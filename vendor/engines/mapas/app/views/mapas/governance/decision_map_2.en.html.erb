@@ -33,36 +33,36 @@ $(function () {
     modal: true,
     buttons: {
       "Save changes": function(){
-        // Debe pasar los elementos seleccionados, a la celda que hizo click:
+        // Need to pass the selected items, to the clicked-cell:
         var celda = $("#dialog_mech").data('idCell'); // cell_[decision_id]_[index]
         var idDec = celda.split("_")[1].trim();
-        var idResp = celda.split("_")[2].trim(); // Siempre es el último
+        var idResp = celda.split("_")[2].trim(); // Always is the last one
         var idMap = '<%= @map.id %>'; var newTexts = []; var tempTxt = '';
         var checked;
 
-        // Obtiene el nuevo texto:
+        // Get the new text:
         $(".newInputMech").each(function(){
           checked = $(this).prop("checked");
           if (checked) 
           {
-            // El texto viene: - Texto, asi que debe obviar los 2 primeros caracteres
-            tempTxt = $(this).val(); // Obtiene el id del mecanismo
+            // The text comes: - Text, so need to obviate the 2 first characters
+            tempTxt = $(this).val(); // Get the mechanism's id
             newTexts.push(tempTxt);
           };
         });
         
-        // Actualiza via AJAX el texto en la BD (si viene algpun texto):
+        // Updates through AJAX the text in the DB (if exists):
         $.post('./update_mechanism', {'newTexts' : newTexts, 'idDec' : idDec, 'idResp' : idResp, 'idMap': idMap}, function(data)
           {
             if (data != null) 
             {
-              // Actualizacion exitosa:
-              // colorea el <td> de verde, para dar hecho de la actualización:
+              // Succesfull update:
+              // Colors the <td> with green, to inform the update:
               // color: #3c763d, background: #dff0d8, border-color: #d6e9c6
               $("#cell_"+idDec+'_'+idResp).css({'color': '#3c763d',
                                                 'background-color': '#dff0d8'});
 
-              // Actualiza la celda, para incluir los nuevos valores:
+              // Update the cell, to include the new values:
               tempTxt = '<span id="span_'+idDec+'_'+idResp+'" class="lastSpan" style="color:#428bca;'+
                         'cursor:pointer;margin:3px 0 3px 0;text-align:center;"></span>';
 
@@ -70,13 +70,13 @@ $(function () {
               {
                 tempTxt+= '<p class="cell" id="mech'+data[i].id+'"><i>- '+ data[i].description +'</i></p>';
               };
-              // Lo añade dentro de la celda correspondiente:
+              // Add it into the corresponding cell:
               $("#cell_"+idDec+'_'+idResp).html(tempTxt);
             } 
             else
             {
-              // Actualizacion fallida:
-              // colorea el <td> de rojo, para dar hecho del error:
+              // Failed update:
+              // Colors the <td> with red, to inform the error:
               // color: #3c763d, background: #dff0d8, border-color: #d6e9c6
               $("#cell_"+idDec+'_'+idResp).css({'color': '#a94442',
                                                 'background-color': '#f2dede'});
@@ -108,7 +108,7 @@ $(function () {
     buttons: {
       "Guardar cambios": function()
       {
-        // Debe obtener la descripcion y los riesgos seleccionados para crear/modificar el hallazgo:
+        // Need to get the description and the selected risks to create/modify the finding:
         var desc = $("#descFinding").val();
         var updates = $("#updatesFinding").val();
         var idDec = $("#dialog_findings").data('idDec');;
@@ -119,7 +119,7 @@ $(function () {
           {
             if (parsedRisks == '') 
             {
-              // Está checkeado, lo agrega:
+              // It's checked, add it:
               parsedRisks+= $(this).val();
             } 
             else
@@ -131,13 +131,13 @@ $(function () {
           
         });
 
-        // Envía via AJAX la actualizacion:
+        // Send an AJAX request to update:
         $.post('./add_update_finding', {'idDec' : idDec, 'idMap' : '<%= @map.id %>', 'desc' : desc, 'proposedUpdt' : updates, 'parsedRisks' : parsedRisks}, function(data)
         {
-          // No se hace nada, por debajo debería actualizar todo
+          // Do nothing! The server should update everything
         });
 
-        // Borra la descripcion y reinicia todos los checks
+        // Delete the description, and restart all the checkboxes
         $("#descFinding").val(""); 
         $("#descDecFinding").text(""); 
         $("#updatesFinding").val("");
@@ -151,7 +151,7 @@ $(function () {
       },
       "Cancel": function () 
       { 
-        // Borra la descripcion y reinicia todos los checks
+        // Delete the description, and restart all the checkboxes
         $("#descFinding").val(""); 
         $("#descDecFinding").text(""); 
         $("#updatesFinding").val("");
@@ -165,7 +165,7 @@ $(function () {
     },
     close: function() 
     {
-      // Borra la descripcion y reinicia todos los checks
+      // Delete the description, and restart all the checkboxes
       $("#descFinding").val(""); 
       $("#descDecFinding").text(""); 
       $("#updatesFinding").val("");
@@ -185,17 +185,17 @@ $(function () {
     var idDec = idSpan.replace("span_", "");
     idDec = idDec.trim();  // Decision
 
-    // Obtiene la información del hallazgo (si existe): Descripcion y listado de riesgos seleccionados:
+    // Get the finding's information (if exists): Description and list of related selected risks:
     $.get('./get_finding_info', {'idDec' : idDec, 'idMap' : '<%= @map.id %>'}, function(data)
     {
       if (data != null) 
       {
-        // Existe el hallazgo, pasa su informacion al dialogo:
-        // Descripcion:
+        // The finding exists, pass its information to the dialog:
+        // Description:
         $("#descFinding").val(data.description);
-        // Cambios: 
+        // Changes: 
         $("#updatesFinding").val(data.proposed_updates);
-        // Recorre todos los checkbox de los riesgos, y checkea los que vengan seleccionados:
+        // Loop through the risk checkboxes, and checks the selected ones:
         var riesgos = data.parsed_risks;
         if (riesgos != null) 
         {
@@ -203,7 +203,7 @@ $(function () {
           arrayRisks.sort(function(a, b){return parseInt(a) - parseInt(b)});
           for (var i = 0; i < arrayRisks.length; i++) 
           {
-            // Checkea cada riesgo presente en el hallazgo:
+            // Checks each risk in the finding:
             $('.chkRiskFinding').each(function()
             {
               if ($(this).val() == arrayRisks[i]) 
@@ -226,7 +226,7 @@ $(function () {
       $("#dialog_findings").dialog("option", "width", 700);
       $("#dialog_findings").dialog("option", "height", 650);
       $("#dialog_findings").dialog("option", "resizable", false);
-      // Pasa el id de la celda, como parametro al dialogo:
+      // Pass the cell's id, as a dialog parameter:
       $("#dialog_findings").data('idDec', idDec);
       $("#dialog_findings").dialog("open").delay(2000);
 
@@ -252,14 +252,14 @@ $(function () {
     modal: true,
     buttons: {
       "Save changes": function(){
-      	// Debe pasar los elementos seleccionados, a la celda que hizo click:
+      	// Should pass the selected items, to the clicked-cell:
       	var celda = $("#dialog_addr").data('idCell'); // cell_[decision_id]_[index]
         var idDec = celda.split("_")[1].trim();
         var idResp = celda.split("_")[2].trim();
         var idMap = '<%= @map.id %>';
       	var input = celda.replace("cell", "input");
       	var span = celda.replace("cell", "span");
-      	// Obtiene los ids y textos de los elementos seleccionados:
+      	// Get the ids and texts of the selected items:
       	var html = ''; var ids = ''; var checked = false; var val = ''; var partes; 
       	$('.check_dialog').each(function(){
       		checked = $(this).prop("checked");
@@ -280,33 +280,33 @@ $(function () {
       		};
 
 		  });
-      	// Pasa el texto a la celda, y los ids al input hidden
+      	// Pass the text to the cell, and the ids to the hidden input
       	$("#"+celda).find('p').remove();
       	$("#"+celda).append(html);
       	$("#"+input).val(ids);
 
-        // Realiza la actualización del detalle del mapa:
+        // Performs the update of the map's detail:
         $.post('./update_map_2', {'idsEstructuras' : ids, 'idDec' : idDec, 'idResp' : idResp, 'idMap': idMap}, function(data)
         {
           if (data.id != null) 
           {
-            // Actualizacion exitosa:
-            // colorea el <td> de verde, para dar hecho de la actualización:
+            // Succesful update:
+            // Colors the <td> with green, to inform the update:
             // color: #3c763d, background: #dff0d8, border-color: #d6e9c6
             $("#cell_"+idDec+'_'+idResp).css({'color': '#3c763d',
                                               'background-color': '#dff0d8'});
           } 
           else
           {
-            // Actualizacion fallida:
-            // colorea el <td> de rojo, para dar hecho del error:
+            // Failed update:
+            // Colors the <td> with red, to inform the error:
             // color: #3c763d, background: #dff0d8, border-color: #d6e9c6
             $("#cell_"+idDec+'_'+idResp).css({'color': '#a94442',
                                               'background-color': '#f2dede'});
           };            
         });
 
-        // Reinicia todos los checks:
+        // Restart all the checkboxes:
         $('.check_dialog').each(function(){
           $(this).prop("checked",false);
         });
@@ -315,7 +315,7 @@ $(function () {
 
       },
       "Cancel": function () {
-      	// Reinicia los checkboxes de todos los responsables:
+      	// Restart all the responsibles checboxes:
       	$('.check_dialog').each(function(){
       		$(this).prop("checked",false);
 		    });
@@ -325,7 +325,7 @@ $(function () {
     },
     close: function() 
     {
-      // Reinicia todos los checks:
+      // Restart all the checkboxes:
       $('.check_dialog').each(function(){
         $(this).prop("checked",false);
       });
@@ -336,14 +336,14 @@ $(function () {
 
 
   $(".cell_span").click(function () {
-    // lvl309 -> 309 es el codigo del riesgo
+    // lvl309 -> 309 is the code
     var idCell = this.id;
     idCell = idCell.replace("span", "cell");
     idCell = idCell.trim();
     var idInput = idCell.replace("cell", "input");
     var checks = $("#"+idInput).val().split("|");
 
-    //Pasa los valores que tiene dicha celda, a los checkboxes:
+    // Pass the values of the cell, to the checkboxes:
     if (checks.length > 0) 
     {
       for (var i = 0; i < checks.length; i++) 
@@ -360,11 +360,11 @@ $(function () {
       };
     };
 
-    // Reinicia los checkbox
+    // Restart the checkboxes:
     $("#dialog_addr").dialog("option", "width", 400);
     $("#dialog_addr").dialog("option", "height", 450);
     $("#dialog_addr").dialog("option", "resizable", false);
-    // Pasa el id de la implicacion, como parametro al dialogo:
+    // Pass the cell's id, as a dialog parameter:
     $("#dialog_addr").data('idCell', idCell);
     $("#dialog_addr").dialog("open").delay(2000);
   });
@@ -378,15 +378,15 @@ $(function () {
 
 $(document).on('mouseover', "td.lastCell", function() 
 {
-    // Hover sobre la celda de mecanismos complementarios:
-    // Inserta la opcion de agregar mecanismos a la celda:
+    // Hover over a cell of complementary mechanisms:
+    // Inserts the option to add the mechanisms into the cell:
     $( this ).find( "span" ).text( "Add [+]" );
 });
 
 $(document).on('mouseout', "td.lastCell", function() 
 {
-    // Hover sobre la celda de mecanismos complementarios:
-    // Inserta la opcion de agregar mecanismos a la celda:
+    // Hover over a cell of complementary mechanisms:
+    // Remove the option to add the mechanisms into the cell:
     $( this ).find( "span" ).text( "" );
 });
 
@@ -396,8 +396,8 @@ $(document).on('click', "span.lastSpan", function()
   var idCell = this.id;
   idCell = idCell.replace("span", "cell");
   idCell = idCell.trim();
-  // Obtiene los mecanismos actuales, y los pasa al área indicada:
-  // Debe obtener el texto de cada <p> en la celda seleccionada:
+  // Get the current mechanisms, and pass them to the corresponding area:
+  // Should get each <p> content and text in the selected cell:
   var arrayTxt = $("#"+idCell).find("p"); 
   var html = ''; var innerTxt; var waTxt; var idChk;
 
@@ -413,15 +413,15 @@ $(document).on('click', "span.lastSpan", function()
     html+= '<input type="checkbox" class="newInputMech" style="font-size:12px;margin-right:4px;" checked value="'+idChk+'"><label style="font-weight:normal;">'+innerTxt+'</label><br>';
   });
     
-  // Renderiza el contenido generado, al final del div inicial:
+  // Renders the generated content, at the end of the initial div:
   $("#mechsActuales").html(html);
-  // Borra el texto del input:
+  // Delete the input's text:
   $("#inputNewMech").val("");
 
   $("#dialog_mech").dialog("option", "width", 600);
   $("#dialog_mech").dialog("option", "height", 400);
   $("#dialog_mech").dialog("option", "resizable", false);
-  // Pasa el id de la implicacion, como parametro al dialogo:
+  // Pass the cell's id, as a dialog parameter:
   $("#dialog_mech").data('idCell', idCell);
   $("#dialog_mech").dialog("open").delay(2000);
 });
@@ -429,25 +429,25 @@ $(document).on('click', "span.lastSpan", function()
 
 $( document ).ready(function() {
 	
-	// Hover sobre cada celda del mapa:
+	// Hover over any map's cell:
 	$(".cell_map").mouseover(function(){
-		// Inserta la opcion de agregar responsables a la celda:
+		// Inserts the option to add responsibles to the cell:
 		$( this ).find( "span" ).text( "Assign [+]" );
 	});
 
 	$(".cell_map").mouseout(function(){
-		// Inserta la opcion de agregar responsables a la celda:
+		// Removes the option to add responsibles to the cell:
 		$( this ).find( "span" ).text( "" );
 	});
 
-  // Hover sobre cada celda donde puede haber hallazgos:
+  // Hover over any cell to add finding:
   $(".cell_finding").mouseover(function(){
-    // Inserta la opcion de agregar responsables a la celda:
+    // Inserts the option to add findings to the cell:
     $( this ).find( "span" ).text( "Findings [+]" );
   });
 
   $(".cell_finding").mouseout(function(){
-    // Inserta la opcion de agregar responsables a la celda:
+    // Inserts the option to remove findings to the cell:
     $( this ).find( "span" ).text( "" );
   });
 
@@ -456,7 +456,7 @@ $( document ).ready(function() {
 
 </script>
 
-<!-- SLA: JQuery para el autocompletar de barrios de sucursal -->
+<!-- SLA: JQuery of the autocomplete in the mechanisms dialog -->
 <script>
   $(function() {
     $( "#inputNewMech" ).autocomplete({
@@ -478,21 +478,21 @@ $( document ).ready(function() {
         var selected = ui.item;
         var split = selected.value.split(" - ");
         var id = split[0]; var description = split[1]; var html;
-        // Verifica si debe agregarla al sistema:
+        // Verify if needs to be added in the system:
         if (id == '(Add)') 
         {
-          // Debe agregarla al sistema
+          // Add it to the system
           $.post('./add_mechanism', {'desc' : description, 'idEmp': '<%= @empresa.id %>'}, function(data)
           {
             if (data != null) 
             {
-              // Creado con éxito, lo inserta en el listado (checkeado):
+              // Succesfully created, insert it in the list (checked):
               html = '<input type="checkbox" class="newInputMech" style="font-size:12px;margin-right:4px;" checked value="'+ data.id+'"><label style="font-weight:normal;">'+data.description+
               '</label><span style="color:green;font-weight:bold;margin-left:5px;font-size:12px;">NEW!</span><br>';
             } 
             else
             {
-              // Error guardando, no hace nada! -> Informa
+              // Error saving, do nothing! -> Informs
               html = '<span>ERROR: Saving the record: '+ description +'</span><br>'
             };
 
@@ -503,13 +503,13 @@ $( document ).ready(function() {
         }
         else
         {
-          // No debe agregarla, simplemente la inserta en el listado:
+          // Don't add it to the system, simply insert it on the list:
           html = '<input type="checkbox" class="newInputMech" style="font-size:12px;margin-right:4px;" checked value="'+ id+'"><label style="font-weight:normal;">'+ description+
               '</label><br>';
 
               $("#mechsActuales").append(html);
         };
-        // Borra para agregar nuevo contenido 
+        // Delete to add new content 
         $(this).val(''); return false;
         }
     });
@@ -526,7 +526,7 @@ $( document ).ready(function() {
 </div>
 
 <h2>Decision Map Update:</h2>
-<!-- Dialogo para agregar responsables: -->
+<!-- Dialog to add responsibles: -->
 <div id="dialog_addr" title="Add responsibles">
 	<% @estructuras.each do |e| %>
 	<input type="checkbox" value="<%= e.id %>" class="check_dialog"> <label style="font-weight:normal;"><%= e.name %></label><br>
@@ -536,7 +536,7 @@ $( document ).ready(function() {
   <% end %>
 </div>
 
-<!-- Dialogo para agregar mecanismos complementarios: -->
+<!-- Dialog to add complementary mechanisms: -->
 <div id="dialog_mech" title="Add complementary mechanisms">
   <div id="newMechs">
     <span style="color:#0073ea;">New mechanism:</span>
@@ -554,18 +554,18 @@ $( document ).ready(function() {
 
 </div>
 
-<!-- Dialogo para mostrar/agregar hallazgos -->
+<!-- Dialog to show/add findings -->
 <div id="dialog_findings" title="Documented findings per decision" style='font-family:"Segoe UI Light","Helvetica Neue","Segoe UI","Segoe WP",sans-serif;'>
   <h4 style="font-size:15px;">Decision:</h4>
   <p id="descDecFinding" style="font-style:italic;color:#AAA;font-size:13px;font-family: Helvetica,Arial,sans-serif"></p>
   <h4 style="font-size:15px;">Finding's description:</h4>
   <textarea id="descFinding" cols="89" rows="5" style="font-style:italic;color:#AAA;font-size:12px;">
   </textarea><br>
-  <!-- Cambios propuestos -->
+  <!-- Proposed updates -->
   <h4 style="font-size:15px;">Proposed updates:</h4>
   <textarea id="updatesFinding" cols="89" rows="5" style="font-style:italic;color:#AAA;font-size:12px;">
   </textarea><br><br>
-  <!-- Acordeon para mostrar los riesgos -->
+  <!-- Accordion to show the risks -->
   <section class="ac-container" style="width:auto;margin:0px;">
     <div>
       <input id="ac-1" name="accordion-1" type="checkbox" checked/>
@@ -589,17 +589,17 @@ $( document ).ready(function() {
 </div>
 
 <div id="mapaCreado">
-	<!-- MAPA: -->
+	<!-- MAP: -->
 	<div>
 		<table>
-			<!-- Linea 1: Arquetipos e info. de la decision: -->
+			<!-- Line 1: Archetypes and decision info: -->
 			<tr>
 				<th style="width:30%;">Decision</th>
         <% @resps.each do |r| %>
           <th><%= translateDelegResp(r) %><br></th>
         <% end %>
 			</tr>
-			<!-- Lineas siguientes: Decisiones (Agrupada por dimension)-->
+			<!-- Next lines: Decisions (Grouped by dimension)-->
 			<% divs = @resps.size
          dim_ant = nil 
          cols = divs + 1 %>

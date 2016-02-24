@@ -12,15 +12,15 @@
 <script>
 $( document ).ready(function() {
 
-  // Agregar un objetivo especifico:
+  // Add a specific goal:
   $(".new").click(function(){
     var id = this.id; // add[idGoal]
     id = id.replace("add","").trim(); // idGoal
     var divCreate = 'divHijo' + id; //divHijo[idGoal]
-    // Verifica si no hay ya un div de creacion:
+    // Verify if already exists a creation div:
     if (document.getElementById(divCreate) == null) 
     {
-      // Lo crea:
+      // Create it:
       var html = '<div class="alert alert-info" style="margin-left:5%;margin-bottom:10px;color:#333;background-color:#eeeeee;border-color:#cacaca;"' +
                ' id="divHijo' + id + '">Specific goal description: &nbsp;' +
                '<br><input type="text" style="width:60%;height:30px;border:none;font-size:12px;"' + 
@@ -30,29 +30,29 @@ $( document ).ready(function() {
                '<img src="/assets/save.png" align="right" style="margin:0 0 0 5px;cursor:pointer;"'+
                ' class="add_new" id="add_'+ id + '" title="Save"></div>';
 
-      // Lo inserta debajo del div del padre:
+      // Insert it under the father's div:
       $("#div"+id).append(html);
     };
 
   });
 
-  // Click en alguna de las pestañas:
-  // Objetivos de Negocio:
+  // Click on any of the tabs:
+  // Business Goals:
   $("#pill_b").click(function(){
-    // Obtiene la clase, si no está activo, la activa y desactiva la otra, de lo contrario no hace nada:
+    // Gets the class, if is not active, active it and deactivate the other one, on the contrary do nothing:
     var clase = $("#pill_b").attr("class");
     if (clase == 'active') 
     {
-      // No hace nada
+      // Do nothing!
     } 
     else
     {
-      // Desactiva la anterior, modifica su cursor, y oculta su div:
+      // Deactivate the previous, modify its cursor, and hide its div:
       $("#pill_it").css('cursor','pointer');
       $("#pill_it").attr('class','');
       $("#it_goals").hide();
 
-      // Activa esta opción, modifica su cursor, y muestra su div:
+      // Activate this option, modify its cursor, and hide its div:
       $("#pill_b").css('cursor','normal');
       $("#pill_b").attr('class','active');
       $("#business_goals").show();
@@ -60,22 +60,22 @@ $( document ).ready(function() {
     };
   });
 
-  // Objetivos de TI:
+  // IT Goals:
   $("#pill_it").click(function(){
-    // Obtiene la clase, si no está activo, la activa y desactiva la otra, de lo contrario no hace nada:
+    // Gets the class, if is not active, active it and deactivate the other one, on the contrary do nothing:
     var clase = $("#pill_it").attr("class");
     if (clase == 'active') 
     {
-      // No hace nada
+      // Do nothing
     } 
     else
     {
-      // Desactiva la anterior, modifica su cursor, y oculta su div:
+      // Deactivate the previous, modify its cursor, and hide its div
       $("#pill_b").css('cursor','pointer');
       $("#pill_b").attr('class','');
       $("#business_goals").hide();
 
-      // Activa esta opción, modifica su cursor, y muestra su div:
+      // Activate this option, modify its cursor, and hide its div:
       $("#pill_it").css('cursor','normal');
       $("#pill_it").attr('class','active');
       $("#it_goals").show();
@@ -86,15 +86,15 @@ $( document ).ready(function() {
 
 });
 
-// DESCARTAR ESPECIFICA:
+// DISCARD SPECIFIC:
 $(document).on('click', "img.del", function() {
   var id = this.id;
   id = id.replace("del_", "divHijo"); 
-  // Elimina todo el div:
+  // Removes all the div:
   $("#"+id).remove();
 });
 
-// GUARDAR ESPECIFICO:
+// SAVE SPECIFIC:
 $(document).on('click', "img.add_new", function() {
   var id = this.id; // Original -> add_[idPadre]
   var idDiv = id.replace("add_", "divHijo"); // -> divHijo[idPadre]
@@ -102,25 +102,25 @@ $(document).on('click', "img.add_new", function() {
   var desc = $("#"+idInput).val();
   
   var idPadre = id.split("_")[1].trim(); 
-  // Realiza la petición AJAX:
+  // Executes an AJAX request:
   
   var html = ''; 
-  // Envia una peticion AJAX para agregar el objetivo especifico:
+  // Send an AJAX request to add the specific goal:
     $.post('./add_specific_goal', {'description' : desc, 'id_padre' : idPadre}, function(data)
     {
-      // En data viene el objetivo recien creado:
+      // Data is the just-created goal:
       if (data.id != null) 
       {
-        // OK - Creado con éxito, elimina el div que lo contenía:
+        // OK - Succesfully created, deletes the container div:
         $("#"+idDiv).remove();
-        // Inserta el registro después de su padre:
+        // Inserts the record afer its father:
         html = '<p style="margin-left:5%;color:#AAA;"><i>- ' + data.description + '</i><span style="color:green;font-weight:bold;margin-left:5px;">' +' SAVED!</span></p>';
 
         $("#div"+idPadre).append(html);
       } 
       else
       {
-        // Informa el error:
+        // Inform the error:
         $("#"+idDiv).attr("class", "alert alert-danger");
         $('<p style="color:red;">ERROR: Saving the record. Verify the entered information.</p>').insertAfter("#"+idInput);
       };
@@ -146,16 +146,16 @@ $("#dialog").dialog({
         var importance = $("#importance option:selected").val();
         var performance = $("#performance option:selected").val();
 
-        // Actualiza la calificacion via AJAX:
+        // Update the score through AJAX:
         $.post('./update_goal_cal', {'importance' : importance, 'performance' : performance, 'goal' : goal, 'escenario': idEsc}, function(data)
         {
-            // Según el status, muestra la creación o actualización:
+            // Depending the status, show the creation or update:
             if (data.id != null) 
             {
-                // Creación/Actualización exitosa:
-                // Elimina un div de evaluación anterior, si lo habia:
+                // Creation/Update succesfully:
+                // Deletes a div of a previous evaluation, if exists:
                 $("#div_eval_"+goal).remove();
-                // Crea un nuevo div de evaluación, indicando si hubo actualización o creación:
+                // Creates a new evaluation div, indicating if it was a creation or update:
                 html = '<br id="br'+goal+'"><div class="alert alert-success" style="width:378px;margin-left:5%;margin-bottom:10px;padding: 5px 15px 5px 15px;" id="div_eval_'+ goal +'">'+
                                '<label>Updated! </label>'+
                                  ' Importance: ';
@@ -171,15 +171,15 @@ $("#dialog").dialog({
             else
             {
                 // ERROR
-                // Elimina un div de evaluación anterior, si lo habia:
+                // Remove the previous evaluation div, if existed:
                 $("#div_eval_"+goal).remove();
-                // Crea un nuevo div de evaluación, indicando si hubo actualización o creación:
+                // Creates a new evaluation div, indicating if it was a creation or update:
                 html = '<br id="br'+goal+'"><div class="alert alert-danger" style="width:378px;margin-left:5%;margin-bottom:10px;padding: 5px 15px 5px 15px;" id="div_eval_'+ goal +'">'+
                            '<label>Error updating the record!</label>'+
                         '</div>';
             };
 
-            // Antes de insertarlo, remueve los saltos de linea:
+            // Before insert it, remove the break lines:
             $("#div"+goal).find('br').remove();
             $("#br"+goal).remove();
             $(html).insertAfter("#desc"+goal);
@@ -197,18 +197,18 @@ $("#dialog").dialog({
 
 
   $(".eval").click(function () {
-    // eval309 -> 309 es el codigo del riesgo
+    // eval309 -> 309 is the risk id
     var idgoal = this.id;
     idgoal = idgoal.replace("eval", "");
     idgoal = idgoal.trim();
 
-    // Limpia los valores de desempeño e importancia
+    // Clean the values of performance and importance
    	$("#performance").val("0");
    	$("#importance").val("0");
 
 
 
-    // Envia una peticion AJAX para obtener el texto del objetivo:
+    // Send an AJAX request to get the goal:
     $.get('./get_info_cal_goal', {'idGoal' : idgoal, 'idEsc' : '<%= @escenario.id %>'}, function(data){
        
        $("#txt_goal").text('GOAL TO ASSESS: ' +  data[0]);
@@ -218,7 +218,7 @@ $("#dialog").dialog({
   	   $("#dialog").dialog("option", "width", 400);
   	   $("#dialog").dialog("option", "height", 270);
   	   $("#dialog").dialog("option", "resizable", false);
-  	   // Pasa el id del objetivo, como parametro al dialogo:
+  	   // Pass the goal id, as a dialog parameter:
   	   $("#dialog").data('idgoal', idgoal);
        $("#dialog").dialog("open");
     });
@@ -251,7 +251,7 @@ $("#dialog").dialog({
 </ul>
 
 <div id="business_goals" style="border:solid 1px #DDD;min-height:500px;padding:10px;overflow:auto;">
-  <!--  Agrupa por dimension: -->
+  <!-- Group by dimension: -->
   <% @b_dims.each do |dim| %>
   <div class="alert alert-info">
     <span style="text-align:center;font-size:18px;">
@@ -282,7 +282,7 @@ $("#dialog").dialog({
           <%= goal.description %>
         </div>
 
-        <!-- Revisa si tiene calificacion este objetivo: -->
+        <!-- Checks if that goal has a score: -->
         <% myCal = @cals.select { |cal|  cal.goal == goal  }.first %>
         <% if myCal.nil? %>
         <br><br>
@@ -295,7 +295,7 @@ $("#dialog").dialog({
           , Performance: <% if myCal.performance == 0 %>  N/A  <% else %> <%= myCal.performance %> <% end %>
         </div>
         <% end %>
-        <!-- Renderiza sus hijos tambien: -->
+        <!-- Renders its sons too: -->
         <% hijos = @especificos.select{|esp| esp.parent_id == goal.id} %>
         <% @especificos = @especificos - hijos %>
 
@@ -314,7 +314,7 @@ $("#dialog").dialog({
 </div>
 
 <div id="it_goals" style="display:none;border:solid 1px #DDD;min-height:500px;padding:10px;overflow:auto;">
-  <!--  Agrupa por dimension: -->
+  <!--  Groups by dimension: -->
   <% @it_dims.each do |dim| %>
   <div class="alert alert-info">
     <span style="text-align:center;font-size:18px;">
@@ -344,7 +344,7 @@ $("#dialog").dialog({
         <div style="float:left;width:95%;margin-left:1%;" id="<%= idDesc %>">
           <%= goal.description %>
         </div>
-        <!-- Revisa si tiene calificacion este objetivo: -->
+        <!-- Check if the goal has a score: -->
         <% myCal = @cals.select { |cal|  cal.goal == goal  }.first %>
         <% if myCal.nil? %>
         <br><br>
@@ -358,7 +358,7 @@ $("#dialog").dialog({
         </div>
         <% end %>
 
-        <!-- Renderiza sus hijos tambien: -->
+        <!-- Renders its sons too: -->
         <% hijos = @especificos.select{|esp| esp.parent_id == goal.id} %>
         <% @especificos = @especificos - hijos %>
 
@@ -375,10 +375,10 @@ $("#dialog").dialog({
   <% end %>
 </div>
 
-<!-- Dialogo para evaluar el objetivo -->
+<!-- Dialog to assess the goal -->
 <div id="dialog" title="Goal assessment">
-  <!-- Presenta el detalle del objetivo: -->
-  <p style="font-size:12px;" id="txt_goal"><i></i></p> <!-- Descripcion -->
+  <!-- Present the goal detail: -->
+  <p style="font-size:12px;" id="txt_goal"><i></i></p> <!-- Description -->
   <hr style="margin:7px 0 7px 0;">
  
   <div>

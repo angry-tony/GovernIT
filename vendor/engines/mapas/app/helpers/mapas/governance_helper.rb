@@ -2,14 +2,16 @@ module Mapas
   module GovernanceHelper
 
 
-	# Metodo recursivo que da la cantidad de decisiones hijas de una decision:
+	# ES: Metodo recursivo que da la cantidad de decisiones hijas de una decision:
+	# EN: Recursive method that returns the total number of decision-sons given a decision:
 	def recursiveDarHijos(decision, hijos)
 		if decision.hijas.size ==  0
 			return [] 
 		else
 			decision.hijas.each do |d|
 				hijos.push(d.id)
-				# Contabiliza el numero de hijos de cada una y al final se suma a si mismo
+				# ES: Contabiliza el numero de hijos de cada una y al final se suma a si mismo
+				# EN: Count the number of sons of each one and in the end add it itself
 				recursiveDarHijos(d, hijos)
 			end
 
@@ -18,21 +20,24 @@ module Mapas
 	end
 	# -----------
 
-	# Metodo que da los registros de detalle en los mapas de decision de un grupo de decisiones:
+	# ES: Metodo que da los registros de detalle en los mapas de decision de un grupo de decisiones:
+	# EN: Method that returns the details in the decision maps of a group of decisions
 	def darDetalles(decisiones)
 		detalles = MapDetail.where(governance_decision_id: decisiones).map {|d| d.id }
 		return detalles
 	end
 	# ---------
 
-	# Metodo que da los registros de hallazgos en los mapas de decision de un grupo de decisiones:
+	# ES: Metodo que da los registros de hallazgos en los mapas de decision de un grupo de decisiones:
+	# EN: Method that returns the findings in the decision maps of a group of decisions
 	def darHallazgos(decisiones)
 		hallazgos = Finding.where(governance_decision_id: decisiones).map {|f| f.id }
 		return hallazgos
 	end
 	# -----------
 
-	# Metodo que traduce la visualizacion de las dimensiones (desde el español):
+	# ES: Metodo que traduce la visualizacion de las dimensiones (desde el español):
+	# EN: Method that translates the visualization of the dimensions (Spanish-English):
 	def translateDimension(dimension)
 		case dimension
 		when DIM_DEC_1 then I18n.t 'EM_dimension1'
@@ -45,7 +50,8 @@ module Mapas
 	end
 	# ------- translateDimension
 
-	# Metodo que traduce la visualizacion de las columnas de un mapa de delgacion de responsabilidades (desde el español):
+	# ES: Metodo que traduce la visualizacion de las columnas de un mapa de delgacion de responsabilidades (desde el español):
+	# EN: Method that translates the visualization of the columns of a responsibilities delegation map (Spanish-English):
 	def translateDelegResp(resp)
 		case resp
 		when DELEG_RESP_1 then I18n.t 'EM_delegResp1'
@@ -57,7 +63,8 @@ module Mapas
 	end
 	# ------- translateDelegResp
 
-	# Metodo que traduce la visualizacion de las dimensiones (hacia el español):
+	# ES: Metodo que traduce la visualizacion de las dimensiones (hacia el español):
+	# EN: Method that translates the visualization of the dimensions (English-Spanish):
 	def translateDimensionToES(dimension)
 		dim1 = I18n.t 'EM_dimension1'
 		dim2 = I18n.t 'EM_dimension2'

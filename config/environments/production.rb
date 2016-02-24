@@ -80,7 +80,7 @@ DSS::Application.configure do
 
   # Configuracion del mailer:
 =begin
-  config.action_mailer.default_url_options = { :host => 'cambiar al host definitivo' }
+  config.action_mailer.default_url_options = { :host => 'change to definitive host' }
 
   config.action_mailer.delivery_method = :smtp 
 

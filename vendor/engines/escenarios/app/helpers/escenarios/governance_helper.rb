@@ -12,17 +12,20 @@ module Escenarios
 	  	esc.goalsWeight = wGoal
 	  	esc.enterprise = emp
 
-	    # Realiza la priorizacion y guarda el resultado:
+	    # ES: Realiza la priorizacion y guarda el resultado:
+	    # EN: Execute the prioritization and save the result:
 	    hoy = (Time.now.year).to_s << '-' << Time.now.month.to_s << '-' << Time.now.mday.to_s
 	    esc.fecha_ejecucion = hoy
 
-	    # PRIORIZA:
+	    # ES: PRIORIZA:
+	    # EN: PRIORITIZATES:
 	    stats = get_priorization_stats(esc)
 
 	    esc.stats = stats
 
 
-	  	# Renderiza la respuesta según el resultado de la creación:
+	  	# ES: Renderiza la respuesta según el resultado de la creación:
+	  	# EN: Renders the answer according to the creation result:
 	  	if esc.save
 	  		return true
 	  	else

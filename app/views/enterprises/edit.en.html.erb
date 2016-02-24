@@ -2,22 +2,22 @@
 
 $( document ).ready(function() {
 
-  // Sólo activa los botones de las acciones, cuando se ha seleccionado al menos una empresa:
+  // Only activates the action's buttons, when at least one enterprise have been selected:
   $("#select_empresas").change(function(){
 
-    // Obtiene la seleccion:
+    // Get the selection:
     var sel = $("#select_empresas option:selected").val();
-    // Activa todo, sólo si es una empresa válida:
+    // Activate everything, only if its a valid enterprise:
     if (sel != 'N') 
       {
         // Loading:
         $("#loadingSpan").html('<img src="<%= LOADING_GIF %>"> Updating....');
-        // Activa el boton de guardar:
+        // Activate the save button:
         $("#btnSave").prop("disabled", false);
-        // Actualiza la informacion de todo:
+        // Update all information:
         $.get('/enterprises/get_enterprise', {'idEmpresa' : sel}, function(data)
         {
-          // Actualiza todo lo que se esté tratando:
+          // Updated everything involved:
           $("#nombre").val(data.name);
           $("#desc").val(data.description);
           if (data.logo_file_name != null) 

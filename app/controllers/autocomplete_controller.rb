@@ -1,6 +1,6 @@
 class AutocompleteController < ApplicationController
 	def responsabilities
-	  	busq = '%' << params[:term].downcase << '%'  # Todo en minúscula
+	  	busq = '%' << params[:term].downcase << '%'  # ES: Todo en minúscula - EN: All in  lower case
 	  	resps = GovernanceResponsability.where('lower(name) LIKE ?', busq).map { |r| r.id.to_s + ' - ' + r.name }
 	  	if resps.size == 0
 	  	  r = GovernanceResponsability.new

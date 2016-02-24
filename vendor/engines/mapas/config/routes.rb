@@ -1,8 +1,10 @@
 Mapas::Engine.routes.draw do
-  # Ruta autocomplete:
+  # ES: Ruta autocomplete:
+  # EN: Autocomplete route
   get "autocomplete/mechanisms"
 
-  # Rutas Gobierno de TI:
+  # ES: Rutas Gobierno de TI:
+  # EN: Governance IT Routes:
   get "governance/get_decs_stats_by_dim"
   post "governance/instantiate_decisions"
   post "governance/delete_decision"
@@ -12,7 +14,7 @@ Mapas::Engine.routes.draw do
 
   get "governance/get_finding_info"
   post "governance/add_update_finding"
-  get "governance/decisions" # Cambio a GET, por sesiones
+  get "governance/decisions" # ES: Cambio a GET, por sesiones - EN: GET request, because session support
   post "governance/get_decision"
   post "governance/get_decisions_by_dim"
   post "governance/update_decision"
@@ -21,7 +23,7 @@ Mapas::Engine.routes.draw do
   post "governance/add_generic"
   post "governance/add_specific"
   post "governance/add_map"
-  get "governance/decision_maps" # Cambio a GET, por sesiones
+  get "governance/decision_maps" # ES: Cambio a GET, por sesiones - EN: GET request, because session support
   post "governance/decision_map"
   post "governance/decision_map_2"
   post "governance/update_map_2"

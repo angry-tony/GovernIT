@@ -7,32 +7,38 @@ module Mapas
 
   	include SharedHelper
 
-  	# Decisiones:
+  	# EN: Decisiones
+  	# ES: Decisions:
   	def decisions
 		@empresa = getMyEnterpriseAPP
 
 		if !@empresa.nil?
 			@dims = [DIM_DEC_1, DIM_DEC_2, DIM_DEC_3, DIM_DEC_4, DIM_DEC_5, DIM_DEC_6]
-			# Envia las genericas ordenadas por dimension, para realizar el agrupamiento
+			# ES: Envia las genericas ordenadas por dimension, para realizar el agrupamiento:
+			# EN: # Send the generic decisions, sorted by dimension, to perform a grouping:
 			@genericas = GovernanceDecision.where("decision_type = ? AND enterprise_id = ?", GENERIC_TYPE, @empresa.id).order(dimension: :asc)
-			# Envia las especificas ordenadas por su padre, para realizar el agrupamiento:
+			# ES: Envia las especificas ordenadas por su padre, para realizar el agrupamiento:
+			# EN: # Send the generic decisions, sorted by its father, to perform a grouping
 		    @genericas.size == 0 ? @tieneDecisiones = false : @tieneDecisiones = true
 		    @especificas = GovernanceDecision.where("decision_type = ? AND enterprise_id = ?", SPECIFIC_TYPE, @empresa.id).order(parent_id: :asc)
 		else
 			redirect_to main_app.root_url, :alert => 'ERROR: Enterprise not found. Select one from the initial menu'
 		end
 	end
-	# ----------- Decisiones
+	# ----------- decisions
 
 
-	# Agregar decisiones especificas via AJAX:
+	# ES: Agregar decisiones especificas via AJAX:
+	# EN: Add specific decisions through AJAX:
 	def add_specific
 		@empresa = getMyEnterpriseAPP
 		padre = GovernanceDecision.find(params[:id_padre].to_i)
-		# Parametros para construir la decision:
+		# ES: Parametros para construir la decision:
+		# EN: Parameters to build a new decisions:
 		desc = params[:description]
 		dim = padre.dimension
-		# Crea la decision:
+		# ES: Crea la decision:
+		# EN: Creates the decision:
 		decSpe = GovernanceDecision.new
 		decSpe.description = desc
 		decSpe.dimension = padre.dimension
@@ -42,10 +48,11 @@ module Mapas
 
 		respond_to do |format|
 			if decSpe.save
-				# Todo OK
+				# OK
 				format.json {render json: decSpe}
 			else
-				# No se pudo guardar
+				# ES: No se pudo guardar
+				# EN: Couldn't save
 				format.json {render json: 'ERROR'}
 			end
 			
@@ -53,18 +60,22 @@ module Mapas
 	end
 	# ------------
 
-	# Agregar decisiones genericas via AJAX:
+	# ES: Agregar decisiones genericas via AJAX:
+	# EN: Add generic decisions through AJAX:
 	def add_generic
 		emp = getMyEnterpriseAPP
 		dim = params[:dimension]
-		# La dimension puede venir en español o en ingles, verifica y ajusta (En la BD SIEMPRE EN ESPAÑOL!)
+		# ES: La dimension puede venir en español o en ingles, verifica y ajusta (En la BD SIEMPRE EN ESPAÑOL!)
+		# EN: The dimension could be in spanish or english, verify and adjust it (In the DB ALWAYS IN SPANISH!)
 		if !I18n.default_locale.to_s.eql?("es")
-			# Viene en ingles, debe pasarla a español:
+			# ES: Viene en ingles, debe pasarla a español:
+			# EN: English, must translate it:
 			dim = view_context.translateDimensionToES(dim)
 		end
 		
 		desc = params[:description]
-		# Crea una decision generica:
+		# ES: Crea una decision generica:
+		# EN: Creates a generic decision:
 		decGen = GovernanceDecision.new
 		decGen.description = desc
 		decGen.dimension = dim
@@ -73,10 +84,11 @@ module Mapas
 
 		respond_to do |format|
 			if decGen.save
-				# Todo OK
+				# OK
 				format.json {render json: decGen}
 			else
-				# No se pudo guardar
+				# ES: No se pudo guardar
+				# EN: Couldn't save
 				format.json {render json: 'ERROR'}
 			end
 			
@@ -127,20 +139,26 @@ module Mapas
 		    @estructuras = GovernanceStructure.where("enterprise_id = ?", @empresa.id).order(id: :asc)
 			@genericas = GovernanceDecision.where("decision_type = ? AND enterprise_id = ?", GENERIC_TYPE, @empresa.id).order(dimension: :asc)
 
-			# Según el tipo de mapa, lo redirige:
+			# ES: Según el tipo de mapa, lo redirige:
+			# EN: According to the map's type, redirect it:
 			@map = DecisionMap.find(params[:idMap].to_i)
 			@details = @map.map_details
 
 			if @map.map_type.nil?
-				# Es nulo, aprovecha para actualizar su valor a mapa de arquetipos:
+				# ES: Es nulo, aprovecha para actualizar su valor a mapa de arquetipos
+				# EN: Null, update the value to archetype map
 				@map.map_type = MAP_TYPE_1
 				@map.save
-				# Redirige a su propio render, cargando los arquetipos apropiados
+				# ES: Redirige a su propio render, cargando los arquetipos apropiados
+				# EN: Redirect to its own render, loading the appropiate archetypes
 				@archs = DecisionArchetype.all
 
 		    else
-		    	# Mapa de arquetipos:
-		    	# Redirige a su propio render, cargando los arquetipos apropiados
+		    	# ES: Mapa de arquetipos:
+		    	# EN: Archetype's map:
+
+		    	# ES: Redirige a su propio render, cargando los arquetipos apropiados
+		    	# EN: Redirect to its own render, loading the appropiate archetypes
 				@archs = DecisionArchetype.all
 			end
 
@@ -155,14 +173,16 @@ module Mapas
 		if !@empresa.nil?
 		    @estructuras = GovernanceStructure.where("enterprise_id = ?", @empresa.id).order(id: :asc)
 		    
-		    # Temporal: Se crearon 2 estructuras ficticias para modelar los valores "No aplica" y "No existe"
+		    # ES: Temporal: Se crearon 2 estructuras ficticias para modelar los valores "No aplica" y "No existe"
+		    # EN: Temporary: 2 fake structures were created to modelate the values "Not Available" and "Not Exists"
 		    @estructuras_ficticias = GovernanceStructure.where("enterprise_id = ?", 0)
 
     		@risks = Risk.where("nivel = ?", 'GENERICO').order(id: :asc)
     		@categories = RiskCategory.where("id_padre IS NULL")
 			@genericas = GovernanceDecision.where("decision_type = ? AND enterprise_id = ?", GENERIC_TYPE, @empresa.id).order(dimension: :asc)
 
-			# Según el tipo de mapa, lo redirige:
+			# ES: Según el tipo de mapa, lo redirige:
+			# EN: According the map's type, redirect it:
 			@map = DecisionMap.find(params[:idMap].to_i)
 			@details = @map.map_details
 			@resps = [DELEG_RESP_1,DELEG_RESP_2,DELEG_RESP_3,DELEG_RESP_4,DELEG_RESP_5]
@@ -190,7 +210,8 @@ module Mapas
 		decsGen = GovernanceDecision.where("decision_type = ? AND dimension = ?", GENERIC_TYPE, params[:dim])
 		decsEsp = GovernanceDecision.where("decision_type = ? AND dimension = ? AND enterprise_id = ?", SPECIFIC_TYPE, params[:dim], view_context.getMyEnterprise.id)
 		decs = decsEsp + decsGen
-	    # Remueve la propia decisión que se está tratando:
+	    # ES: Remueve la propia decisión que se está tratando:
+	    # EN: Removes the decision sent as a parameter:
 	    decs.delete(myDec)
 
 		respond_to do |format|
@@ -207,20 +228,22 @@ module Mapas
 		newDim = params[:newDim]
 		newPadre = params[:newPadre]
 		if newPadre == 'NA'
-			# SIN PADRE
+			# ES: SIN PADRE
+			# EN: NO-FATHER
 			dec.parent_id = nil
 			dec.decision_type = GENERIC_TYPE
-			# Asigna también la empresa
-			#dec.enterprise_id = nil
 		else
-			# CON PADRE
+			# ES: CON PADRE
+			# EN: WITH FATHER
 			dec.parent_id = newPadre
 			dec.decision_type = SPECIFIC_TYPE
-			# Asigna también la empresa
+			# ES: Asigna también la empresa
+			# EN: Assign also the enterprise
 			dec.enterprise_id = getMyEnterpriseAPP.id
 		end
 
-		# Actualiza:
+		# ES: Actualiza:
+		# EN: Updates:
 		dec.description = newDesc
 		dec.dimension = newDim
 
@@ -257,7 +280,8 @@ module Mapas
 	# ----------
 
 	def get_decs_stats_by_dim
-		# Obtiene el numero de decisiones totales por dimensión en el sistema:
+		# ES: Obtiene el numero de decisiones totales por dimensión en el sistema:
+		# EN: Get the total number of decisions by dimensions in the system:
 		emp = getMyEnterpriseAPP
 		dimensiones = [DIM_DEC_1, DIM_DEC_2, DIM_DEC_3, DIM_DEC_4, DIM_DEC_5]
 		stats = []
@@ -274,7 +298,8 @@ module Mapas
 	# --------
 
 
-	# Realiza una actualización via AJAX, de los detalles de un mapa de delegación de responsabilidades:
+	# ES: Realiza una actualización via AJAX, de los detalles de un mapa de delegación de responsabilidades:
+	# EN: Perform an update through AJAX, of the details from a responsibilities delegation map:
 	def update_map_2
 		ests = params[:idsEstructuras]
 		decision = GovernanceDecision.find(params[:idDec].to_i)
@@ -285,7 +310,8 @@ module Mapas
 		paraActualizar.sort {|a,b| a <=> b }
 		newDetails = Array.new
 
-		# Asigna el tipo de responsabilidad según el index:
+		# ES: Asigna el tipo de responsabilidad según el index:
+		# EN: Assign the responsibility type according to the index:
 		respType = ''
 		case index
 		when 1
@@ -300,13 +326,16 @@ module Mapas
 			respType = DELEG_RESP_5
 		end
 
-		# Borra los detalles anteriores (para dicho index):
+		# ES: Borra los detalles anteriores (para dicho index):
+		# EN: Delete previous details (for that index):
 		aBorrar = map.map_details.select{|a| a.responsability_type == respType && a.governance_decision_id == decision.id}
 		MapDetail.delete(aBorrar)
-		# Asigna como detalles, los actuales:
+		# ES: Asigna como detalles, los actuales:
+		# EN: Assign as details, the current details
         newDetails = map.map_details
 
-		# Crea los nuevos detalles:
+		# ES: Crea los nuevos detalles:
+		# EN: Create the new details:
 		paraActualizar.each do |est|
 			detail = MapDetail.new
 	    	detail.governance_structure_id = est.to_i
@@ -316,7 +345,8 @@ module Mapas
 	    	newDetails << detail
 		end
 
-		# Asigna los nuevos detalles al mapa:
+		# ES: Asigna los nuevos detalles al mapa:
+		# EN: Assign the new details to the map:
 		map.map_details = newDetails
 
 		respond_to do |format|
@@ -330,7 +360,8 @@ module Mapas
 	end
 	# -------------
 
-	# Realiza una actualización via AJAX, de los detalles de un mapa de arquetipos:
+	# ES: Realiza una actualización via AJAX, de los detalles de un mapa de arquetipos:
+	# EN: Performs an update through AJAX, of the details from an archetypes map:
 	def update_map
 		ests = params[:idsEstructuras]
 		decision = GovernanceDecision.find(params[:idDec].to_i)
@@ -341,13 +372,16 @@ module Mapas
 		paraActualizar.sort {|a,b| a <=> b }
 		newDetails = Array.new
 
-		# Borra los detalles anteriores (para dicho index):
+		# ES: Borra los detalles anteriores (para dicho index):
+		# EN: Delete previous details (for that index):
 		aBorrar = map.map_details.select{|a| a.decision_archetype_id == arch && a.governance_decision_id == decision.id}
 		MapDetail.delete(aBorrar)
-		# Asigna como detalles, los actuales:
+		# ES: Asigna como detalles, los actuales:
+		# EN: Assign as details, the current details:
         newDetails = map.map_details
 
-		# Crea los nuevos detalles:
+		# ES: Crea los nuevos detalles:
+		# EN: Create the new details:
 		paraActualizar.each do |est|
 			detail = MapDetail.new
 	    	detail.governance_structure_id = est.to_i
@@ -357,7 +391,8 @@ module Mapas
 	    	newDetails << detail
 		end
 
-		# Asigna los nuevos detalles al mapa:
+		# ES: Asigna los nuevos detalles al mapa:
+		# EN: Assign the new details to the map:
 		map.map_details = newDetails
 
 		respond_to do |format|
@@ -371,7 +406,8 @@ module Mapas
 	end
 	# ----------
 
-	# Actualiza un registro de mecanismos adicionales:
+	# ES: Actualiza un registro de mecanismos adicionales:
+	# EN: Updates a complementary mechanisms record:
 	def update_mechanism
 		textos = params[:newTexts]
 		if textos.nil?
@@ -379,7 +415,8 @@ module Mapas
 		end
 
 		index = params[:idResp].to_i
-		# Asigna el tipo de responsabilidad según el index:
+		# ES: Asigna el tipo de responsabilidad según el index:
+		# EN: Assign the responsibility type according the index:
 		respType = ''
 		case index
 		when 1
@@ -394,18 +431,20 @@ module Mapas
 			respType = DELEG_RESP_5
 		end
         
-        # Busca el detalle:
+        # ES: Busca el detalle:
+        # EN: Search the detail:
 		detail = MapDetail.where("decision_map_id = ? AND governance_decision_id = ? AND responsability_type = ?", params[:idMap].to_i, params[:idDec].to_i, respType).first
 		txtActual = ''
 
-		if detail.nil? # Si no existia, lo crea:
+		if detail.nil? # ES: Si no existia, lo crea: - EN: If not exist, create it:
 			detail = MapDetail.new
 	    	detail.governance_decision_id = params[:idDec].to_i
 	    	detail.decision_map_id = params[:idMap].to_i
 	    	detail.responsability_type = respType
 		end
 
-        # Genera el nuevo texto y lo asigna
+        # ES: Genera el nuevo texto y lo asigna
+        # EN: Generates the new text and assign it
 		textos.each do |t|
 			if txtActual == ''
 				txtActual+= t
@@ -414,22 +453,27 @@ module Mapas
 			end
 		end
 
-		# La respuesta serán los mecanismos actuales:
+		# ES: La respuesta serán los mecanismos actuales:
+		# EN: The answer will be the current mechanisms:
 		mechsActuales = []
 
 		if txtActual == ''
-			# Debe borrarlo, porque no va a tener nada
+			# ES: Debe borrarlo, porque no va a tener nada
+			# EN: Need to delete it, because will be empty
 			MapDetail.delete(detail)
-			# Guarda el detalle:
+			# ES: Guarda el detalle:
+			# EN: Save the detail:
 			respond_to do |format|
 				format.json {render :json => mechsActuales}
 	    	end
 		else
 			detail.complementary_mechanisms = txtActual
-			# Guarda el detalle:
+			# ES: Guarda el detalle:
+			# EN: Save th detail:
 			respond_to do |format|
 	        	if detail.save # OK
-	        		# Obtiene los mecanismos actuales y los envia:
+	        		# ES: Obtiene los mecanismos actuales y los envia:
+	        		# EN: Get the current mechanisms and send them:
 	        		idMechs = txtActual.split("|")
 	        		mechsActuales = ComplementaryMechanism.where(id: idMechs)
 	        		format.json {render :json => mechsActuales}
@@ -441,7 +485,8 @@ module Mapas
 	end
 	# --------------
 
-	# Obtiene la informacion de un hallazgo
+	# ES: Obtiene la informacion de un hallazgo
+	# EN: Get a finding's information
 	def get_finding_info
 		idDec = params[:idDec].to_i
 		idMap = params[:idMap].to_i
@@ -452,24 +497,32 @@ module Mapas
 	end
 	# -------------
 
-	# Agrega o actualiza la informacion de un hallazgo
+	# ES: Agrega o actualiza la informacion de un hallazgo
+	# EN: Add or update the finding's information
 	def add_update_finding
 		idDec = params[:idDec].to_i
 		idMap = params[:idMap].to_i
 		desc = params[:desc]
 		proposedUpdt = params[:proposedUpdt]
 		parsedRisks = params[:parsedRisks]
-		# Busca el hallazgo a ver si debe crearlo o actualizarlo:
+		# ES: Busca el hallazgo a ver si debe crearlo o actualizarlo:
+		# EN: Search the finding to see if needs to be created or updated:
 		finding = Finding.where("decision_map_id = ? AND governance_decision_id = ?", idMap, idDec).first
 
 		if finding.nil?
-			# Es nuevo, debe ser creado:
+			# ES: Es nuevo, debe ser creado:
+			# EN: Is new, needs to create it:
 			finding = Finding.new	
       		finding.decision_map_id = idMap
 	 		finding.governance_decision_id = idDec
 
+	 		# ES:
 	 		# Adicionalmente se debe verificar si ya existe un escenario de riesgo asociado a este mapa de decision, o si no para crearlo:
 	 		# PENDIENTE: Relacion entre engines diferentes!
+
+	 		# EN:
+	 		# Additionally needs to verify if already exists a risk assessment scenario related to that decision map, if not, need to create it:
+	 		# TO-DO: Relationship between different engines!
 =begin 
 	 		riskEsc = RiskEscenario.where("decision_map_id = ?", idMap).first
 	 		if riskEsc.nil?
@@ -486,8 +539,13 @@ module Mapas
 =end
 		end
 
+		# ES:
 		# Obtiene de nuevo el escenario de riesgo asociado al mapa de decision en cuestion (ya deberia existir)
 		# PENDIENTE: Relacion entre engines diferentes!
+
+		# EN:
+		# Get the risk assessment scenario related to the decision map (already existing)
+		# TO-DO: Relationship between different engines!
 =begin
 		riskEsc = RiskEscenario.where("decision_map_id = ?", idMap).first
 		decisionMap = DecisionMap.find(riskEsc.decision_map_id)
@@ -514,19 +572,22 @@ module Mapas
 
 =end
 
-		# Realiza las actualizaciones:
+		# ES: Realiza las actualizaciones:
+		# EN: Performs the updates:
 		finding.description = desc
 		finding.proposed_updates = proposedUpdt
 		finding.parsed_risks = parsedRisks
 
-		# Guarda los cambios:
+		# ES: Guarda los cambios:
+		# EN: Save the changes:
 		finding.save
 
 		render nothing: true
 	end
 	# ----------
 
-	# Agrega mecanismos complementarios via AJAX:
+	# ES: Agrega mecanismos complementarios via AJAX:
+	# EN: Add complementary mechanisms through AJAX:
 	def add_mechanism
 		desc = params[:desc]
 		idEmp = params[:idEmp].to_i
@@ -536,7 +597,7 @@ module Mapas
 
 		respond_to do |format|
 			if m.save
-				# Guardo OK:
+				# OK:
 				format.json {render json: m}
 			else
 				format.json {render json: nil}
@@ -546,7 +607,8 @@ module Mapas
 	end
 	# ------------
 
-	# Obtiene los nombres de un listado de mapas de decision:
+	# ES: Obtiene los nombres de un listado de mapas de decision:
+	# EN: Get the names from a list of decision maps:
 	def get_map_names
 		idMapas = params[:idMaps].split("|")
 		mapas = DecisionMap.where(id: idMapas)
@@ -558,13 +620,15 @@ module Mapas
 		end
 
 		respond_to do |format|
-			# Envia el texto:
+			# ES: Envia el texto:
+			# EN: Send the text
 			format.json {render json: content}
 	    end
 	end
 	# ----------
 
-	# Obtiene la informacion relacionada a una decision, en caso de querer borrarla:
+	# ES: Obtiene la informacion relacionada a una decision, en caso de querer borrarla:
+	# EN: Get the information related to a decision, in case of a delete request:	
 	def get_info_to_delete
 		decision = GovernanceDecision.find(params[:idDec].to_i)
 		hijasToDelete = view_context.recursiveDarHijos(decision, [])
@@ -573,45 +637,54 @@ module Mapas
 		content = [decision.description, hijasToDelete.size.to_s, detailsToDelete.size.to_s, findingsToDelete.size.to_s]
 
 		respond_to do |format|
-			# Envia el texto:
+			# ES: Envia el texto:
+			# EN: Send the text:
 			format.json {render json: content}
 	    end
 	end
 	# -----------
 
-	# Elimina una decision via ajax:
+	# ES: Elimina una decision via ajax:
+	# EN: Delete a decision through AJAX:
 	def delete_decision
-		# Por medio de la configuracion del modelo, todo lo relacionado con esa decision, y sus hijos se borrará también
+		# ES: Por medio de la configuracion del modelo, todo lo relacionado con esa decision, y sus hijos se borrará también
+		# EN: According to the model configuration, all information related to that decision and it sons will be deleted also
 		decision = GovernanceDecision.find(params[:idDecision].to_i)
-		hijasToDelete = view_context.recursiveDarHijos(decision, []) # Agrega sus hijos
-		hijasToDelete.push(decision.id) # Se agrega a si misma
+		hijasToDelete = view_context.recursiveDarHijos(decision, []) # ES: Agrega sus hijos - EN: Add it sons
+		hijasToDelete.push(decision.id) # ES: Se agrega a si misma - EN: Add it itself
 
 		decision.destroy
 
 		respond_to do |format|
-			# Envia el texto:
+			# ES: Envia el texto:
+			# EN: Send the text:
 			format.json {render json: hijasToDelete}
 	    end
 	end
 	# ------------
 
-	# Instancia las decisiones genericas para la empresa en cuestion:
+	# ES: Instancia las decisiones genericas para la empresa en cuestion:
+	# EN: Instance the generic decision to relate them to the treated enterprise:
 	def instantiate_decisions
 		emp = getMyEnterpriseAPP
 		creadas = 0
 		erradas = 0
-		# Establece la ruta donde se encuentra el archivo de texto que contiene las decisiones genericas:
+		# ES: Establece la ruta donde se encuentra el archivo de texto que contiene las decisiones genericas:
+		# EN: Define the route where the text file with the generic decisions information is saved:
 		fileRoute = Mapas::Engine.root.to_s+'/lib/scripts/decisions.txt'
 		if I18n.default_locale.to_s.eql?("en")
-			# En ingles es otro archivo
+			# ES: En ingles es otro archivo
+			# EN: In english, the file is another one
 			fileRoute = Mapas::Engine.root.to_s+'/lib/scripts/decisionsEN.txt'	
 		end
 		
 		File.open(fileRoute, "r").each_line do |line|
-			# Cada linea viene: descripcion|dimension
+			# ES: Cada linea viene: descripcion|dimension
+			# EN: Each line comes: description|dimension
 			description = line.split("|")[0].strip
 			dimension = line.split("|")[1].strip
-			# Crea la decision, para la empresa tratada, y la asigna como generica:
+			# ES: Crea la decision, para la empresa tratada, y la asigna como generica:
+			# EN: Creates the decision, for the treated enterprise, and assign them as generic:
 			dec = GovernanceDecision.new
 			dec.description = description
 			dec.dimension = dimension
@@ -631,7 +704,8 @@ module Mapas
         if creadas > 0
         	flash[:notice] = creadas.to_s << ' generic decisions were created successfully for the enterprise ' << emp.name
         	if I18n.default_locale.to_s.eql?("en")
-        		# Mensaje en ingles!
+        		# ES: Mensaje en ingles!
+        		# EN: Message in english!
         		flash[:notice] = creadas.to_s << ' generic decisions were created successfully for the enterprise ' << emp.name
 			end
         end
@@ -641,19 +715,21 @@ module Mapas
 	end
 	# ------------------
 
-	# Identificacion del arquetipo de gobierno
+	# ES: Identificacion del arquetipo de gobierno
+	# EN: Identification of the governance archetype
 	def identify_archetype
 		idMapas = params[:idMap].split("|")
 
-		content = identify_archetype_method(idMapas) # EL metodo esta en InicioHelper
+		content = identify_archetype_method(idMapas) # ES: EL metodo esta en InicioHelper - EN: The method definition is in "InicioHelper"
 		
 
 		respond_to do |format|
-			# Envia el texto:
+			# ES: Envia el texto:
+			# EN: Send the text:
 			format.json {render json: content}
 	    end
 
-	end # Cierra Identify_archetype
+	end # ------ identify_archetype
 
 	def get_structures
 		ests = getStructuresAPP

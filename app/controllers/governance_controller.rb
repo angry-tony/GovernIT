@@ -16,7 +16,8 @@ class GovernanceController < ApplicationController
 
 	def add_structure
 		@empresa = view_context.getMyEnterprise
-		# Resultados de la creación de estructuras de gobierno:
+		# ES: Resultados de la creación de estructuras de gobierno:
+		# EN: Results of the governance structure creation:
 		name = params[:name]
 		tipo = params[:tipo]
 		funcs = params[:funcs]
@@ -40,10 +41,10 @@ class GovernanceController < ApplicationController
 
 		respond_to do |format|
 			if estG.save
-				# Todo OK
+				# ES: Todo OK - EN: All OK
 				format.json {render json: estG}
 			else
-				# No se pudo guardar
+				# ES: No se pudo guardar - EN: Unable to save
 				format.json {render json: 'ERROR'}
 			end
 			
@@ -81,31 +82,37 @@ class GovernanceController < ApplicationController
 	# ------------
 
 
-	# Obtiene la informacion de las funciones de una estructura, y sus conflictos (Via AJAX):
+	# ES: Obtiene la informacion de las funciones de una estructura, y sus conflictos (Via AJAX):
+	# EN: Get the information of the governance structure's responsibilities and their conflicts (through AJAX):
 	def get_functions
 		emp = view_context.getMyEnterprise
 		est = GovernanceStructure.find(params[:idEst].to_i)
 		funcs = est.governance_responsabilities
 
-		# Para conocer los conflictos, por cada funcion saca sus responsables, depura y compara:
+		# ES: Para conocer los conflictos, por cada funcion saca sus responsables, depura y compara:
+		# EN: To know the conflicts, for each responsibility obtain its responsibles, debug and compare:
 		conflictos = []
 		funcs.each do |f|
 			ests = f.governance_structures
-			# Depura de las estructuras asociadas, para dejar sólo las de la misma empresa.
+			# ES: Depura de las estructuras asociadas, para dejar sólo las de la misma empresa.
+			# EN: Debug the related structures, to get only the ones from the same enterprise
 			depuradas = []
 
 			ests.each do |est|
-				# Recorre todas las estructuras, si son de la misma empresa, la va agregando:
+				# ES: Recorre todas las estructuras, si son de la misma empresa, la va agregando:
+				# EN: Through all structures, add the ones from the same enterprise:
 				if est.enterprise_id == emp.id
 					depuradas.push(est)
 				end
 			end
 
-			# Re-asigna:
+			# ES: Re-asigna:
+			# EN: Re-assing:
 			ests = depuradas
 
 			if ests.size > 1
-				# Tiene este responsable, y al menos otro adicional
+				# ES: Tiene este responsable, y al menos otro adicional
+				# EN: Have this responsible, and at least another one
 				otros = ests.select{|o| o.id != est.id}
 				temp = f.name
 				otros.each do |o|
@@ -115,15 +122,17 @@ class GovernanceController < ApplicationController
 				if temp.include? '|'
 					conflictos.push(temp)
 				end
-				# String del tipo: Nombre_funcion|estructura conflictiva1|estructura conflictiva2.....
+				# ES: String del tipo: Nombre_funcion|estructura conflictiva1|estructura conflictiva2.....
+				# EN: String with the format: responsibility_name|conflicted structure 1|conflicted structure 2....
 			end
 		end
 
 		funcs = est.governance_responsabilities.map {|f| f.name}
 
-		# Si hay conflictos, los envia en el mismo arreglo, pero con un elemento de separación:
+		# ES: Si hay conflictos, los envia en el mismo arreglo, pero con un elemento de separación:
+		# EN: If there is at least 1 conflict, send them in the same array, but with a separator:
 		if conflictos.size > 0
-			funcs.push("#$%&/()=") # Separacion
+			funcs.push("#$%&/()=") # ES: Separacion - EN: Separator
 			conflictos.each do |c|
 				funcs.push(c)
 			end
@@ -142,7 +151,8 @@ class GovernanceController < ApplicationController
 		n_funcs = params[:funcs]
 		n_perfil = params[:perfil]
 		resps = GovernanceResponsability.where(id: n_funcs)
-		# Actualiza los textos normales:
+		# ES: Actualiza los textos normales:
+		# EN: Update the regular texts:
 		est.name = n_name
 		est.structure_type = n_tipo
 		est.profile = n_perfil

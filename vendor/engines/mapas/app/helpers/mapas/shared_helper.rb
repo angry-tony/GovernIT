@@ -3,21 +3,26 @@
 module Mapas
   module SharedHelper
   	
-  	# SLA: Helper que puede ser utilizado desde la aplicacion principal.
+  	# ES: Helper que puede ser utilizado desde la aplicacion principal.
+  	# EN: Helper that can be used from the main application.
 
 
-  	# Helper para listar y formatear cada uno de los mapas de decision de una empresa
+  	# ES: Helper para listar y formatear cada uno de los mapas de decision de una empresa
+  	# EN: Helper to list and format each of the decision maps of an enterprise
   	def mapasListDecisionMaps(empId)
   		content = []
-  		# Mapas de decision:
+  		# ES: Mapas de decision:
+  		# EN: Decision Maps
 	    mapas = DecisionMap.where(enterprise_id: empId)
 
-	    # Inserta un registro de separacion:
+	    # ES: Inserta un registro de separacion:
+	    # EN: Insert a separator:
 	    content.push('Decision Maps$:$' << mapas.size.to_s)
 
 	    mapas.each do |mapa|
 	      # String: ID_MAP|name
-	      # Si el mapa es de tipo delegacion de responsabilidades, lo identifica:
+	      # ES: Si el mapa es de tipo delegacion de responsabilidades, lo identifica:
+	      # EN: If the map's type is responsibilities delegation, identify it:
 	      if mapa.map_type == MAP_TYPE_2
 	        string = mapa.id.to_s << '_MAPD|' << mapa.name
 	      else
@@ -31,24 +36,28 @@ module Mapas
   	end
   	# ---------- mapasListDecisionMaps
 
-  	# Helper que genera el archivo HTML de cada mapa de decision:
+  	# ES: Helper que genera el archivo HTML de cada mapa de decision:
+  	# EN: Helper to generate the HTML file of each decision map:
   	def mapasGenerateMapsHTML(empresa, mapIds, archIds, log)
 	    mapas = DecisionMap.where(id: mapIds)
 
 	  	log.push("Creating decision maps content...")
 
 
-	  	# Directorio actual: (El de la empresa)
+	  	# ES: Directorio actual: (El de la empresa)
+	  	# EN: Current directoy: (of the enterprise)
 	  	actualFolder = Rails.root.to_s << "/HTML_CONTENT/" << '[' << empresa.id.to_s << '] ' << empresa.name
 	  	Dir.chdir(actualFolder)
 	  	rootEmpresa = actualFolder
 
-	  	# Crea la carpeta para los mapas de decision y su respectivo archivo index:
+	  	# ES: Crea la carpeta para los mapas de decision y su respectivo archivo index:
+	  	# EN: Create the directory for the decision maps and its respective index file:
 	  	folderName = 'decisionMaps'
 	  	FileUtils.mkdir_p(folderName)
 	  	log.push("Directory created: decisionMaps (Decision Maps)")
-	  	Dir.chdir(actualFolder+"/"+folderName) # Ingresa a la carpeta DecisionMaps
-	  	# Crea el archivo index para los mapas de decision:
+	  	Dir.chdir(actualFolder+"/"+folderName) # ES: Ingresa a la carpeta DecisionMaps - EN: Enters to the directory DecisionMaps
+	  	# ES: Crea el archivo index para los mapas de decision:
+	  	# EN: Create the index file for the decision maps:
 	    fileHtml = File.new("indexMaps.html", "w")
 	    lineHtml = '<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	      <link rel="stylesheet" type="text/css" href="../css/styles.css"/></head>'
@@ -79,7 +88,8 @@ module Mapas
 	  	fileHtml.close()
 	  	log.push("File created: indexMaps.html")
 
-	  	# CRea el archivo de estilos para los mapas de decision:
+	  	# ES: Crea el archivo de estilos para los mapas de decision:
+	  	# EN: Create the css file for the decision maps:
 	  	Dir.chdir(rootEmpresa+"/css")
 	  	mapStyles = 'mapStyles.css'
 	  	fileHtml = File.new(mapStyles, "w")
@@ -109,14 +119,16 @@ module Mapas
 	    fileHtml.close()
 	  	log.push("File created: mapStyles.css")
 
-	    # Crea el archivo de js para el dialogo en los mapas:
+	    # ES: Crea el archivo de js para el dialogo en los mapas:
+	    # EN: Create the js file for the dialog in the decision maps:
 	    Dir.chdir(rootEmpresa+"/js")
 	    mapJs = Rails.root.to_s << '/app/assets/javascripts/mapJS.js'
 	    FileUtils.cp mapJs, 'mapJS.js'
 
-	  	Dir.chdir(actualFolder+"/"+folderName) # Ingresa a la carpeta DecisionMaps
+	  	Dir.chdir(actualFolder+"/"+folderName) # ES: Ingresa a la carpeta DecisionMaps - EN: Enter the directory DecisionMaps
 
-	    # Crea el archivo de cada mapa de decisión:
+	    # ES: Crea el archivo de cada mapa de decisión:
+	    # EN: Create the file of each decision map:
 	    archs = DecisionArchetype.all
 	    genericas = GovernanceDecision.where("decision_type = ? AND enterprise_id = ?", GENERIC_TYPE, empresa.id).order(dimension: :asc)
 	    resps = [DELEG_RESP_1,DELEG_RESP_2,DELEG_RESP_3,DELEG_RESP_4,DELEG_RESP_5]
@@ -140,9 +152,11 @@ module Mapas
 			fileHtml.puts lineHtml
 
 			if m.map_type == MAP_TYPE_1 
-				# Arquetipos
+				# ES: Arquetipos
+				# EN: Archetypes
 			  	details = m.map_details
-				# Define estilos individuales
+				# ES: Define estilos individuales
+				# EN: Define individual styles
 				lineHtml = '</head><body>'
 				fileHtml.puts lineHtml
 				lineHtml = '<div><ol class="breadcrumb"><li><a href="../index.html">Inicio</a></li>'
@@ -183,13 +197,15 @@ module Mapas
 
 
 			else
-				# Delegacion de responsabilidades
+				# ES: Delegacion de responsabilidades
+				# EN: Responsibilities delegation
 				details = m.map_details
 				findings = m.findings
 				risks = Risk.where("nivel = ?", 'GENERICO').order(id: :asc)
 				categories = RiskCategory.where("id_padre IS NULL")
 					
-				# Define estilos individuales:
+				# ES: Define estilos individuales:
+				# EN: Define individual styles:
 				lineHtml = '</head><body>'
 			  	fileHtml.puts lineHtml
 				lineHtml = '<div><ol class="breadcrumb"><li><a href="../index.html">Inicio</a></li>'
@@ -198,7 +214,8 @@ module Mapas
 				fileHtml.puts lineHtml
 				lineHtml = '<h2>Decision Map: ' << m.name << ' <span style="color:#428bca;cursor:pointer;margin:0 0 0 7px;font-size:15px;" id="archReport">'
 				fileHtml.puts lineHtml
-				# Si tiene activo el reporte de identificacion, activa el link desde alli:
+				# ES: Si tiene activo el reporte de identificacion, activa el link desde alli:
+				# EN: If the identification report is activated, enable the link from here:
 				if archIds.include?(m.id.to_s)
 				lineHtml = 'Show identified archetype'
 				fileHtml.puts lineHtml
@@ -233,7 +250,8 @@ module Mapas
 				lineHtml = '</table></div>'
 				fileHtml.puts lineHtml
 
-				# Construye el dialogo del reporte de arquetipos:
+				# ES: Construye el dialogo del reporte de arquetipos:
+				# EN: Build the dialog of the archetypes report:
 				if archIds.include?(m.id.to_s)
 
 					dimensions = [DIM_DEC_1, DIM_DEC_2, DIM_DEC_3, DIM_DEC_4, DIM_DEC_5]
@@ -288,12 +306,14 @@ module Mapas
 					  if valor[0].eql?('M')
 
 					    if valor[1].eql?('R')
-					      # Lo marca en rojo:
+					      # ES: Lo marca en rojo:
+					      # EN: Mark it with red:
 					      lineHtml = ' class="maxRed" >'
 					      fileHtml.puts lineHtml
 					      valor = valor.gsub("MR","").strip
 					    else
-					      # Lo marca en naranja:
+					      # ES: Lo marca en naranja:
+					      # EN: Mark it with orange:
 					      lineHtml = ' class="maxOrange">'
 					      fileHtml.puts lineHtml
 					      valor = valor.gsub("MN","").strip
@@ -319,7 +339,8 @@ module Mapas
 					lineHtml = '</table></div>'
 					fileHtml.puts lineHtml
 
-					# INCLUIR ESTILOS DE LA TABLA!!!
+					# ES: INCLUIR ESTILOS DE LA TABLA!!!
+					# EN: INCLUDE TABLE STYLES!!!
 
 					lineHtml = '</div>'
 					fileHtml.puts lineHtml
@@ -327,7 +348,8 @@ module Mapas
 				end # archs.include?()
 
 
-				# Construye los divs del dialogo de hallazgos:
+				# ES: Construye los divs del dialogo de hallazgos:
+				# EN: Build the divs in the findings dialog:
 				lineHtml = '<div id="dialog_findings" style="font-family:"Segoe UI Light","Helvetica Neue","Segoe UI","Segoe WP",sans-serif;">'
 				fileHtml.puts lineHtml
 
@@ -353,7 +375,8 @@ module Mapas
 
 					lineHtml = '<h4 style="font-size:15px;">Finding Description:</h4>'
 					fileHtml.puts lineHtml
-					# Descripcion del hallazgo:
+					# ES: Descripcion del hallazgo:
+					# EN: Finding's description:
 					lineHtml = '<p'
 					fileHtml.puts lineHtml 
 					lineHtml = 'style="font-style:italic;color:#AAA;font-size:12px;">' << find.description << '</p>'
@@ -361,7 +384,8 @@ module Mapas
 
 					lineHtml = '<h4 style="font-size:15px;" >Proposed Changes:</h4>'
 					fileHtml.puts lineHtml
-					# Cambios propuestos:
+					# ES: Cambios propuestos:
+					# EN: Proposed updates:
 					lineHtml = '<p'
 					fileHtml.puts lineHtml
 					updates = find.proposed_updates
@@ -374,7 +398,8 @@ module Mapas
 
 					lineHtml = '<h4 style="font-size:15px;" >Related risks from the finding:</h4>'
 					fileHtml.puts lineHtml
-					# Riesgos asociados:
+					# ES: Riesgos asociados:
+					# EN: Related risks:
 					lineHtml = '<div>'
 					fileHtml.puts lineHtml
 
@@ -394,28 +419,30 @@ module Mapas
 					  end
 
 
-					end # Cierra categorias
+					end # Close categories
 
 					lineHtml = '</div>'
-					fileHtml.puts lineHtml # Cierra riesgos asociados
+					fileHtml.puts lineHtml # Close related risks
 
 					lineHtml = '</div>'
 					fileHtml.puts lineHtml
 
-				end # Cierra hallazgos
+				end # Close findings
 
 				lineHtml = '</div>'
-				fileHtml.puts lineHtml # Cierra dialogo de hallazgos
+				fileHtml.puts lineHtml # Close finding's dialog
 
 			end
 			# ----- map.map_type
 
-			# Obtiene las estructuras presentes en los detalles:
+			# ES: Obtiene las estructuras presentes en los detalles:
+			# EN: Get the structures from the details:
 	        estsShow = details.map {|d| d.governance_structure}
 	        estsShow.uniq!
 	        estsShow.compact!
 
-	        # Construye los divs del dialogo de funciones (todos escondidos)
+	        # ES: Construye los divs del dialogo de funciones (todos escondidos)
+	        # EN: Build the divs of the responsibilities dialog (all hidden)
 	        lineHtml = '<div id="dialogFuncs" style="font-size:12px;">'
 	        fileHtml.puts lineHtml
 
@@ -431,7 +458,8 @@ module Mapas
 	        	else
 	        		error = false
 	        		funcs.each do |f|
-	        			# Verifica que no sea el registro de separacion de errores
+	        			# ES: Verifica que no sea el registro de separacion de errores
+	        			# EN: Verify that is not the separator record
 	        			if f == '#$%&/()='
 	        				error = true
 							lineHtml = '<h3 style="color:red;">Conflicts founded:</h3>'
@@ -439,9 +467,11 @@ module Mapas
 							next
 	        			end
 
-	        			# Renderiza las funciones o los errores según sea adecuado:
+	        			# ES: Renderiza las funciones o los errores según sea adecuado:
+	        			# EN: Renders the responsibilities or errors depending:
 	        			if error
-	        				# Formatea el contenido de los errores:
+	        				# ES: Formatea el contenido de los errores:
+	        				# EN: Formats the content of the errors:
 	        				partes = f.split("|")
 	        				lineHtml = '<span style="color:red;"><i>- ' << partes[0] << ', conflict with the next structures: </i></span><br>'
 	        				fileHtml.puts lineHtml
@@ -452,20 +482,21 @@ module Mapas
 	        				end
 
 	        			else
-	        				# Renderiza las funciones normalmente:
+	        				# ES: Renderiza las funciones normalmente:
+	        				# EN: Renders the responsibilities normally:
 	        				lineHtml = '<span style="color:#333;"><i>- ' << f << '</i></span><br>'
 	        				fileHtml.puts lineHtml
 	        			end
-	        		end # Cierra funcs
-	        	end # Cierra funcs.size == 0
+	        		end # Close funcs
+	        	end # Close funcs.size == 0
 
-	        	lineHtml = '</div>' # Cierra el div de cada estructura
+	        	lineHtml = '</div>' # ES: Cierra el div de cada estructura - EN: Close the div of each structure
 	        	fileHtml.puts lineHtml
 
 
-	        end # Cierra estructuras
+	        end # Close structures
 
-	        lineHtml = '</div>' # Cierra el div del dialogo
+	        lineHtml = '</div>' # ES: Cierra el div del dialogo - EN: Close the dialog's div
 	        fileHtml.puts lineHtml
 
 
@@ -475,24 +506,26 @@ module Mapas
 	    end 
 	    # ----- mapas.each 
 
-	    # Devuelve el arreglo que contiene el log
-	    log   
+	    # ES: Devuelve el arreglo que contiene el log
+	    # EN: Returns the array that contains the log
+	    return log   
 
   	end
   	# ----------- mapasGenerateMapFile
 
-  	# Renderiza el mapa de decisiones (Arquetipos) de manera recursiva:
+  	# ES: Renderiza el mapa de decisiones (Arquetipos) de manera recursiva:
+  	# EN: Renders the decision maps (archetypes) recursively:
 	def renderTableDec(file, decision, divs, lvl, details)
 		myFile = file 
 		myDec = decision
-		myDivs = divs # Número de <td>, por los arquetipos
+		myDivs = divs # ES: Número de <td>, por los arquetipos - EN: Number of <td>, because the archetypes
 		hijos = GovernanceDecision.where("parent_id = ?", myDec.id)
 		myLvl = lvl
 
 		lineHtml = '<tr>'
 		myFile.puts lineHtml
 
-		if myLvl > 0 # Debe enfatizar la jerarquia
+		if myLvl > 0 # ES: Debe enfatizar la jerarquia - EN: Needs to emphasize the hierarchy
 			margen = myLvl * 15
 			lineHtml = '<td style="background-color:#f5f5f5;border:solid 1px #cacaca;">'
 			myFile.puts lineHtml
@@ -503,7 +536,7 @@ module Mapas
 			myFile.puts lineHtml
 		end
 
-		for i in 1..myDivs # i: ID del arquetipo
+		for i in 1..myDivs # i: ES: ID del arquetipo - EN: Archetype ID
 			seleccionadas = details.select { |d|  d.governance_decision.id == myDec.id && d.decision_archetype.id == i }
 			lineHtml = '<td>'
 			myFile.puts lineHtml
@@ -519,7 +552,8 @@ module Mapas
 		lineHtml = '</tr>'
 		myFile.puts lineHtml
 
-		# Renderiza los hijos:
+		# ES: Renderiza los hijos:
+		# EN: Renders the sons:
 		if hijos.size > 0
 			myLvl = lvl + 1
 			hijos.each do |h|
@@ -530,12 +564,13 @@ module Mapas
 	end
 	# -------- renderTableDec
 
-	# Renderiza el mapa de decisiones (Delegación de responsabilidades) de manera recursiva:
+	# ES: Renderiza el mapa de decisiones (Delegación de responsabilidades) de manera recursiva:
+	# EN: Renders the decision maps (Responsibilities delegation) recursivey:
   def renderTableDec2(file, decision, divs, lvl, details, map)
     resps = [DELEG_RESP_1,DELEG_RESP_2,DELEG_RESP_3,DELEG_RESP_4,DELEG_RESP_5]
     myFile = file
     myDec = decision
-    myDivs = divs # Número de <td>, por los arquetipos
+    myDivs = divs # ES: Número de <td>, por los arquetipos - EN: Number of <td>, because the archetypes
     hijos = GovernanceDecision.where("parent_id = ?", myDec.id)
     myLvl = lvl
     idSpan = 'span_' << myDec.id.to_s
@@ -552,7 +587,7 @@ module Mapas
     lineHtml = '<tr>'
     myFile.puts lineHtml
 
-    if myLvl > 0 # Debe enfatizar la jerarquia
+    if myLvl > 0 # ES: Debe enfatizar la jerarquia - EN: Needs to emphasize the hierarchy
 	    margen = myLvl * 15
 	    lineHtml = '<td style="background-color:#f5f5f5;border:solid 1px #cacaca;width:30%;">'
 	    myFile.puts lineHtml
@@ -587,7 +622,7 @@ module Mapas
 	    myFile.puts lineHtml
     end
 
-    for i in 1..myDivs # i: ID del tipo de responsabilidad 
+    for i in 1..myDivs # i: ES: ID del tipo de responsabilidad - EN: Responsibility Type ID
 	    seleccionadas = details.select { |d|  d.governance_decision.id == myDec.id && d.responsability_type == resps[i-1] } 
 
 	    if i == myDivs
@@ -595,7 +630,8 @@ module Mapas
 	       	if !mech.nil?
 	       		mechs = mech.complementary_mechanisms
 	       		if !mechs.nil? && mechs != ''
-	    	   		# Hay mecanismos cargados
+	    	   		# ES: Hay mecanismos cargados
+	    	   		# EN: There are loaded mechanisms
 	    	   		loadedMechs = mechs.split("|")
 	       	    end
 	       	end
@@ -625,7 +661,8 @@ module Mapas
     lineHtml = '</tr>'
     myFile.puts lineHtml
 
-    # Renderiza los hijos:
+    # ES: Renderiza los hijos:
+    # EN: Renders the sons:
     if hijos.size > 0
 	    myLvl = lvl + 1
 	    hijos.each do |h|
@@ -639,23 +676,30 @@ module Mapas
 
 
 
-  	# Metodos privados:
+  	# ES: Metodos privados:
+  	# EN: Private methods:
 	def darHijosD(decision)
 		return GovernanceDecision.where("parent_id = ?", decision.id)		
 	end
 	# --------
 
-	# Obtiene el contenido HTML de la identificacion de un arquetipo:
+	# ES: Obtiene el contenido HTML de la identificacion de un arquetipo:
+	# EN: Get the HTML content of the archetype identification:
 	def identify_archetype_method(idMapas)
 		mapas = DecisionMap.where(id: idMapas)
 		dimensiones = [DIM_DEC_1, DIM_DEC_2, DIM_DEC_3, DIM_DEC_4, DIM_DEC_5]
 
 		lineaVertical = DecisionArchetype.all.size
 
-		totalStatsConsultado = [] # Arreglo para ir acumulando todas las estadisticas de consultado (en forma de pila por dimension)
-		totalStatsDecide = [] # Arreglo para ir acumulando todas las estadisticas de decide (en forma de pila por dimension)
+		# ES: Arreglo para ir acumulando todas las estadisticas de consultado (en forma de pila por dimension)
+		# EN: Array to accumulate the "consulted" statistics (as a stack by dimension)
+		totalStatsConsultado = []
+		# ES: Arreglo para ir acumulando todas las estadisticas de decide (en forma de pila por dimension) 
+		# EN: Array to accumulate the "decides" statistics (as a stack by dimension)
+		totalStatsDecide = [] 
 
-		# Recorre por cada mapa y dimension, para obtener sus estadisticas:
+		# ES: Recorre por cada mapa y dimension, para obtener sus estadisticas:
+		# EN: Go through each map and dimension, to get its statistics:
 		mapas.each do |mapa|
 
 			consultadoMapa = []
@@ -671,7 +715,8 @@ module Mapas
 			totalStatsConsultado.push(consultadoMapa)
 		end
 
-		# Al final ya tiene en ambos arreglo todos los valores apilados, debe formatearlo para ponerlos en linea y no en pila:
+		# ES: Al final ya tiene en ambos arreglo todos los valores apilados, debe formatearlo para ponerlos en linea y no en pila:
+		# EN: At the end, in both arrays are all the values stacked, need to format them to put them in line and not as a stack:
 		formated = []		
 
 		for i in 0..lineaVertical 
@@ -695,13 +740,15 @@ module Mapas
 
 		return formated
 
-	end # FIN METODO
+	end # ES: FIN METODO - EN: END METHOD
 	# ------------
 
-	# Metodo que dada una dimension y un mapa de decision, devuelve los porcentajes de concordancia de cada arquetipo
+	# ES: Metodo que dada una dimension y un mapa de decision, devuelve los porcentajes de concordancia de cada arquetipo
+	# EN: Method that given a dimension and a decision map, returns the concordance percentages for each archetype 
 	def get_archetype_stats(dim, mapa)
 		arquetipos = DecisionArchetype.all
-		# Agrega un arquetipo temporal, que define los valores No Aplica - No Existe y Vacío
+		# ES: Agrega un arquetipo temporal, que define los valores No Aplica - No Existe y Vacío
+		# EN: Adds a temporary archetype, that defines the values "Not Available" - "Not Existent" and "Empty"
 		archTemp = DecisionArchetype.new
 		archTemp.name = "N/A"
 		arquetipos.push(archTemp)
@@ -709,53 +756,71 @@ module Mapas
 		consultado = DELEG_RESP_3
 		decide = DELEG_RESP_1
 
-		# Variables que por dimension modelan el número de decisiones vacías (sin responsables)
+		# ES: Variables que por dimension modelan el número de decisiones vacías (sin responsables)
+		# EN: Variables that by dimension model the number of empty decisions (without any responsible)
 		emptyConsultado = 0
 		emptyDecide = 0
 
-		# Obtiene los ids de TODAS las decisiones de la dimension para esa empresa:
+		# ES: Obtiene los ids de TODAS las decisiones de la dimension para esa empresa:
+		# EN: Get the ids of ALL decisions of the dimension for that enterprise:
 		decsByDim = GovernanceDecision.where(dimension: dim, enterprise_id: mapa.enterprise.id)
 		decsByDim = decsByDim.map {|dec| dec.id}
 
-		# Obtiene TODOS los detalles del mapa, en "Consultado", y relacionados a alguna decision de la dimension:
+		# ES: Obtiene TODOS los detalles del mapa, en "Consultado", y relacionados a alguna decision de la dimension:
+		# EN: Get ALL the map details, on "Consulted", and related at any decision of the dimension:
 		consultadoTotal = MapDetail.where(decision_map_id: mapa.id, responsability_type: consultado, governance_decision_id: decsByDim)
 		
-		# Mapea los IDS de las decisiones que han sido detalladas:
+		# ES: Mapea los IDS de las decisiones que han sido detalladas:
+		# EN: Map the IDS of the decision that have been detailed:
 		decsConsultadoIds = consultadoTotal.map {|detail| detail.governance_decision_id}
-		# Obtiene las decisiones DEPURADAS (Sin repetidas) que han sido detalladas en el mapa:
+		# ES: Obtiene las decisiones DEPURADAS (Sin repetidas) que han sido detalladas en el mapa:
+		# EN: Get the decisiones FILTERED (withput repeated ones) that have been detailed in the map:
 		decsConsultado = GovernanceDecision.where(id: decsConsultadoIds).uniq
-		# El total para "Consultado", será el número de decisiones de esa dimension, que han sido detalladas:
+		# ES: El total para "Consultado", será el número de decisiones de esa dimension, que han sido detalladas:
+		# EN: The total for "Consulted", will be the number of decisions of that dimension, that have been detailed:
 		dimConsultadoTotal = decsByDim.size
 		decsConsultado.size == 0 ? contDec = 0 : contDec = decsConsultado.size 
 		emptyConsultado = decsByDim.size - contDec
 
 
-		# Obtiene TODOS los detalles del mapa, en "Decide", y relacionados a alguna decision de la dimension:
+		# ES: Obtiene TODOS los detalles del mapa, en "Decide", y relacionados a alguna decision de la dimension:
+		# EN: Get ALL the map details, on "Decides", and related at any decision of the dimension:
 		decideTotal = MapDetail.where(decision_map_id: mapa.id, responsability_type: decide, governance_decision_id: decsByDim)
 		
-		# Mapea los IDS de las decisiones que han sido detalladas:
+		# ES: Mapea los IDS de las decisiones que han sido detalladas:
+		# EN: Map the IDS of the decision that have been detailed:
 		decsDecideIds = decideTotal.map {|detail| detail.governance_decision_id}
-		# Obtiene las decisiones DEPURADAS (Sin repetidas) que han sido detalladas en el mapa:
+		# ES: Obtiene las decisiones DEPURADAS (Sin repetidas) que han sido detalladas en el mapa:
+		# EN: Get the decisiones FILTERED (withput repeated ones) that have been detailed in the map:
 		decsDecide = GovernanceDecision.where(id: decsDecideIds).uniq
-		# El total para "Decide", será el número de decisiones de esa dimension, que han sido detalladas:
+		# ES: El total para "Decide", será el número de decisiones de esa dimension, que han sido detalladas:
+		# EN: The total for "Decides", will be the number of decisions of that dimension, that have been detailed:
 		dimDecideTotal = decsByDim.size
 		decsDecide.size == 0 ? contDec = 0 : contDec = decsDecide.size 
 		emptyDecide = decsByDim.size - contDec
 
-		# Arreglos para llevar el calculo de cuantas decisiones caen en cada arquetipo
-		statsConsultado = [0, 0, 0, 0, 0, 0, 0] # Cada posicion para cada arquetipo en el orden que vengan
-		statsDecide = [0, 0, 0, 0, 0, 0, 0] # Cada posicion para cada arquetipo en el orden que vengan
+		# ES: Arreglos para llevar el calculo de cuantas decisiones caen en cada arquetipo
+		# EN: Arrays to count the number of decisions of each archetype
 
-		# Indices para controlar la ubicacion de cada arquetipo:
-		indexMB = 0 # Monarquia de Negocio
-		indexMTI = 0 # Monarquia de TI
-		indexFed = 0 # Federal
-		indexDuo = 0 # Duopolio de TI
-		indexFeu = 0 # Feudal
-		indexAna = 0 # Anarquia
-		indexNA = 0  # N/A
+		# ES: Cada posicion para cada arquetipo en el orden que vengan
+		# EN: Each position for each archetype in the coming order
+		statsConsultado = [0, 0, 0, 0, 0, 0, 0] 
+		# ES: Cada posicion para cada arquetipo en el orden que vengan
+		# EN: Each position for each archetype in the coming order
+		statsDecide = [0, 0, 0, 0, 0, 0, 0] 
 
-		# Asigna los indices:
+		# ES: Indices para controlar la ubicacion de cada arquetipo:
+		# EN: Indexes to control the location of each archetype:
+		indexMB = 0  # ES: Monarquia de Negocio - EN: Business Monarchy
+		indexMTI = 0 # ES: Monarquia de TI - EN: IT Monarchy
+		indexFed = 0 # ES: Federal - EN: Federal
+		indexDuo = 0 # ES: Duopolio de TI - EN: IT Duopoly
+		indexFeu = 0 # ES: Feudal - EN: Feudal
+		indexAna = 0 # ES: Anarquia - EN: Anarchy
+		indexNA = 0  # ES: N/A - EN: N/A
+
+		# ES: Asigna los indices:
+		# EN: Assign the indexes:
 		arquetipos.each_with_index do |arch, i|
 			case arch.name
 			when 'Business Monarchy'
@@ -776,8 +841,9 @@ module Mapas
 		end
 
 
-		# ==================== CONSULTADO ==================== #
-		# Recorre cada decision en consultado, y cuando concuerde con un arquetipo, va sumando su valor:
+		# ==================== ES: CONSULTADO - EN: CONSULTED ==================== #
+		# ES: Recorre cada decision en consultado, y cuando concuerde con un arquetipo, va sumando su valor:
+		# EN: Go through each decision under "consulted", and when any fits an archetype, adds up its value:
 		decsConsultado.each do |dec|
 
 			detailTemp = consultadoTotal.select{|det| det.governance_decision_id == dec.id}
@@ -785,7 +851,8 @@ module Mapas
 			responsables = GovernanceStructure.where(id: respsIds)
 			myProfiles = responsables.map {|resp| resp.profile}
 
-			# Las siguientes variables definen la existencia y cantidad de cada perfil:
+			# ES: Las siguientes variables definen la existencia y cantidad de cada perfil:
+			# EN: The next variables define the existence and quantity for each profile:
 			ejecTI = 0
 			personalTI = 0
 			liderUN = 0
@@ -795,12 +862,14 @@ module Mapas
 			grupoUN = 0
 			individuos = 0
 			noExiste = 0
-			# Las siguientes variables controlan la exclusion de perfiles en determinados casos:
-			otrosMonTI = false # Otros para Monarquia de TI
-			otrosDuoTI = false # Otros para Duopolio de TI
-			otrosFeudal = false # Otros para Feudal
+			# ES: Las siguientes variables controlan la exclusion de perfiles en determinados casos:
+			# EN: The next variables control the exclusion of profiles in certain cases:
+			otrosMonTI = false  # ES: Otros para Monarquia de TI - EN: Others for IT Monarchy
+			otrosDuoTI = false  # ES: Otros para Duopolio de TI - EN: Others for IT Duopoly
+			otrosFeudal = false # ES: Otros para Feudal - EN: Others for Feudal
 
-			# Se recorren los perfiles y asignan segun sea el caso
+			# ES: Se recorren los perfiles y asignan segun sea el caso
+			# EN: Go through the profiles and assign according the case
 			myProfiles.each do |perfil|
 				case perfil
 				when PERFIL_EST_1
@@ -848,17 +917,20 @@ module Mapas
 				end
 			end
 
-			# Con los perfiles se procede a validar cada regla, y si concuerda lo asigna y deja de buscar:
+			# ES: Con los perfiles se procede a validar cada regla, y si concuerda lo asigna y deja de buscar:
+			# EN: With the profiles, proceed to validate each rule, and if fits any of them, stop searching the archetype:
 
-			# ========== MONARQUIA DE NEGOCIO
+			# ========== ES: MONARQUIA DE NEGOCIO - EN: BUSINESS MONARCHY
 			if (myProfiles.size == 1) && (myProfiles[0] == PERFIL_EST_8)
-				# Regla: Monarquia de Negocio
+				# ES: Regla: Monarquia de Negocio
+				# EN: Rule: Business Monarchy
 				statsConsultado[indexMB] += 1
 
-			# ========= MONARQUIA DE TI
+			# ========= ES: MONARQUIA DE TI - EN: IT MONARCHY
 			elsif !otrosMonTI
 				if (ejecTI > 0 || personalTI > 0)
-					# Regla: Monarquia de TI
+					# ES: Regla: Monarquia de TI
+					# EN: Rule: IT Monarchy
 					statsConsultado[indexMTI] += 1
 				else
 					statsConsultado[indexFeu] += 1
@@ -866,18 +938,22 @@ module Mapas
 
 			# ========= FEDERAL
 			elsif grupoUN > 0
-				# Regla: Federal
+				# ES: Regla: Federal
+				# EN: Rule: Federal
 				statsConsultado[indexFed] += 1
 
-			# ========= DUOPOLIO DE TI
+			# ========= ES: DUOPOLIO DE TI - EN: IT DUOPOLY
 		    elsif !otrosDuoTI
-				# (Ejecutivo de TI | Personal de TI) & (Líder Unidad de Negocio | Dueño(s) de proceso )
+				# ES: (Ejecutivo de TI | Personal de TI) & (Líder Unidad de Negocio | Dueño(s) de proceso )
+				# EN: (IT Executive | IT Staff) & (Business Unit Leader | Process Owner(s) )
 				if ( (ejecTI > 0 || personalTI > 0) && (liderUN > 0 || processOw > 0))
 					statsConsultado[indexDuo] += 1
-				# (Ejecutivo de TI | Personal de TI) & (Ejecutivo de Negocio)
+				# ES: (Ejecutivo de TI | Personal de TI) & (Ejecutivo de Negocio)
+				# EN: (IT Executive | IT Staff) & (Business Executive)
 				elsif ( (ejecTI > 0 || personalTI > 0) && ejecNegocio > 0)
 					statsConsultado[indexDuo] += 1
-				# Negocio-TI (PERFIL_EST_3) -> Selección automática
+				# ES: Negocio-TI (PERFIL_EST_3) -> Selección automática
+				# EN: Business-IT (PERFIL_EST_3) -> Automatic selection
 				elsif negocioTI > 0
 					statsConsultado[indexDuo] += 1
 				else
@@ -886,25 +962,28 @@ module Mapas
 
 			# ========== FEUDAL
 		    elsif !otrosFeudal
-				# Líder de Unidad de Negocio (PERFIL_EST_4) ó Dueño(s) de proceso (PERFIL_EST_6)
+				# ES: Líder de Unidad de Negocio (PERFIL_EST_4) ó Dueño(s) de proceso (PERFIL_EST_6)
+				# EN: Business Unit Leader (PERFIL_EST_4) or Process Owner(s) (PERFIL_EST_6)
 				if ( (liderUN > 0 || processOw > 0 ) )
 					statsConsultado[indexFeu] += 1
-				# Varios Ejecutivos de Negocio (PERFIL_EST_8)
+				# ES: Varios Ejecutivos de Negocio (PERFIL_EST_8)
+				# EN: Group of Business Executives (PERFIL_EST_8)
 				elsif ejecNegocio > 1
 					statsConsultado[indexFeu] += 1
 				else
 					statsConsultado[indexFeu] += 1
 				end
 
-			# ========== ANARQUIA
+			# ========== ES: ANARQUIA - EN: ANARCHY
 		    elsif individuos > 0
 				statsConsultado[indexAna] += 1
 
-			# ========= NO EXISTE/NO APLICA
+			# ========= ES: NO EXISTE/NO APLICA - EN: NOT EXISTENT/NOT AVAILABLE
 		    elsif noExiste > 0
 				statsConsultado[indexNA] += 1
 
-			# ======== FINAL, NO ENTRO A NINGUNA REGLA, LO ASIGNA A FEUDAL
+			# ======== ES: FINAL, NO ENTRO A NINGUNA REGLA, LO ASIGNA A FEUDAL
+			# ======== EN: FINAL, NO RULE ACCOMPLISHED, ASSIGN IT TO FEUDAL
 		    else
 		    	statsConsultado[indexFeu] += 1
 			end
@@ -912,10 +991,12 @@ module Mapas
 
 		end # decsConsultado.each
 
-		# Al finalizar de recorrer las decisiones de consultado en el arreglo statsConsultado están los resultados
+		# ES: Al finalizar de recorrer las decisiones de consultado en el arreglo statsConsultado están los resultados
+		# EN: At the end of the loop of consulte decisions, in the array "statsConsultado" are the results
 
-		# ==================== DECIDE ==================== #
-		# Recorre cada decision en decide, y cuando concuerde con un arquetipo, va sumando su valor:
+		# ==================== ES: DECIDE - EN: DECIDES ==================== #
+		# ES: Recorre cada decision en decide, y cuando concuerde con un arquetipo, va sumando su valor:
+		# EN: Go through each decision in "decides" and when any fits an archetype, adds up its value:
 		decsDecide.each do |dec|
 
 			detailTemp = decideTotal.select{|det| det.governance_decision_id == dec.id}
@@ -923,20 +1004,24 @@ module Mapas
 			responsables = GovernanceStructure.where(id: respsIds)
 			myProfiles = responsables.map {|resp| resp.profile}
 
-			# Obtiene los perfiles de consultado para esta decision, pues se utilizan en el algoritmo:
+			# ES: Obtiene los perfiles de consultado para esta decision, pues se utilizan en el algoritmo:
+			# EN: Get the profiles of "consulted" for this decision, given the fact that are reequired for the algorithm:
 			consultadoProfiles = consultadoTotal.select{|det| det.governance_decision_id == dec.id}
 			consultadoProfiles = consultadoProfiles.map {|det| det.governance_structure_id}
 			consultadoProfiles = GovernanceStructure.where(id: consultadoProfiles)
 			consultadoProfiles = consultadoProfiles.map {|resp| resp.profile}
-			# Elimina de los perfiles de consultado los valores No Existe y No Aplica:
+			# ES: Elimina de los perfiles de consultado los valores No Existe y No Aplica:
+			# EN: Delete from the "consulted" profiles the values Not Existen and Not Available:
 			consultadoProfiles.delete_if {|perfil| perfil == PERFIL_EST_9 }
 
 			if consultadoProfiles.size == 0
-				# No es consultado por nadie, es Feudal si decide más de una estructura:
+				# ES: No es consultado por nadie, es Feudal si decide más de una estructura:
+				# EN: Is not consulted by anyone, is Feudal if more than 1 structure decides:
 				if myProfiles.size > 1
 					statsDecide[indexFeu] += 1
 				else
-					# Decide sólo una estructura, toma su perfil y lo asocia a un arquetipo
+					# ES: Decide sólo una estructura, toma su perfil y lo asocia a un arquetipo
+					# EN: Decides only 1 structure, take its profile and associate it to an archetype
 					perfil = myProfiles[0]
 					case perfil
 					when PERFIL_EST_1, PERFIL_EST_2
@@ -959,8 +1044,12 @@ module Mapas
 				
 				end				
 			else
-				# Si es consultado por alguien, procede a evaluar las reglas normales:
-				# Las siguientes variables definen la existencia y cantidad de cada perfil:
+				# ES: Si es consultado por alguien, procede a evaluar las reglas normales:
+				# EN: If it's consulted by anyone, proceed to evaluate the regular rules:
+
+				# ES: Las siguientes variables definen la existencia y cantidad de cada perfil:
+				# EN: The next variables define the existence and quantity for each profile:
+
 				ejecTI = 0
 				personalTI = 0
 				liderUN = 0
@@ -970,16 +1059,19 @@ module Mapas
 				grupoUN = 0
 				individuos = 0
 				noExiste = 0
-				# Las siguientes variables controlan la exclusion de perfiles en determinados casos:
-				otrosMonTI = false # Otros para Monarquia de TI
-				otrosDuoTI = false # Otros para Duopolio de TI
-				otrosFeudal = false # Otros para Feudal
-				# Las siguientes variables controlan la exclusion de perfiles en determinados casos de consultado:
-				otrosMonTIConsultado = false # Otros para Monarquia de TI
-				otrosDuoTIConsultado = false # Otros para Duopolio de TI
-				otrosFeudalConsultado = false # Otros para Feudal
+				# ES: Las siguientes variables controlan la exclusion de perfiles en determinados casos:
+				# EN: The next variables control the exclusion of profiles in certain cases:
+				otrosMonTI = false  # ES: Otros para Monarquia de TI - EN: Others for IT Monarchy
+				otrosDuoTI = false  # ES: Otros para Duopolio de TI - EN: Others for IT Duopoly
+				otrosFeudal = false # ES: Otros para Feudal - EN: Others for Feudal
+				# ES: Las siguientes variables controlan la exclusion de perfiles en determinados casos de consultado:
+				# EN: The next variables control the exclusion of profiles in certain cases:
+				otrosMonTIConsultado = false  # ES: Otros para Monarquia de TI - EN: Others for IT Monarchy
+				otrosDuoTIConsultado = false  # ES: Otros para Duopolio de TI - EN: Others for IT Duopoly
+				otrosFeudalConsultado = false # ES: Otros para Feudal - EN: Others for Feudal
 
-				# Se recorren los perfiles y asignan segun sea el caso
+				# ES: Se recorren los perfiles y asignan segun sea el caso
+				# EN: Go through the profiles and assign according the case
 				myProfiles.each do |perfil|
 					case perfil
 					when PERFIL_EST_1
@@ -1027,7 +1119,8 @@ module Mapas
 					end
 				end
 
-				# Se recorren los perfiles consultado y asignan segun sea el caso
+				# ES: Se recorren los perfiles consultado y asignan segun sea el caso
+				# EN: Go through the "consulted" profiles and assign according the case
 				consultadoProfiles.each do |perfil|
 					case perfil
 					when PERFIL_EST_1
@@ -1059,17 +1152,20 @@ module Mapas
 				end
 
 
-				# Con los perfiles se procede a validar cada regla, y si concuerda lo asigna y deja de buscar:
+				# ES: Con los perfiles se procede a validar cada regla, y si concuerda lo asigna y deja de buscar:
+				# EN: With the profiles, proceed to validate each rule, and if fits any of them, stop searching the archetype:
 
-				# ========== MONARQUIA DE NEGOCIO
+				# ========== ES: MONARQUIA DE NEGOCIO - EN: BUSINESS MONARCHY
 				if (myProfiles.size == 1) && (myProfiles[0] == PERFIL_EST_8)
-					# Regla: Monarquia de Negocio
+					# ES: Regla: Monarquia de Negocio
+					# EN: Rule: Business Monarchy
 					statsDecide[indexMB] += 1
 
-				# ========= MONARQUIA DE TI
+				# ========= ES: MONARQUIA DE TI - EN: IT MONARCHY
 				elsif !otrosMonTI
 					if ( (ejecTI > 0 || personalTI > 0) && !otrosMonTIConsultado )
-						# Regla: Monarquia de TI
+						# ES: Regla: Monarquia de TI
+						# EN: Rule: IT Monarchy
 						statsDecide[indexMTI] += 1
 					else
 						statsDecide[indexDuo] += 1
@@ -1078,21 +1174,25 @@ module Mapas
 				# ========= FEDERAL
 				elsif grupoUN > 0
 					if consultadoProfiles.include?(PERFIL_EST_5)
-						# Regla consultado: Le consulta al menos a 1, y concuerda con Federal
+						# ES: Regla consultado: Le consulta al menos a 1, y concuerda con Federal
+						# EN: Consulted rule: Consults at least 1, and fits in Federal
 						statsDecide[indexFed] += 1
 					else
 						statsDecide[indexDuo] += 1
 					end
 					
-				# ========= DUOPOLIO DE TI
+				# ========= ES: DUOPOLIO DE TI . EN: IT DUOPOLY
 			    elsif !otrosDuoTI
-					# (Ejecutivo de TI | Personal de TI) & (Líder Unidad de Negocio | Dueño(s) de proceso )
+					# ES: (Ejecutivo de TI | Personal de TI) & (Líder Unidad de Negocio | Dueño(s) de proceso )
+					# EN: (IT Executive | IT Staff) & (Business Unit Leader | Process Owner(s) )
 					if ( (ejecTI > 0 || personalTI > 0) && (liderUN > 0 || processOw > 0))
 						statsDecide[indexDuo] += 1
-					# (Ejecutivo de TI | Personal de TI) & (Ejecutivo de Negocio)
+					# ES: (Ejecutivo de TI | Personal de TI) & (Ejecutivo de Negocio)
+					# EN: (IT Executive | IT Staff) & (Business Executive)
 					elsif ( (ejecTI > 0 || personalTI > 0) && ejecNegocio > 0)
 						statsDecide[indexDuo] += 1
-					# Negocio-TI (PERFIL_EST_3) -> Selección automática
+					# ES: Negocio-TI (PERFIL_EST_3) -> Selección automática
+					# EN: Business-IT (PERFIL_EST_3) -> Automatic selection
 					elsif negocioTI > 0
 						statsDecide[indexDuo] += 1
 					else
@@ -1101,25 +1201,28 @@ module Mapas
 
 				# ========== FEUDAL
 			    elsif !otrosFeudal
-					# Líder de Unidad de Negocio (PERFIL_EST_4) ó Dueño(s) de proceso (PERFIL_EST_6)
+					# ES: Líder de Unidad de Negocio (PERFIL_EST_4) ó Dueño(s) de proceso (PERFIL_EST_6)
+					# EN: Business Unit Leader (PERFIL_EST_4) or Process Owner(s) (PERFIL_EST_6)
 					if ( (liderUN > 0 || processOw > 0 ) )
 						statsDecide[indexFeu] += 1
-					# Varios Ejecutivos de Negocio (PERFIL_EST_8)
+					# ES: Varios Ejecutivos de Negocio (PERFIL_EST_8)
+					# EN: Group of Business Executives (PERFIL_EST_8)
 					elsif ejecNegocio > 1
 						statsDecide[indexFeu] += 1
 					else
 						statsDecide[indexDuo] += 1
 					end
 
-				# ========== ANARQUIA
+				# ========== ES: ANARQUIA - EN: ANARCHY
 			    elsif individuos > 0
 					statsDecide[indexAna] += 1
 
-				# ========= NO EXISTE/NO APLICA
+				# ========= ES: NO EXISTE/NO APLICA - EN: NOT EXISTENT/NOT AVAILABLE
 			    elsif noExiste > 0
 					statsDecide[indexNA] += 1
 
-				# ======== FINAL, NO ENTRO A NINGUNA REGLA ANTES, LO ASIGNA A DUOPOLIO
+				# ======== ES: FINAL, NO ENTRO A NINGUNA REGLA ANTES, LO ASIGNA A DUOPOLIO
+				# ======== EN: FINAL, NO RULE ACCOMPLISHED, ASSIGN IT TO FEUDAL
 			    else
 			    	statsDecide[indexDuo] += 1
 				end
@@ -1129,13 +1232,16 @@ module Mapas
 
 		end # decsDecide.each
 
-		# Suma los valores No Aplica y No Existe con los inexistentes:
+		# ES: Suma los valores No Aplica y No Existe con los inexistentes:
+		# EN: Sums up the values Not Available and Not Existent with the empty ones:
 		statsConsultado[indexNA] += emptyConsultado
 		statsDecide[indexNA] += emptyDecide
 
-		# En este punto ya se tienen las estadisticas tanto de consultado, como de decide, se deben formatear como porcentajes:
+		# ES: En este punto ya se tienen las estadisticas tanto de consultado, como de decide, se deben formatear como porcentajes:
+		# EN: At this point, we got the statistics of "consulted", and "decides", format them as percentages:
 
-		# Calcula los 2 mayores valores de decide:
+		# ES: Calcula los 2 mayores valores de decide:
+		# EN: Calculates the 2 higher values of decides:
 		mayor = 0
 		mayor2 = 0
 		
@@ -1153,16 +1259,19 @@ module Mapas
 		
 		
 
-		# Formatea a porcentaje y float:
+		# ES: Formatea a porcentaje y float:
+		# EN: Format as percentage and float:
 		mayor = ((mayor.to_f / dimDecideTotal.to_f) * 100).round(2)
 		mayor = mayor.to_s
 		mayor2 = ((mayor2.to_f / dimDecideTotal.to_f) * 100).round(2)
 		mayor2 = mayor2.to_s
 
 
-		# Formateo de consultado:
+		# ES: Formateo de consultado:
+		# EN: "Consulted" formating:
 		statsConsultado.each_with_index do |stat, i|
-			# Si el total de decisiones es 0, asigna a todo '-', de resto asignasu porcentaje
+			# ES: Si el total de decisiones es 0, asigna a todo '-', de resto asigna su porcentaje
+			# EN: If the total of decisions are 0, assign '-' to all, otherwise assing its percentage
 			if dimConsultadoTotal == 0
 				statsConsultado[i] = '-'
 			else
@@ -1172,9 +1281,11 @@ module Mapas
 			end
 		end
 
-		# Formateo de decide:
+		# ES: Formateo de decide:
+		# EN: "Decides" formating:
 		statsDecide.each_with_index do |stat, i|
-			# Si el total de decisiones es 0, asigna a todo '-', de resto asignasu porcentaje
+			# ES: Si el total de decisiones es 0, asigna a todo '-', de resto asignasu porcentaje
+			# EN: If the total of decisions are 0, assign '-' to all, otherwise assing its percentage
 			if dimDecideTotal == 0
 				statsDecide[i] = '-'
 			else
@@ -1184,7 +1295,8 @@ module Mapas
 			end
 		end
 
-		# Formatea los 2 mayores valores de decide para marcarlos:
+		# ES: Formatea los 2 mayores valores de decide para marcarlos:
+		# EN: Format the 2 higher values of "decides" to mark them:
 		statsDecide.each_with_index do |stat, i|
 			if stat.eql?(mayor)
 				statsDecide[i] = 'MR' << statsDecide[i]
@@ -1194,7 +1306,8 @@ module Mapas
 		end
 
 
-		# Construye la respuesta, 2 arreglos, uno para consultado y otro para decide:
+		# ES: Construye la respuesta, 2 arreglos, uno para consultado y otro para decide:
+		# EN: Builds the answer, 2 arrays, one for "consulted" and other one for "decides":
 		respuesta = [statsConsultado, statsDecide]
 
 
@@ -1203,30 +1316,36 @@ module Mapas
 	end # FIN METODO
 	# -----------------
 
-	# Obtiene la informacion de las funciones de una estructura, y sus conflictos (Via Método):
+	# ES: Obtiene la informacion de las funciones de una estructura, y sus conflictos (Via Método):
+	# EN: Get the information of the responsibilities of a structure, and its conflicts (Through method):
 	def get_functions_method(estId)
 		est = GovernanceStructure.find(estId)
 		emp = est.enterprise
 		funcs = est.governance_responsabilities
-		# Para conocer los conflictos, por cada funcion saca sus responsables, depura y compara:
+		# ES: Para conocer los conflictos, por cada funcion saca sus responsables, depura y compara:
+		# EN: To know the conflicts, for each responsibility get its responsibles, filter and compare:
 		conflictos = []
 		funcs.each do |f|
 			ests = f.governance_structures
-			# Depura de las estructuras asociadas, para dejar sólo las de la misma empresa.
+			# ES: Depura de las estructuras asociadas, para dejar sólo las de la misma empresa.
+			# EN: Filter the related structures, to add only the ones from the enterprise
 			depuradas = []
 
 			ests.each do |est|
-				# Recorre todas las estructuras, si son de la misma empresa, la va agregando:
+				# ES: Recorre todas las estructuras, si son de la misma empresa, la va agregando:
+				# EN: Loop all the structures, if are of the same enterprise, add it:
 				if est.enterprise_id == emp.id
 					depuradas.push(est)
 				end
 			end
 
-			# Re-asigna:
+			# ES: Re-asigna:
+			# EN: Re-Assign:
 			ests = depuradas
 			
 			if ests.size > 1
-				# Tiene este responsable, y al menos otro adicional
+				# ES: Tiene este responsable, y al menos otro adicional
+				# EN: Has this responsible, and at least another one
 				otros = ests.select{|o| o.id != est.id}
 				temp = f.name
 				otros.each do |o|
@@ -1236,15 +1355,17 @@ module Mapas
 				if temp.include? '|'
 					conflictos.push(temp)
 				end
-				# String del tipo: Nombre_funcion|estructura conflictiva1|estructura conflictiva2.....
+				# ES: String del tipo: Nombre_funcion|estructura conflictiva1|estructura conflictiva2.....
+				# EN: String formated as: Responsibility_name|Conflicted Structure 1|Conflicted Structure 2....
 			end
 		end
 
 		funcs = est.governance_responsabilities.map {|f| f.name}
 
-		# Si hay conflictos, los envia en el mismo arreglo, pero con un elemento de separación:
+		# ES: Si hay conflictos, los envia en el mismo arreglo, pero con un elemento de separación:
+		# EN: If there are conflicts, send them in the same array, but with a separator element:
 		if conflictos.size > 0
-			funcs.push("#$%&/()=") # Separacion
+			funcs.push("#$%&/()=") # ES: Separacion - EN: Separator
 			conflictos.each do |c|
 				funcs.push(c)
 			end

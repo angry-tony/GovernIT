@@ -76,14 +76,14 @@ $(function () {
     buttons: {
       "Accept": function()
       {
-      	// Habilita de nuevo la seccion de opciones:
+      	// Enable again the options section:
       	$("#opciones").html("<button type='button' class='btn btn-default' style='width:20%;' id='compareArchetype'>Compare archetype's report</button>");
-      	// Esconde y reinicia los checks:
+      	// Hide and restart the checkboxes:
       	$(".invCheck").hide();
       	$(".invCheck").prop("checked", false);
-      	// Desbloquea los checks:
+      	// Enable the checkboxes:
 		$(".invCheck").prop("disabled", false);
-      	// Vuelve a habilitar los botones de identificacion:
+      	// Enable the identification buttons:
       	$(".identify").prop("disabled", false);
         $(this).html("");
         $(this).dialog("close");
@@ -91,15 +91,15 @@ $(function () {
     },
     close: function() 
     {
-      // Habilita de nuevo la seccion de opciones:
+      // Enable again the options section:
       $("#opciones").html("<button type='button' class='btn btn-default' style='width:20%;' id='compareArchetype'>Compare archetype's report</button>");	
-      // Esconde y reinicia los checks:
+      //  Hide and restart the checkboxes:
 	  $(".invCheck").hide();
 	  $(".invCheck").prop("checked", false);
-	  // Desbloquea los checks:
+	  // Enable the checkboxes:
 	  $(".invCheck").prop("disabled", false);
 
-	  // Vuelve a habilitar los botones de identificacion:
+	  // Enable the identification buttons:
   	  $(".identify").prop("disabled", false);
       $(this).html("");
       $(this).dialog("close");
@@ -115,25 +115,25 @@ $(function () {
 $( document ).ready(function() {
 
     var structures; 
-	// Obtiene las estructuras desde el inicio, para sólo cargarlas una vez:
+	// Get the structures from the begining, to load them just once:
 	$.get('./get_structures', function(data)
 	{
 		structures = data;
 	});
 
-	// Obtiene los arquetipos desde el inicio, para sólo cargarlos una vez:
+	// Get the archetypes from the begining, to load them just once:
 	$.get('./get_archetypes', function(data)
 	{
 		archetypes = data;
 	});
 
-	// Obtiene las dimensiones desde el inicio, para sólo cargarlas una vez:
+	// Get the dimensions from the begining, to load them just once:
 	$.get('./get_dimensions', function(data)
 	{
 		dimensions = data;
 	});
 
-	// Obtiene el total de decisiones por dimension desde el inicio, para sólo cargarlos una vez:
+	// Get the total of decisions by dimension from the begining, to load them just once:
 	$.get('./get_decs_stats_by_dim', function(data)
 	{
 		totalDecsByDim = data;
@@ -142,9 +142,9 @@ $( document ).ready(function() {
 
 
 
-	// Crear nuevo mapa:
+	// Create new map:
 	$(".new_map").click(function(){
-		// Despliega el div de creación, si no está desplegado ya:
+		// Deploys the creation div, if is not deployed already:
 		var anterior = document.getElementById("div_create");
 		var html;
 		if (anterior == null) 
@@ -186,7 +186,7 @@ $( document ).ready(function() {
 					'</div>'+
 				'</div>';
 
-				// Lo agrega justo después del titulo:
+				// Add it right after the title:
 			$(html).insertAfter("#title");
 		};
 	});
@@ -196,7 +196,7 @@ $( document ).ready(function() {
 });
 
 
-// GUARDAR MAPA DE DECISIÓN:
+// SAVE THE DECISION MAP:
 $(document).on('click', "img.add", function() {
 	var name = $("#nameMap").val();
 	var desc = $("#descMap").val();
@@ -206,10 +206,10 @@ $(document).on('click', "img.add", function() {
 	var typeName = $("#typeMap option:selected").text();
 
 	var html;
-	// Si alguna de las 2 es vacío, no deja guardar:
+	// If any of the 2 is empty, don't allow to save:
 	if (name == '' || desc == '' || est == 'N' || type == 'N') 
 	{
-		// Elimina los bordes y color de fondo:
+		// Delete the borders and background-color:
 		$("#div_create").css({'border-color': 'none',
                               'background-color': 'none',
                               'color': 'none'});
@@ -218,12 +218,12 @@ $(document).on('click', "img.add", function() {
 	} 
 	else
 	{
-		// Crea el mapa via AJAX:
+		// Create the map through AJAX:
 	    $.post('./add_map', {'name' : name, 'desc' : desc, 'est' : est, 'type' : type}, function(data)
     	{
     		if (data.id != null) 
     		{
-    			// Creado con éxito, remueve el div de creación, y lo agrega en el listado:
+    			// Succesfully created, remove the creation div, and add it on the list:
     			$("#div_create").remove();
     			var idMap = 'img' + data.id;
     			var classMap = 'edit'; var identifyMap = '';
@@ -253,7 +253,7 @@ $(document).on('click', "img.add", function() {
 		   					'<span style="color:green;font-weight:bold;">' +' SAVED!</span>'+
 		   				'</p>';
 
-		   		// Remueve el aviso de no mapas, si existe:
+		   		// Remove the no-maps message, if exists:
 		   		if (document.getElementById("noMapas") != null) 
 		   		{
 		   			$("#noMapas").remove();
@@ -269,7 +269,7 @@ $(document).on('click', "img.add", function() {
     		else
     		{
     			// ERROR:
-    			// Elimina los bordes y color de fondo:
+    			// Delete the borders and background-color:
 				$("#div_create").css({'border-color': 'none',
 		                              'background-color': 'none',
 		                              'color': 'none'});
@@ -281,43 +281,41 @@ $(document).on('click', "img.add", function() {
 	};
 });
 
-// DESCARTAR MAPA DE DECISIÓN:
+// DISCARD DECISION MAP:
 $(document).on('click', "img.del", function() {
-	// Elimina el div de creacion:
+	// Remove the creation div:
 	$("#div_create").remove();
 });
 
-// EDITAR MAPA DE DECISIÓN (Arquetipos):
+// EDIT DECISION MAP (Archetypes):
 $(document).on('click', "img.edit", function() {
-	// Obtiene el id del mapa:
+	// Get the mpa's id:
 	var idMapa = this.id;
 	idMapa = idMapa.replace("img","").trim();
-	// lo pasa al input hidden:
+	// Pass it to the hidden input:
 	$("#formIdMap").val(idMapa);
-	// Y envia el formulario:
+	// And submit the form:
 	$("#edit_form").submit();
 });
 
-// EDITAR MAPA DE DECISIÓN (Delegación de responsabilidades):
+// EDIT DECISION MAP (Responsibilities delegation):
 $(document).on('click', "img.edit_2", function() {
-	// Obtiene el id del mapa:
+	// Get the map's id:
 	var idMapa = this.id;
 	idMapa = idMapa.replace("img","").trim();
-	// lo pasa al input hidden:
+	// Pass it to the hidden input:
 	$("#formIdMap2").val(idMapa);
-	// Y envia el formulario:
+	// And submits the form:
 	$("#edit_form_2").submit();
 });
 
-// INDETIFICAR ARQUETIPO DE GOBIERNO (Delegación de responsabilidades):
+// IDENTIFY GOVERNANCE ARCHETYPE (Responsibilities delegation):
 $(document).on('click', "img.identify", function() 
 {
-	// Lo primero que hace es deshabilitar los demás mecanismos de identificacion:
+	// First of all, disable the other identification mechanisms:
 	$(".identify").prop("disabled", true);
 
-	//$("#"+this.id).attr("src", "'http://jimpunk.net/Loading/wp-content/uploads/loading52.gif'");
-
-	// Obtiene el id del mapa:
+	// Get the map's id:
 	var idMapa = this.id;
 	idMapa = idMapa.replace("identify","").trim();
 
@@ -326,7 +324,7 @@ $(document).on('click', "img.identify", function()
 
 
 	var html = '';
-	// Construye el contenido HTML:
+	// Build the HTML content:
 	html+= '<div><table>'+
 				'<tr>'+
 					'<td colspan="3" class="blank"></td>'+
@@ -355,7 +353,7 @@ $(document).on('click', "img.identify", function()
 					'<td>Consulted</td>'+
 				'</tr>';
 
-		// Renderiza el total de filas ubicando el arquetipo:
+		// Renders the total of lines locating the archetype:
 		html+= '<tr><td rowspan="7"><img src="/assets/archetype_title_axis_en.png"></td>';
 
 		html+=  '<td>'+ archetypes[0].name +'</td>'+
@@ -363,14 +361,14 @@ $(document).on('click', "img.identify", function()
 		var contArchs = 1;
 		var valor;
 
-		// Consulta la distribución:
+		// Search the distribution:
 	    $.post('./identify_archetype', {'idMap' : idMapa}, function(data)
     	{
 			
-    		for (var i = 0; i < data.length; i++) // En el index 0 va el nombre del mapa
+    		for (var i = 0; i < data.length; i++) // In the index 0 is the map's name
     		{
     			valor = data[i];
-    			// Si i+1 MOD 10 = 0, cambió de linea, renderiza otro arquetipo
+    			// If i+1 MOD 10 = 0, change the line, renders other archetype
     			var modulo = 1;
     			if (i > 0) 
     			{
@@ -393,18 +391,18 @@ $(document).on('click', "img.identify", function()
 
     			html+= '<td';
 
-    			// Si es mayor, lo marca:
+    			// If its higher, mark it:
     			if (valor.charAt(0) == 'M' ) 
     			{
     				if (valor.charAt(1) == 'R') 
     				{
-    					// Lo marca en rojo
+    					// Mark it with red
     					html+= ' class="maxRed" >'
     					valor = valor.replace("MR","").trim();
     				} 
     				else
     				{
-    					// Lo marca en naranja
+    					// Mark it with orange
     					html+= ' class="maxOrange" >'
     					valor = valor.replace("MN","").trim();
     				};
@@ -426,9 +424,8 @@ $(document).on('click', "img.identify", function()
     		html+= '</table></div>';
 
 
-	    	// Muestra el dialogo:
+	    	// Show the dialog:
 	    	$("#dialogIdentifyArch").html(html);
-			// Muestra el dialogo:
 			$("#dialogIdentifyArch").dialog("option", "width", 855);
 		    $("#dialogIdentifyArch").dialog("option", "height", 500);
 		    $("#dialogIdentifyArch").dialog("option", "resizable", false);
@@ -438,53 +435,53 @@ $(document).on('click', "img.identify", function()
 	
 });
 
-// COMPARAR ARQUETIPOS (FASE INICIAL):
+// COMPARE ARCHETYPES (INITIAL PHASE):
 $(document).on('click', "button#compareArchetype", function() {
-	// Se elimina a si mismo:
+	// Delete itself:
 	$("#"+this.id).remove();
 
-	// Muestra los checkboxes, y muta en 2 botones de consolidar - aceptar
+	// Show the checkboxes, and transforms itself in 2 buttons: consolidate - accept
 	$(".invCheck").show();
-	// Botones de consolidar y cancelar:
+	// Buttons to consolidate and accept:
 	var html = '<button type="button" class="btn btn-default" style="width:15%;" id="confirm">Compare</button>'+
 	           '<button type="button" class="btn btn-default" style="width:15%;" id="cancel">Cancel</button><br><br>' +
 	           '<p style="color:#3c763d;font-weight:bold;" >Select at least 2 decision maps (and 5 maximum) to compare its identified governance archetypes: </p>';
-	// Los ubica en el mismo container de opciones:
+	// Insert them in the same options container:
 	$("#opciones").html(html);
 
 });
 
-// CANCELAR COMPARACION:
+// CANCEL COMPARISON:
 $(document).on('click', "button#cancel", function() {
 	
-	// Esconde los checkboxes
+	// Hide the checkboxes
 	$(".invCheck").hide();
-	// Reinicia los checboxes:
+	// Restart the checboxes:
 	$(".invCheck").prop("checked", false);
 
 
-	// Reinicia el boton de la fase 1:
+	// Restart the button from the phase 1:
 	var html = "<button type='button' class='btn btn-default' style='width:20%;' id='compareArchetype'>Compare archetype's report</button>";
-	// Los ubica en el mismo container de opciones:
+	// Insert it in the same options container:
 	$("#opciones").html(html);
 
 });
 
-// CONFIRMAR CONSOLIDACION:
+// CONFIRM CONSOLIDATION:
 $(document).on('click', "button#confirm", function() {
-	// Obtiene los inputs seleccionados, y va guardando el id en un texto:
+	// Get the selected inputs, and save the id on a text:
 	var cont = 0;
 	var checked = false;
 	var str = '';
 	var s1 = '';
 
-	// bloquea los checks:
+	// Disable the checkboxes:
 	$(".invCheck").prop("disabled", true);
-	// Bloquea la identificacion individual:
+	// Disable the individual identification:
 	$(".identify").prop("disabled", true);
 
-	// Define un arreglo de colores (5), para dividir la visualizacion:
-	// Blanco, Azul, Verde, Amarillo, Naranja
+	// Define an array of colors (5), to divide the visualization:
+	// White, Blue, Green, Yellow, Orange
 	var colores = ["#FFFFFF", "#CCCEEF", "#CCEFCC", "#EAEFCC", "#EFDDCC"];
 
 	$(".invCheck").each(function(){
@@ -493,7 +490,7 @@ $(document).on('click', "button#confirm", function() {
         {
           cont+= 1;	
           s1 = $(this).attr("id").replace("chk","").trim();
-          // Si está checkeado, lo agrega al string especial (máximo 5):
+          // If its checked, add it to the special string (5 max):
           if (cont < 6) 
           {
           	if (str == '') 
@@ -509,22 +506,22 @@ $(document).on('click', "button#confirm", function() {
         };
     });
 
-    // Si hay mas de un mapa seleccionado, procede, si no no hace nada:
+    // If there is more than 1 selected map, proceed, if not, do nothing:
     if (cont > 1) 
     {
-    	// Elimina los botones de confirmación:
+    	// Delete the confirmation buttons:
     	// Loading:
 		$("#opciones").html('<span style="color:blue;font-size:14px;"><img src="<%= LOADING_GIF %>"> Comparing identified archertypes...</span>');
 
 
     	var numMapas = str.split("|").length;
-    	// Llama al comparador!
-    	// Lo primero que hace es deshabilitar los demás mecanismos de identificacion:
+    	// Call the comparator!
+    	// First of all, disable the rest of identification mechanisms:
 		$(".identify").prop("disabled", true);
 
 
 		var html = '';
-		// Construye el contenido HTML:
+		// Build the HTML content:
 		html+= '<div><table>'+
 					'<tr>'+
 						'<td colspan="3" class="blank"></td>'+
@@ -554,7 +551,7 @@ $(document).on('click', "button#confirm", function() {
 					'</tr>';
 
 
-			// Renderiza el total de filas ubicando el arquetipo:
+			// Renders the total of rows locating the archetype:
 			html+= '<tr><td rowspan="'+ parseInt(7*numMapas) +'" ><img src="/assets/archetype_title_axis_en.png"></td>';
 
 			html+=  '<td rowspan="'+ numMapas +'">'+ archetypes[0].name +'</td>'+
@@ -562,13 +559,13 @@ $(document).on('click', "button#confirm", function() {
 			var contArchs = 1;
 			var valor; var saltoLinea = 1; var mapaTratado = 1;
 
-			// Consulta la distribución:
+			// Identify the archetype:
 		    $.post('./identify_archetype', {'idMap' : str}, function(data)
 	    	{
-	    		for (var i = 0; i < data.length; i++) // En las primeras posiciones van los nombres de los mapas! 
+	    		for (var i = 0; i < data.length; i++) // In the first positions are the maps' names! 
 	    		{
 	    			valor = data[i];
-	    			// Si i+1 MOD 10 = 0, cambió de linea, renderiza otro arquetipo
+	    			// If i+1 MOD 10 = 0, change the row, renders other archetype
 	    			var modulo = 1;
 	    			if (i > 0) 
 	    			{
@@ -578,15 +575,14 @@ $(document).on('click', "button#confirm", function() {
 	    			if (modulo == 0)  
 	    			{
 	    				html+= '</tr><tr>';
-	    				// Cuando crea una nueva linea, aumenta el valor del mapa tratado, para cambiar su color:
+	    				// When a new row is created, raise the trated-map value, to change its color:
 	    				mapaTratado+= 1;
-	    				// Si se pasa su valor, se reinicia:
+	    				// If the value is exceeded, restart it:
 	    				if (mapaTratado > numMapas) {mapaTratado = 1};
 
 	    				if (contArchs <= archetypes.length) 
 	    				{
 
-	    					// Solo abre un nuevo arquetipo si ya paso una vez por aca:
 		    				if (saltoLinea == numMapas) 
 		    				{
 		    					if (contArchs == archetypes.length) 
@@ -611,18 +607,18 @@ $(document).on('click', "button#confirm", function() {
 
 	    			html+= '<td style="background:'+ colores[mapaTratado-1] +';"';
 
-	    			// Si es mayor, lo marca:
+	    			// If it's higher, mark it:
 	    			if (valor.charAt(0) == 'M' ) 
 	    			{
 	    				if (valor.charAt(1) == 'R') 
 	    				{
-	    					// Lo marca en rojo
+	    					// Mark it with red
 	    					html+= ' class="maxRed" >'
 	    					valor = valor.replace("MR","").trim();
 	    				} 
 	    				else
 	    				{
-	    					// Lo marca en naranja
+	    					// Mark it with orange
 	    					html+= ' class="maxOrange" >'
 	    					valor = valor.replace("MN","").trim();
 	    				};
@@ -643,7 +639,7 @@ $(document).on('click', "button#confirm", function() {
 
 	    		html+= '</table></div>';
 
-	    		// Genera las leyendas:
+	    		// Generate the legends:
 	    		$.get('./get_map_names', {'idMaps' : str}, function(data)
 	    		{
 	    			html+= '<div style="margin-top:25px;">';
@@ -657,7 +653,7 @@ $(document).on('click', "button#confirm", function() {
 
 
 	    			$("#dialogIdentifyArch").html(html);
-					// Muestra el dialogo:
+					// Show the dialog:
 					$("#dialogIdentifyArch").dialog("option", "width", 855);
 				    $("#dialogIdentifyArch").dialog("option", "height", 700);
 				    $("#dialogIdentifyArch").dialog("option", "resizable", false);
@@ -669,9 +665,9 @@ $(document).on('click', "button#confirm", function() {
     }
     else
     {
-    	// Desbloquea los checks:
+    	// Enable the checkboxes:
 		$(".invCheck").prop("disabled", false);
-		// Desbloquea la identificacion individual:
+		// Enable the individual identification:
 		$(".identify").prop("disabled", false);
     };
 
@@ -696,7 +692,7 @@ $(document).on('click', "button#confirm", function() {
 <% end %>
 
 
-<!-- Mapas de Decision -->
+<!-- Decision Maps -->
 <div>
 	<div>
 		<h2 id="title">
@@ -714,7 +710,7 @@ $(document).on('click', "button#confirm", function() {
 		   <% idMap = 'img' << map.id.to_s %>
 		   <% idIdentify = 'identify' << map.id.to_s %>
 		   <% idChk = 'chk' << map.id.to_s %>
-		   <% # La clase para la edición depende del tipo de mapa:
+		   <% # The class to edit the maps depends on its type:
 		      classMap = ''
 		      identifyMap = ''
 
@@ -747,12 +743,12 @@ $(document).on('click', "button#confirm", function() {
 <div id="dialogIdentifyArch" title="Identified Governance Archetype">
 </div>
 
-<% # Form hidden, para tratar la edición de los mapas de arquetipos: %>
+<% # Hidden form, to treat the edition of the archetypes maps: %>
 <%= form_tag( "./decision_map" , method: "post", id: "edit_form") do %>
 <input type="text" name="idMap" id="formIdMap" hidden readonly>
 <% end %>
 
-<% # Form hidden, para tratar la edición de los mapas de delegacion de responsabilidades: %>
+<% # Hidden form, to treat the edition of the responsibilities delegation maps: %>
 <%= form_tag( "./decision_map_2" , method: "post", id: "edit_form_2") do %>
 <input type="text" name="idMap" id="formIdMap2" hidden readonly>
 <% end %>

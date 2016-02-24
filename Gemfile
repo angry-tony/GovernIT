@@ -15,11 +15,10 @@ gem 'uglifier', '>= 1.3.0'
 # Use CoffeeScript for .js.coffee assets and views
 gem 'coffee-rails', '~> 4.0.0'
 
-# Arreglar los warnings de contenido
+# Fix content warnings
 gem 'webrick', '1.3.1'
 
-# Paperclip para adjuntar archivos:
-#gem "paperclip", "~> 4.2" -> BUG!
+# Paperclip to attach files:
 gem "paperclip", "~> 3.5.3"
 
 # See https://github.com/sstephenson/execjs#readme for more supported runtimes
@@ -37,9 +36,9 @@ gem 'turbolinks'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem 'jbuilder', '~> 1.2'
 
-# INICIO ---------- Gemas exclusivas del modulo de cuantificacion:
+# BEGIN ---------- Exclusive gems for the cuantification module:
 
-# SLA: No permite la instalacion!
+# SLA: Unable to install!
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 # gem 'tzinfo-data', platforms: [:mingw, :mswin]
 
@@ -50,7 +49,7 @@ gem 'jbuilder', '~> 1.2'
 #gem 'rubystats'
 
 # Use descriptive_statistics to adjust data sets to normal
-# SLA: Presentaba conflicto porque re-escribia el metodo sum de la clase Array, por eso debe agrega la extension!
+# SLA: Conflicted because it rewrites the method sum of the array class, because of the an extension is required!
 #gem 'descriptive_statistics', :require => 'descriptive_statistics/safe'
 
 # Use math to get square root
@@ -59,13 +58,13 @@ gem 'jbuilder', '~> 1.2'
 # Use gem to get inverse normal
 gem 'distribution'
 
-# FIN ---------- Gemas exclusivas del modulo de cuantificacion:
+# FIN ---------- Exclusive gems for the cuantification module
 
 
-# Carga el engine de mapas de decision
+# Load engine: Decision Maps
  gem 'mapas', path: "./vendor/engines/mapas"
 
-# Carga el engine de escenarios de evaluacion
+# Load engine: Assessment Scenarios
  gem 'escenarios', path: "./vendor/engines/escenarios"
 
 

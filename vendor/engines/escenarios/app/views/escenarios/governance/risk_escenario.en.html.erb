@@ -7,7 +7,7 @@
   <button type="button" class="btn btn-default" onclick="location.href='../inicio/inicio'">Home</button>
 </div>
 
-<% elsif (@escenario.governance_structure.nil?) && (@escenario.decision_map_id.nil?) # Consolidado (sólo visualización) %>
+<% elsif (@escenario.governance_structure.nil?) && (@escenario.decision_map_id.nil?) # Consolidated (only visualization) %>
 
 <style>
 
@@ -69,7 +69,7 @@ $(document).on('click', "span#showRiskScale", function ()
   <p>Below are presented the assessed risks through partial scenarios consolidation</p>
   </br>
 
-  <!-- Muestra cada riesgo, con su respectiva evaluación, si la hay y agrupa por categoria de riesgo -->
+  <!-- Show each risk, with its respective score, if exists and group them by risk category -->
   <% @categories.each do |cat| %>
     <div class="alert alert-info">
       <span style="font-size:18px;">Risk Category: <%= cat.description %></span>
@@ -98,22 +98,23 @@ $(document).on('click', "span#showRiskScale", function ()
       </div>
     </div>
 
-    <!-- Renderiza los hijos tambien -->
+    <!-- Renders also the sons -->
     <% hijos = @hijos.select{|h| h.riesgo_padre_id == risk.id}%>
       <% if hijos.size > 0 %>
       <% @hijos = @hijos - hijos %>
         <% hijos.each do |h| %>
-          <!-- Revisa si tiene calificacion este riesgo: -->
+          <!-- Checks if that risk has an score: -->
           <% myCal = @cals.select { |cal|  cal.risk == h  }.first %>
           <% if myCal.nil? %>
-          <!-- Sin calificacion:-->
+          <!-- No score:-->
           <p style="margin-left:3%;color:#333;">
             <span style="width:35px;height:20px;margin-right:5px;border:solid 1px #333;cursor:pointer;display:inline-block;">
             </span><i>- <%= h.descripcion %></i>
           </p>
           <% else %>
-          <!-- Con calificación: -->
-          <% # Para asignar el color de la celda y la importancia/tolerancia, toma el valor desde niveles
+          <!-- Score: -->
+          <% # To assign the cell color and the importance/tolerance, takes the value from levels
+             # Currently hardcoded!!! Must fix it!!!
 
               cont = 0
               @niveles.each do |nivel|
@@ -128,17 +129,17 @@ $(document).on('click', "span#showRiskScale", function ()
 
                 
               if cont == 19 || cont == 25 || cont == 26 || cont == 31 || cont == 32 || cont == 33 
-                  # VERDE:  
+                  # GREEN:  
                  color = 'green'
                  importancia = 'Low/Acceptable'
 
               elsif cont == 4 || cont == 5 || cont == 6 || cont == 11 || cont == 12 || cont == 18 
-                # ROJO
+                # RED
                 color = 'red'
                 importancia = 'Highest/Inadmissible'
 
               elsif cont == 2 || cont == 3 || cont == 9 || cont == 10 || cont == 16 || cont == 17 || cont == 23 || cont == 24 || cont == 30
-                 # NARANJA 
+                 # ORANGE
                  color = 'orange'
                  importancia = 'High/Unacceptable'
               end
@@ -168,7 +169,7 @@ $(document).on('click', "span#showRiskScale", function ()
 
   <div id="dialogRiskScale" title="Risk Assessment Scale">
     <div style="width:100%;height:270px;">
-    <!-- Espacio para el rotulo de la grafica -->
+    <!-- Space for the graph's legend -->
     <div style="float:left;width:145px;">
       <img src="/assets/y-axis_en.png" style="margin-top:35px;">
     </div>
@@ -243,7 +244,7 @@ $(document).on('click', "span#showRiskScale", function ()
 
 <script>
 
-// ELIMINAR UN RIESGO:
+// DELETE A RISK:
 $(document).on('click', "span.delete", function () {
     var idrisk = this.id;
     idrisk = idrisk.replace("delete", "");
@@ -256,7 +257,7 @@ $(document).on('click', "span.delete", function () {
       var puedeBorrar = data[1];
       if (puedeBorrar) 
       {
-        // Envia y pregunta todo normal
+        // Send and ask normally
         $("#dialog-confirm").data('autorizado', true);
         $("#dialog-confirm").dialog("option", "height", 250);
         html = '<p>Do you really want to delete this risk? </p><span style="color:green;font-weight:bold;font-size:12px;">' 
@@ -273,7 +274,7 @@ $(document).on('click', "span.delete", function () {
       
       $("#dialog-confirm").html(html);
       $("#dialog-confirm").dialog("option", "width", 500);
-      // Pasa el id del riesgo, como parametro al dialogo:
+      // Pass the risk id, as a dialog's parameter:
       $("#dialog-confirm").data('idrisk', idrisk);
       $("#dialog-confirm").dialog("open");
 
@@ -281,42 +282,42 @@ $(document).on('click', "span.delete", function () {
 
 });
 
-// CALIFICAR UN RIESGO:
+// SCORE A RISK:
 $(document).on('click', "span.eval", function () {
-    // eval309 -> 309 es el codigo del riesgo
+    // eval309 -> 309 is the risk code
     var idrisk = this.id;
     idrisk = idrisk.replace("eval", "");
     idrisk = idrisk.trim();
 
-    // Limpia los valores de tipo de riesgo y evidencia:
+    // Clean the values: risk type and evidence:
     $("#evidence").val("");
 
-    // Envia una peticion AJAX para obtener el texto de la implicacion:
+    // Send an AJAX request to get the risk information:
     $.post('../governance/get_info_risk', {'id' : idrisk}, function(data)
     {
       $("#txt_risk").val(data[0]);
 
-      // Envia una peticion AJAX para obtener el texto de la implicacion:
+      // Send an AJAX request to get the score information:
       $.get('./get_info_cal_risk', {'idRisk' : idrisk, 'idEsc' : '<%= @escenario.id %>'}, function(data)
       {
-        // Reinicia los bordes
+        // Restart the borders
         $(".riskmap").css({'border-color': 'white',
                            'border-width': '1px',
                            'border-style': 'solid'});
 
-         // Reinicia el input que cuantifica el riesgo:
+         // Restart the input that quantifies the risk:
          $("#qriesgo").val('');
 
-        // Pasa la información de la calificacion al dialogo:
+        // Pass the score information to the dialog:
         if (data != null) 
         {
-          // Resalta la cantidad:
+          // Make explicit the quantity:
           $("#riskmap" + data.valor).css({'border-color': '#0E3966',
                            'border-width': '5px',
                            'border-style': 'solid'});
-          // Define la evidencia:
+          // Define the evidence:
           if (data.evidence != null) {$("#evidence").val(data.evidence);};
-          // Define el tipo de riesgo:
+          // Define the risk type:
           if (data.risk_type != null && data.risk_type != 'No definido') 
           {
             $('#riskType > option').removeAttr('selected');
@@ -327,12 +328,12 @@ $(document).on('click', "span.eval", function () {
         };
         
         
-        // Muestra el dialogo:
+        // Show the dialog:
 		     $("#errorZone").html("");
          $("#dialog").dialog("option", "width", 700);
          $("#dialog").dialog("option", "height", 640);
          $("#dialog").dialog("option", "resizable", false);
-         // Pasa el id de la implicacion, como parametro al dialogo:
+         // Pass the risk id, as a dialog's parameter:
          $("#dialog").data('idrisk', idrisk);
          $("#dialog").dialog("open");
       });
@@ -342,34 +343,34 @@ $(document).on('click', "span.eval", function () {
 });
 
 
-// DESCARTAR NUEVO REGISTRO:
+// DISCARD NEW RECORD:
 $(document).on('click', "img.discard", function() {
   var id = this.id;
   id = id.replace("discard", "").trim(); 
-  // Elimina todo el div:
+  // Deletes all the div:
   $("#divCreate"+id).remove();
 });
 
-// GUARDAR NUEVO REGISTRO:
+// SAVE NEW RECORD:
 $(document).on('click', "img.save", function() {
   var idPadre = this.id;
   idPadre = idPadre.replace("save", "").trim(); 
-  // Obtiene la descripcion:
+  // Get the description:
   var desc = $("#inputCreate"+idPadre).val().trim();
   var tipoEscenario = '<%= @tipoEscenario %>';
   var idEscenario;
-  // Segun el tipo de escenario, decide si enviar o no el id del escenario
+  // According to the scenario's type, decide if the scenario's id need to be sent or not
   if (tipoEscenario == '<%= RISK_ESC_GENERADO %>') 
   {
-    // Debe enviar el id del escenario
+    // Send the scenario's id
     idEscenario = '<%= @escenario.id %>';
   };
 
-  // Verifica los parámetros:
+  // Verify the parameters:
   if (desc == '') 
   {
     // ERROR:
-    // Elimina los bordes y color de fondo:
+    // Remove the borders and background-color:
     $("#divCreate"+idPadre).css({'border-color': 'none',
                               'background-color': 'none',
                               'color': 'none'});
@@ -378,14 +379,14 @@ $(document).on('click', "img.save", function() {
   } 
   else
   {
-    // Realiza la creación del nuevo objetivo, vía AJAX:
+    // Creates the new goal through AJAX:
     $.post('./add_specific_risk', {'idPadre' : idPadre, 'desc' : desc, 'risk_escenario_id' : idEscenario}, function(data)
     {
       if (data.id != null) 
       {
-        // Elimina el div de creacion:
+        // Remove the creation div:
         $("#divCreate"+idPadre).remove();
-        // Inserta el registro, después de su padre:
+        // Inserts the record, after its father:
         var html = 
         '<p style="margin-left:3%;color:#333;" id="par'+data.id+'">'+
           '<span id="eval'+data.id+'" style="width:35px;height:20px;margin-right:5px;border:solid 1px #333;cursor:pointer;display:inline-block;" title="Assess risk" class="eval">'+
@@ -398,8 +399,8 @@ $(document).on('click', "img.save", function() {
       } 
       else
       {
-        // ERROR GUARDANDO:
-        // Elimina los bordes y color de fondo:
+        // ERROR SAVING...
+        // Remove the borders and background-color:
         $("#divCreate"+idPadre).css({'border-color': 'none',
                                   'background-color': 'none',
                                   'color': 'none'});
@@ -416,12 +417,12 @@ $(document).on('click', "img.save", function() {
 
 $( document ).ready(function() {
 
-  // Creación de un nuevo riesgo especifico:
+  // Creation of a new specific risk:
   $(".new").click(function(){
     var idRiesgo = this.id.replace("img", "").trim();
     var anterior = document.getElementById("divCreate"+idRiesgo);
 
-    // Sólo lo genera, si no existia antes:
+    // Only generate it, if wasn't before:
     if (anterior == null) 
     {
       var html = 
@@ -432,28 +433,28 @@ $( document ).ready(function() {
         '<img src="/assets/save.png" align="right" style="margin:0 0 0 5px;cursor:pointer;" class="save" id="save'+idRiesgo+'" title="Save">'+
       '</div>';
 
-      // Lo agrega justo después del div del riesgo original:
+      // Add it right after the original risk div:
       $(html).insertAfter("#div"+idRiesgo);
     };
 
   });
 
-  // Selección de una casilla del mapa del nivel de riesgo:
+  // Selection of a cell from the risk level map:
    $(".riskmap").click(function(){
     
-    // Limpia los bordes anteriores:
+    // Remove the previous borders:
     var id = this.id;
     var value = $("#"+id).text();
     $(".riskmap").css({'border-color': 'white',
      'border-width': '1px',
      'border-style': 'solid'});
     
-    // Marca para selección el borde actual
+    // Select the current border
     $("#" + id).css({'border-color': '#0E3966',
      'border-width': '5px',
      'border-style': 'solid'});
 
-    // Actualiza el valor del impacto financiero:
+    // Updates the financial impact value:
     var unidadImpacto = '<%= @niveles[36]%>';
     unidadImpacto = unidadImpacto * value;    
     $("#qriesgo").val(unidadImpacto);
@@ -471,11 +472,11 @@ $(function () {
     modal: true,
     buttons: {
       "Save assessment": function(){
-        // Debe obtener el valor del nivel de riesgo seleccionado, la cuantificacion es opcional:
-        // Recorre todos las celdas, buscando la que tenga el borde diferente:
+        // Need to get the value from the selected risk level, the cuantification is optional:
+        // Go through all cells, searching the one with a different border:
         var valor;
         var qrisk = $("#qriesgo").val();
-        // Si la cantidad no esta definida se pone un 0
+        // If the quantity is undefined, set it at 0
         if (qrisk == '') 
         {
           qrisk = 0;
@@ -484,7 +485,7 @@ $(function () {
         var riesgo = $("#dialog").data('idrisk');
         var color; var fondo; var tipo; var evidencia;
         var selected = "rgb(14, 57, 102)";
-        // Colores:
+        // Colors:
         var green = "rgb(0, 128, 0)";
         var yellow = "rgb(255, 255, 0)";
         var red = "rgb(255, 0, 0)";
@@ -513,9 +514,9 @@ $(function () {
             };
 
             valor = valor.replace("riskmap","");
-            // valor tiene la calificacion del riesgo: e.g->20
-            // qrisk tiene la cuantificacion monetaria de cada punto en el nivel de riesgo
-            // fondo tiene el color del nivel de riesgo asociado
+            // "valor" has the risk score: e.g->20
+            // "qrisk" has the financial cuantification of each point in the risk level
+            // "fondo" has the color from the selected risk level
           };
 
         });
@@ -531,19 +532,19 @@ $(function () {
     
     if(valor != null)
     {
-       // Actualiza la calificacion via AJAX (Además de la descripcion del riesgo si es necesario):
+       // Updates the score through AJAX (additionally the risk's description if necessary):
       $.post('./update_risk_cal', {'valor' : valor, 'cantidad' : qrisk, 'tipo' : tipo, 'evidencia' : evidencia, 'riesgo' : riesgo, 'escenario': idEsc, 'nuevaDesc': descRisk}, function(data)
       {
-        // Según el status, muestra la creación o actualización:
+        // According the status, show the creation or update:
         if (data.id != null) 
         {
-          // Creación/Actualización exitosa, genera de nuevo el contenido del <p>, de ese riesgo:
+          // Succesful creation/update, generates again the new content of the <p> tag, for that risk:
           html = 
           '<span id="eval'+riesgo+'" style="background-color:'+fondo+';width:35px;height:20px;margin-right:5px;border:solid 1px #333;cursor:pointer;display:inline-block;color:black;" title="Assess risk" class="eval">&nbsp;&nbsp;'+valor+
           '</span><i>- '+ descRisk +'</i><span class="delete" title="Delete risk" id="delete'+riesgo+'">[x]</span><span style="color:green;font-weight:bold;margin-left:5px;">UPDATED!</span><br>'+
           '<span style="font-size:12px;color:#AAA;"><i>Financial Impact: '+qrisk+' (USD), Risk Type: '+tipo+', Importance/Tolerance: '+importancia+', Evidence: '+evidencia+'</i></span>';
 
-          // Debe actualizar también el div del generico padre:
+          // Needs to update also the div of the father (generic):
           $.get('./get_risk_cal', {'riesgo' : riesgo, 'escenario': idEsc}, function(data)
           {
 
@@ -562,7 +563,7 @@ $(function () {
 
         };
 
-        // Reemplaza el contenido del <p> de dicho riesgo:
+        // Replace the content of the <p> tag for that risk:
         $("#par"+riesgo).html(html);
 
          
@@ -598,23 +599,23 @@ $(function() {
     buttons: {
       "Delete": function() 
       {
-        // Debe borrar el riesgo, en cascada, es decir borra tambien sus calificaciones, y la de su padre:
+        // Needs to delete the risk on cascade, deleting also its scores and the scores of its father:
         var riesgo = $("#dialog-confirm").data('idrisk');
         var autorizado = $("#dialog-confirm").data('autorizado');
 
         if (autorizado) 
         {
-          // Borra el riesgo y sus calificaciones:
+          // Delete the risk and its scores:
           $.post('./delete_risk', {'idRisk' : riesgo}, function(data)
           {
             var padre = data.id;
             var idEsc = '<%= @escenario.id %>';
-            // Debe actualizar también el div del generico padre:
+            // Needs to update also the div of the generic father:
             $.get('./get_risk_cal', {'padreId' : padre, 'escenario': idEsc}, function(data)
             {
-              // Borra toda su información visible en la ventana:
+              // Deletes all its visible information in the window:
               $("#par"+riesgo).remove();
-              // Actualiza la visualizacion del padre:
+              // Updates its father's visualization:
               var htmlGen = '<span class="gen" title="Average score of its specific risks">&nbsp;&nbsp;'+ data.split("|")[1] +'</span>';
               $("#divEvalGen"+data.split("|")[0]).html(htmlGen);
               if (data.split("|")[1] == 'N') 
@@ -682,7 +683,7 @@ span.delete
 <% end %>
 </br>
 
-<!-- Muestra cada riesgo, con su respectiva evaluación, si la hay y agrupa por categoria de riesgo -->
+<!-- Show each risk, with its respective score, if exists, and group them by risk category -->
 <% @categories.each do |cat| %>
   <div class="alert alert-info">
     <span style="font-size:18px;">Risk Category: <%= cat.description %></span>
@@ -717,7 +718,7 @@ span.delete
     </div>
   </div>
 
-  <!-- Renderiza los hijos tambien -->
+  <!-- Renders also the sons -->
   <% hijos = @hijos.select{|h| h.riesgo_padre_id == risk.id}%>
     <% if hijos.size > 0 %>
     <% @hijos = @hijos - hijos %>
@@ -725,21 +726,21 @@ span.delete
       <% idEval = 'eval' << h.id.to_s %>
       <% idPar = 'par' << h.id.to_s %>
       <% idDel = 'delete' << h.id.to_s %>
-        <!-- Revisa si tiene calificacion este riesgo: -->
+        <!-- Checks if this risk has a score: -->
         <% myCal = @cals.select { |cal|  cal.risk == h  }.first %>
         <% if myCal.nil? %>
-        <!-- Sin calificacion:-->
+        <!-- No scores:-->
 
-          <!-- Restringe manuales en los escenarios generados y visceversa -->
+          <!-- Restrict manual risks in the generated scenarios and viceverse -->
           <% if @tipoEscenario.eql?("MANUAL") %>
-            <!-- Restringe la actualizacion de todo riesgo generado -->
-            <% if false #!h.risk_escenario_id.nil? # GENERADO, sólo visualización PENDIENTE %>
+            <!-- Restrict the updating of all generated risks -->
+            <% if false #!h.risk_escenario_id.nil? # GENERATED, only visualization TO-DO %>
               <p style="margin-left:3%;color:#333;" id="<%= idPar %>">
                 <span id="<%= idEval %>"  style="width:35px;height:20px;margin-right:5px;border:solid 1px #333;display:inline-block;" title="Automatically generated risk, is not possible to assess it in this scenario!">
                 </span>
                 <i>- <%= h.descripcion %></i>
               </p>
-            <% else # MANUAL, lo muestra normalmente %>
+            <% else # MANUAL, show it normally %>
               <p style="margin-left:3%;color:#333;" id="<%= idPar %>">
                 <span id="<%= idEval %>"  style="width:35px;height:20px;margin-right:5px;border:solid 1px #333;cursor:pointer;display:inline-block;" title="Assess risk" class="eval">
                 </span>
@@ -749,14 +750,14 @@ span.delete
             <% end %>
 
           <% else %>
-            <!-- Restringe la actualizacion de todo riesgo manual -->
-            <% if false #h.risk_escenario_id.nil? # MANUAL, sólo visualización PENDIENTE %>
+            <!-- Restricts the updating of any manual risk -->
+            <% if false #h.risk_escenario_id.nil? # MANUAL, only visualization TO-DO %>
               <p style="margin-left:3%;color:#333;" id="<%= idPar %>">
                 <span id="<%= idEval %>"  style="width:35px;height:20px;margin-right:5px;border:solid 1px #333;display:inline-block;" title="Manually generated risk, is not possible to assess it in this scenario!">
                 </span>
                 <i>- <%= h.descripcion %></i>
               </p>
-            <% else # GENERADO, lo muestra normalmente %>
+            <% else # GENERATED, show it normally %>
               <p style="margin-left:3%;color:#333;" id="<%= idPar %>">
                 <span id="<%= idEval %>"  style="width:35px;height:20px;margin-right:5px;border:solid 1px #333;cursor:pointer;display:inline-block;" title="Assess risk" class="eval">
                 </span>
@@ -768,8 +769,8 @@ span.delete
           <% end %>
 
         <% else %>
-        <!-- Con calificación: -->
-        <% # Para asignar el color de la celda y la importancia/tolerancia, toma el valor desde niveles
+        <!-- Scored: -->
+        <% # To assign the cell color and the importance/tolerance, take the value from levels
 
             cont = 0
             @niveles.each do |nivel|
@@ -784,26 +785,26 @@ span.delete
 
               
             if cont == 19 || cont == 25 || cont == 26 || cont == 31 || cont == 32 || cont == 33 
-                # VERDE:  
+                # GREEN:  
                color = 'green'
                importancia = 'Low/Acceptable'
 
             elsif cont == 4 || cont == 5 || cont == 6 || cont == 11 || cont == 12 || cont == 18 
-              # ROJO
+              # RED
               color = 'red'
               importancia = 'Highest/Inadmissible'
 
             elsif cont == 2 || cont == 3 || cont == 9 || cont == 10 || cont == 16 || cont == 17 || cont == 23 || cont == 24 || cont == 30
-               # NARANJA 
+               # ORANGE
                color = 'orange'
                importancia = 'High/Unacceptable'
             end
         %>
 
-        <!-- Restringe manuales en los escenarios generados y visceversa -->
+        <!-- Restrict manual risks in the generated scenarios -->
           <% if @tipoEscenario.eql?("MANUAL") %>
-            <!-- Restringe la actualizacion de todo riesgo generado -->
-            <% if false #!h.risk_escenario_id.nil? # GENERADO, sólo visualización PENDIENTE %>
+            <!-- Restrict the updating of all generaed risks -->
+            <% if false #!h.risk_escenario_id.nil? # GENERATED, only visualization TO-DO %>
               <p style="margin-left:3%;color:#333;" id="<%= idPar %>">
                 <span style="background-color:<%= color %>;width:35px;height:20px;margin-right:5px;border:solid 1px #333;display:inline-block;color:black;" >&nbsp;&nbsp;<%= myCal.valor %>
                 </span><i>- <%= h.descripcion %></i><br>
@@ -814,7 +815,7 @@ span.delete
                   </i>
                 </span>
               </p>
-            <% else # MANUAL, lo muestra normalmente %>
+            <% else # MANUAL, show it normally %>
               <p style="margin-left:3%;color:#333;" id="<%= idPar %>">
                 <span id="<%= idEval %>" style="background-color:<%= color %>;width:35px;height:20px;margin-right:5px;border:solid 1px #333;cursor:pointer;display:inline-block;color:black;" title="Asess risk" class="eval">&nbsp;&nbsp;<%= myCal.valor %>
                 </span><i>- <%= h.descripcion %></i><span class="delete" title="Delete risk" id="<%= idDel %>">[x]</span><br>
@@ -828,8 +829,8 @@ span.delete
             <% end %>
 
           <% else %>
-            <!-- Restringe la actualizacion de todo riesgo manual -->
-            <% if false #h.risk_escenario_id.nil? # MANUAL, sólo visualización PENDIENTE %>
+            <!-- Restrict the updating of all manual risks -->
+            <% if false #h.risk_escenario_id.nil? # MANUAL, only visualization TO-DO %>
               <p style="margin-left:3%;color:#333;" id="<%= idPar %>">
                 <span style="background-color:<%= color %>;width:35px;height:20px;margin-right:5px;border:solid 1px #333;display:inline-block;color:black;" >&nbsp;&nbsp;<%= myCal.valor %>
                 </span><i>- <%= h.descripcion %></i><br>
@@ -840,7 +841,7 @@ span.delete
                   </i>
                 </span>
               </p>
-            <% else # GENERADO, lo muestra normalmente %>
+            <% else # GENERATED, show it normally %>
               <p style="margin-left:3%;color:#333;" id="<%= idPar %>">
                 <span id="<%= idEval %>" style="background-color:<%= color %>;width:35px;height:20px;margin-right:5px;border:solid 1px #333;cursor:pointer;display:inline-block;color:black;" title="Assess risk" class="eval">&nbsp;&nbsp;<%= myCal.valor %>
                 </span><i>- <%= h.descripcion %></i><span class="delete" title="Delete risk" id="<%= idDel %>">[x]</span><br>
@@ -867,22 +868,22 @@ span.delete
 <% end # @categories.each do %> 
 
 
-<!-- Dialogo para confirmar la eliminación de un riesgo -->
+<!-- Dialog to confirm the risk deleting -->
 <div id="dialog-confirm" title="Delete risk confirmation">
 </div>
 
 
-<!-- Dialogo para evaluar el nivel de riesgo -->
+<!-- Dialog to assess the risk level -->
 <div id="dialog" title="Risk Assessment Level" style="display:none;">
-  <!-- Presenta el detalle del riesgo: -->
+  <!-- Presents the risk detail: -->
   <p style="font-size:12px;">
     RISK TO ASSESS: 
     <input type="text" id="txt_risk" style="margin-left:5px;width:500px;">
-  </p> <!-- Descripcion -->
+  </p> <!-- Description -->
   <hr style="margin:7px 0 7px 0;">
  
   <div style="width:100%;height:270px;">
-    <!-- Espacio para el rotulo de la grafica -->
+    <!-- Space for the graph's legend -->
     <div style="float:left;width:145px;">
       <img src="/assets/y-axis_en.png" style="margin-top:35px;">
     </div>

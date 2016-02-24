@@ -13,9 +13,9 @@
 
 $( document ).ready(function() {
 
-	// Gestiona el click en el boton
+	// Manage the button click
 	$("#save").click(function(){
-		// Obtiene los valores de los input de clase risklvl, si falta algún valor, arroja un error:
+		// Get the values of the inputs from the class risklvl, if any value is missing, throws an error:
 		var niveles = '';
 		var errores = 0;
 		$(".risklvl").each(function(i){
@@ -26,7 +26,7 @@ $( document ).ready(function() {
 			else
 			{
 				niveles+= $(this).val();
-				// Si no es el último index, agrega el separador
+				// If is not the last index, add the separator
 				if (i < 36) 
 				{
 					niveles+= '|';
@@ -34,7 +34,7 @@ $( document ).ready(function() {
 			};
 		});
 
-		// Si existen errores, lo informa y no envía el formulario
+		// If there are errors, inform it and don't send the form
 		if (errores > 0) 
 		{
 			$("#err").text("Errors detected on " + errores + " cell(s), please complete all the required values before saving the changes.");
@@ -42,7 +42,7 @@ $( document ).ready(function() {
 		} 
 		else
 		{
-			// Agrega el valor de la unidad de impacto:
+			// Add the value of the impact unit:
 			var unidad = $("#qriesgo").val();
 			if (unidad == '') 
 			{
@@ -50,11 +50,11 @@ $( document ).ready(function() {
 			};
 			niveles += unidad;
 
-			// Esconde el label de errores
+			// Hide error labels
 			$("#err").hide();
-			// Pasa el valor al input hidden:
+			// Pass the value to the input hidden:
 			$("#hd_lvl").val(niveles);
-			// Envía el formulario
+			// Submit the form
 			$("#riskmap").submit();
 		};
 
@@ -78,7 +78,8 @@ $( document ).ready(function() {
 
 <h2>Personalize - Riskmap</h2>
 
-<!-- Dialogo para evaluar el nivel de riesgo -->
+<!-- Dialog to evaluate the risk level -->
+
 <p style="font-size:13px;">
 <% if @default != nil %>
 Below is presented the default risk scale distribution, you can configure the values according to your organization needs.
@@ -90,7 +91,7 @@ Below is presented the saved risk scale distribution of the enterprise: <%= @emp
 
 <%= form_tag( "./resultado", method: "post", id: "riskmap") do %>
 <div style="width:100%;height:400px;">
-	<!-- Espacio para el rotulo de la grafica -->
+	<!-- Space for the graph's legend -->
 	<div style="float:left;width:130px;margin-right:10px;">
 		<img src="/assets/y-axis_big_en.png" style="margin-top:35px;">
 	</div>
@@ -158,7 +159,7 @@ Below is presented the saved risk scale distribution of the enterprise: <%= @emp
 <div>
 	<img src="/assets/x-axis_big_en.png" style="margin-left:135px;">
 </div>
-<!-- Input para pasar la nformacion actualizada de los niveles -->
+<!-- Input to pass the updated info of the levels -->
 <input name="niveles" id="hd_lvl" type="text" readonly hidden>
 
 <div class="btn-group" style="margin-top:15px;">
@@ -166,7 +167,7 @@ Below is presented the saved risk scale distribution of the enterprise: <%= @emp
 </div>
 
 
-<% end # Cierra form_tag %>
+<% end # Close form_tag %>
 
 
 

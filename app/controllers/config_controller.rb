@@ -3,22 +3,27 @@
 class ConfigController < ApplicationController
 
   def riskmap
-    # La empresa se carga, si la sesión está definida:
+    # ES: La empresa se carga, si la sesión está definida:
+    # EN: The enterprise is loaded, if the session is defined:
     emp = view_context.getMyEnterprise
 
     if !emp.nil?
       @empresa = emp
       @riskmap = @empresa.configuracion
 
-      # Si no encuentra la configuracion, la envía vacía
+      # ES: Si no encuentra la configuracion, la envía vacía
+      # EN: If the configuration is not founded, send it empty
       if @riskmap.nil?
-        # Envía en los niveles, los valores por defecto
+        # ES: Envía en los niveles, los valores por defecto
+        # EN: Send in the levels, the default values
         @default = RISK_SCALE  
         @niveles = @default.split('|')      
       else
-        # Si no encuentra la configuración, la envía vacía:
+        # ES: Si no encuentra la configuración, la envía vacía:
+        # EN: If the configuration is not founded, send it empty
         if @riskmap.riskmap.nil? or @riskmap.riskmap.empty?
-          # Envía en los niveles, los valores por defecto
+          # ES: Envía en los niveles, los valores por defecto
+          # EN: Send in the levels, the default values
           @default = RISK_SCALE  
           @niveles = @default.split('|')
         else
@@ -32,14 +37,17 @@ class ConfigController < ApplicationController
   end
 
   def resultado
-    # La empresa se carga, si la sesión está definida:
+    # ES: La empresa se carga, si la sesión está definida:
+    # EN: The enterprise is loaded, if the session is defined:
     emp = view_context.getMyEnterprise
 
     if !emp.nil?
-      # Configuro la escala de riesgos
+      # ES: Configuro la escala de riesgos
+      # EN: The risk scale is configured
       string = params[:niveles]
       config = emp.configuracion
-      # Si no encuentra la configuracion, crea una nueva
+      # ES: Si no encuentra la configuracion, crea una nueva
+      # EN: If the configuration is not founded, create a new one
       if config == nil
         config = Configuracion.new
         config.enterprise_id = emp.id
@@ -47,14 +55,16 @@ class ConfigController < ApplicationController
         config.save
       else     
         if config.update(riskmap: string)
-        # Actualizo bien, no hace nada
+        # ES: Actualizo bien, no hace nada
+        # EN: Correct update, do nothing
         else
-        # No actualizo, informa:
+        # ES: No actualizo, informa:
+        # EN: Problem updating, inform:
         @error = 'ERROR: Updating the configuration record.'
         end    
       end
 
-    else # Sesión invalida
+    else # ES: Sesión invalida - EN: Invalid session
       redirect_to root_url, :alert => 'ERROR: Enterprise not found. Select one from the initial menu.'
     end
 

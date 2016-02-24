@@ -3,36 +3,33 @@
 $( document ).ready(function() {
 
   var mod0 = true; var mod1 = true; var mod2 = true; var mod3 = true;
-  //var mod0 = true; var mod1 = true; var mod2 = true; var mod3 = true;
 
 
-  // Sólo activa los botones de las acciones, cuando se ha seleccionado al menos una empresa:
+  // Only enable the action's buttons, when at least 1 enterprise have been selected:
   $("#select_empresas").change(function(){
 
-    // Obtiene la seleccion:
+    // Get the selection:
     var sel = $("#select_empresas option:selected").val();
-    // Activa todo, sólo si es una empresa válida:
+    // Enable everything, only if its a valid enterprise:
     if (sel != 'N') 
       {
-        // Envia una peticion POST, para actualizar el valor de la sesion:
+        // Send a POST request, to update the session value:
         $.post('/inicio/session_config', {'idEmpresa' : sel}, function(data)
         {
           if (data == 'OK') 
           {
-            // La sesion se activo correctamente, activa los modulos necesarios y actualiza la empresa en el encabezado:
+            // Session was succesfully activated, enable the required modules and update the enterprise in the header:
             $("#myEnterprise").html($("#select_empresas option:selected").text().trim());
 
             if (mod0) 
             {
-              // Desbloquea modulo 0 y pasa la informacion a los inputs hidden:
+              // Enable module 0 and pass the information to the hidden inputs:
               $("#btnConfigurar").attr("disabled", false); 
-              // $("#btnActivos").attr("disabled", false);
-              //$("#btnProgramas").attr("disabled", false); 
             };
 
             if (mod1) 
             {
-              // Desbloquea modulo 1 y pasa la informacion a los inputs hidden:
+              // Enable module 1 and pass the information to the hidden inputs:
               $("#btnRisks").attr("disabled", false); 
               $("#btnGoals").attr("disabled", false); 
               $("#btnDecisiones").attr("disabled", false); 
@@ -43,7 +40,7 @@ $( document ).ready(function() {
 
             if (mod2) 
             {
-              // Desbloquea modulo 2 y pasa la informacion a los inputs hidden:
+              // Enable module 2 and pass the information to the hidden inputs:
               $("#btnSimular").attr("disabled", false);
               $("#btnVisualizar").attr("disabled", false); 
               $("#btnComparar").attr("disabled", false);                    
@@ -51,7 +48,7 @@ $( document ).ready(function() {
           } 
           else
           {
-            // No se pudo activar la sesion, no desbloquea nada! 
+            // Session could not be activated, can't enable anything! 
             $("#errorEmpresa").html("You've tried to access an unauthorized enterprise!");
           };
           
@@ -86,7 +83,7 @@ mod2 = true
       <% end %>
     <% end %>
   </select>
-  <!-- La creación de empresas sólo está disponible para los administradores -->
+  <!-- Enterprise creation only allowed to administrators -->
   <% if true %>
   <a href="../enterprises/new" style="margin-left:10px;" title="Add new enterprise"><img src="/assets/add.png"></a>
   <a href="../enterprises/edit" style="margin-left:20px;" title="Edit enterprise"><img src="/assets/edit_26.png"></a>
@@ -99,7 +96,7 @@ mod2 = true
 
 <div style="width:100%">
 
-  <!--  CONFIGURACION -->
+  <!--  CONFIGURATION -->
   <div style="text-align:center;width:30%;float:left;border:solid 1px #DDD;min-height:610px;padding:50px 0 50px 0;">
     <div style="margin:30px;"><img src="/assets/configuration.png"></div>
     <h3 style="margin-top:15px;font-weight:100;">Configuration</h3>
@@ -112,7 +109,7 @@ mod2 = true
 
   <div style="width:69%;float:left;margin-left:1%;min-height:610px;">
 
-    <!--  GOBIERNO DE TI -->
+    <!--  IT GOVERNANCE -->
     <div style="min-height:200px;border:solid 1px #DDD;margin:0 0 5px 0;">
       <div style="width:20%;float:left;padding:36px 20px 36px 20px;">
         <img src="/assets/governance.png">

@@ -1,13 +1,16 @@
 #encoding: utf-8
 module Escenarios
   module SharedHelper
-  	# SLA: Helper que puede ser utilizado desde la aplicacion principal.
+  	# ES: Helper que puede ser utilizado desde la aplicacion principal.
+  	# EN: Helper that could be used FROM the main application
 
-    # Helper para listar y formatear los escenarios de evaluacion de riesgos
+    # ES: Helper para listar y formatear los escenarios de evaluacion de riesgos
+    # EN: Helper to list and format the risk assessment scenarios
   	def escenariosListRiskEscenarios(empId)
   		content = []
   		risks = RiskEscenario.where(enterprise_id: empId)
-	    # Inserta un registro de separacion:
+	    # ES: Inserta un registro de separacion:
+	    # EN: Inserts a separation record:
 	    content.push('Risk Assessment Scenarios$:$' << risks.size.to_s)
 
 	    risks.each do |risk|
@@ -20,11 +23,13 @@ module Escenarios
   	end
   	# ---------
 
-  	# Helper para listar y formatear los escenarios de evaluacion de objetivos
+  	# ES: Helper para listar y formatear los escenarios de evaluacion de objetivos
+  	# EN: Helper to list and format the goal assessment scenarios
   	def escenariosListGoalEscenarios(empId)
   		content = []
   		goals = GoalEscenario.where(enterprise_id: empId)
-	    # Inserta un registro de separacion:
+	    # ES: Inserta un registro de separacion:
+	    # EN: Inserts a separation record:
 	    content.push('Goal Assessment Scenarios$:$' << goals.size.to_s)
 
 	    goals.each do |goal|
@@ -37,11 +42,13 @@ module Escenarios
   	end
   	# ---------
 
-  	# Helper para listar y formatear los escenarios de priorizacion
+  	# ES: Helper para listar y formatear los escenarios de priorizacion
+  	# EN: Helper to list and format the prioritization scenarios
   	def escenariosListPriorEscenarios(empId)
   		content = []
   		priors = PriorizationEscenario.where(enterprise_id: empId)
-	    # Inserta un registro de separacion:
+	    # ES: Inserta un registro de separacion:
+	    # EN: Inserts a separation record:
 	    content.push('Prioritization Scenarios$:$' << priors.size.to_s)
 
 	    priors.each do |prior|
@@ -51,7 +58,8 @@ module Escenarios
 
 	      escTemp.each_with_index do |e, index|
 	        if index > 0
-	          # Se debe identar
+	          # ES: Se debe identar
+	          # EN: It must be indented
 	          # String: ID_PRIOR|name
 	          string = e.id.to_s << '_PRIOR|' << e.name << '|I'
 	        else
@@ -69,20 +77,24 @@ module Escenarios
   	end
   	# ---------
 
-  	# Helper que genera todo el contenido HTML de los escenarios de evaluacion de riesgos:
+  	# ES: Helper que genera todo el contenido HTML de los escenarios de evaluacion de riesgos:
+  	# EN: Helper that generates all the HTML content of the risk assessment scenarios:
   	def escenariosGenerateRisksHTML(empresa, riskIds, log)
   		escenarios = RiskEscenario.where(id: riskIds)
-  		# Directorio actual: (El de la empresa)
+  		# ES: Directorio actual: (El de la empresa)
+  		# EN: Current directory: (Owned by the enterprise)
 	  	actualFolder = Rails.root.to_s << "/HTML_CONTENT/" << '[' << empresa.id.to_s << '] ' << empresa.name
 	  	Dir.chdir(actualFolder)
 	  	rootEmpresa = actualFolder
 
-	  	# Crea la carpeta para los escenarios de riesgo y su respectivo archivo index:
+	  	# ES: Crea la carpeta para los escenarios de riesgo y su respectivo archivo index:
+	  	# EN: Creates the folder to store the risk assessment scenarios and its respective index file:
 	  	folderName = 'riskEscenarios'
 	  	FileUtils.mkdir_p(folderName)
 	  	log.push("Directory created: riskEscenarios (Risk Assessment Scenarios)")
 
-	    # CRea el archivo de estilos para los mapas de decision:
+	    # ES: Crea el archivo de estilos para los mapas de decision:
+	    # EN: Creates the css file for the decision maps:
 	    Dir.chdir(rootEmpresa+"/css")
 	    riskStyles = 'riskStyles.css'
 	    fileHtml = File.new(riskStyles, "w")
@@ -94,13 +106,15 @@ module Escenarios
 	    fileHtml.close()
 	    log.push("File created: riskStyles.css")
 
-	    # Crea el archivo de js para el dialogo en los escenarios de riesgo:
+	    # ES: Crea el archivo de js para el dialogo en los escenarios de riesgo:
+	    # EN: Creates the js file for the dialog in the risk assessment scenarios:
 	    Dir.chdir(rootEmpresa+"/js")
 	    riskJs = Rails.root.to_s << '/app/assets/javascripts/riskJS.js'
 	    FileUtils.cp riskJs, 'riskJS.js'
 
-	  	Dir.chdir(actualFolder+"/"+folderName) # Ingresa a la carpeta riskEscenarios
-	  	# Crea el archivo index para los escenarios de evaluacion de riesgos:
+	  	Dir.chdir(actualFolder+"/"+folderName) # ES: Ingresa a la carpeta riskEscenarios - EN: Enters the folder 
+	  	# ES: Crea el archivo index para los escenarios de evaluacion de riesgos:
+	  	# EN: Creates the index file for the risk assessment scenarios:
 	  	fileHtml = File.new("indexRiskEscenarios.html", "w")
 	  	lineHtml = '<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	    <link rel="stylesheet" type="text/css" href="../css/styles.css"/></head>'
@@ -138,19 +152,23 @@ module Escenarios
 	  	log.push("File created: riskEscenarios.html")
 
 
-	    # Crea el archivo de cada escenario de riesgos:
+	    # ES: Crea el archivo de cada escenario de riesgos:
+	    # EN: Creates the file for each risk assessment scenario:
 	    risksGen = Risk.where("nivel = ?", 'GENERICO').order(id: :asc)
 	    hijosGen = Risk.where("nivel = ? AND enterprise_id = ?", SPECIFIC_TYPE, empresa.id)
 	    riskmap = empresa.configuracion
 	    categories = RiskCategory.where("id_padre IS NULL")
-	    # Si no encuentra la configuración, la envía vacía:
+	    # ES: Si no encuentra la configuración, la envía vacía:
+	    # EN: If there is no configuration, send it empty:
 	  	if riskmap.nil?
-		    # Envía en los niveles, los valores por defecto
+		    # ES: Envía en los niveles, los valores por defecto
+		    # EN: Send in the levels, the default values
 		    default = RISK_SCALE   
 		    niveles = default.split('|')
 	  	else
 		    if riskmap.riskmap.nil? or riskmap.riskmap.empty?
-		      # Envía en los niveles, los valores por defecto
+		      # ES: Envía en los niveles, los valores por defecto
+		      # EN: Send in the levels, the default values
 		      default = RISK_SCALE   
 		      niveles = default.split('|')
 		    else
@@ -158,9 +176,11 @@ module Escenarios
 		    end
 		end
 
-		# Genera el archivo de cada escenario de evaluacion de riesgos:
+		# ES: Genera el archivo de cada escenario de evaluacion de riesgos:
+		# EN: Generates the file for each risk assessment scenarios:
 		escenarios.each do |esc|
-			# Calificaciones:
+			# ES: Calificaciones:
+			# EN: Scores:
 	    	cals = esc.califications
 
 	    	nameFile = 'esc' << esc.id.to_s << '.html'
@@ -218,16 +238,19 @@ module Escenarios
 					lineHtml = '<span style="padding-top:2px;">' << risk.descripcion << '</span></div></div></div>'
 					fileHtml.puts lineHtml
 
-					# Renderiza los hijos también:
+					# ES: Renderiza los hijos también:
+					# EN: Renders also the sons:
 					hijos = hijosGen.select{|h| h.riesgo_padre_id == risk.id}
 
 					if hijos.size > 0
 
 						hijos.each do |h|
-							# Revisa si tiene calificacion ese riesgo:
+							# ES: Revisa si tiene calificacion ese riesgo:
+							# EN: Checks if that risk has related scores:
 							myCal = cals.select {|cal| cal.risk == h }.first
 							if myCal.nil?
-								# No calificado
+								# ES: No calificado
+								# EN: Not scored
 								lineHtml = '<p style="margin-left:4%;color:#333;"><span style="width:35px;height:20px;margin-right:5px;'
 								fileHtml.puts lineHtml
 								lineHtml = 'border:solid 1px #333;display:inline-block;">&nbsp;-</span>'
@@ -235,7 +258,8 @@ module Escenarios
 								lineHtml = '<i>- ' << h.descripcion << '</i></p>'
 								fileHtml.puts lineHtml
 							else
-								# Calificado
+								# ES: Calificado
+								# EN: Scored
 								cont = 0
 					            niveles.each do |nivel|
 					              cont+= 1
@@ -248,15 +272,15 @@ module Escenarios
 					            importancia = 'Medium/Tolerable'
 					            
 					            if cont == 19 || cont == 25 || cont == 26 || cont == 31 || cont == 32 || cont == 33 
-					                # VERDE:  
+					                # ES: VERDE - EN: GREEN  
 					               color = 'green'
 					               importancia = 'Low/Acceptable'
 					            elsif cont == 4 || cont == 5 || cont == 6 || cont == 11 || cont == 12 || cont == 18 
-					              # ROJO
+					              # ES: ROJO - EN: RED
 					              color = 'red'
 					              importancia = 'Highest/Inadmissible'
 					            elsif cont == 2 || cont == 3 || cont == 9 || cont == 10 || cont == 16 || cont == 17 || cont == 23 || cont == 24 || cont == 30
-					               # NARANJA 
+					               # ES: NARANJA - EN: ORANGE 
 					               color = 'orange'
 					               importancia = 'High/Unacceptable'
 					            end
@@ -283,11 +307,11 @@ module Escenarios
 					            fileHtml.puts lineHtml
 					            lineHtml = 'Importance/Tolerance: ' << importancia << ', Evidence: ' << evi << '</i></span></p>'
 					            fileHtml.puts lineHtml 						
-							end # Cierra calificado
+							end # ES: Cierra calificado - EN: Close calificado
 
-						end # Cierra hijos
+						end # ES: Cierra hijos - EN: Close sons
 
-					end # Cierra hijos.size > 0
+					end # ES: Cierra hijos.size > 0 - EN: Close hijos.size > 0
 				end
 				# ------ myRisks.each do
 	  		end
@@ -339,48 +363,61 @@ module Escenarios
 		end 
 		# ----- escenarios.each do
 
-		# Devuelve el arreglo del log actualizado
-		log
+		# ES: Devuelve el arreglo del log actualizado
+		# EN: Returns the log array updated
+		return log
   	end
   	# --------- escenariosGenerateRisksHTML
 
 
-  	# Helper para generar el contenido HTML de los escenarios de evaluacion de objetivos:
+  	# ES: Helper para generar el contenido HTML de los escenarios de evaluacion de objetivos:
+  	# EN: Helper to generate the HTML content of the goals assessments scenarios:
   	def escenariosGenerateGoalsHTML(empresa, goalIds, log)
   		escenarios = GoalEscenario.where(id: goalIds)
-  		# Directorio actual: (El de la empresa)
+  		# ES: Directorio actual: (El de la empresa)
+  		# EN: Current directory: (owned by the enterprise)
 	    actualFolder = Rails.root.to_s << "/HTML_CONTENT/" << '[' << empresa.id.to_s << '] ' << empresa.name
 	    Dir.chdir(actualFolder)
 	    rootEmpresa = actualFolder
 
-	    # Crea el archivo de js para la interaccion con pestañas:
+	    # ES: Crea el archivo de js para la interaccion con pestañas:
+	    # EN: Creates the js file to support the tabs interaction:
 	    Dir.chdir(rootEmpresa+"/js")
 	    goalJs = Rails.root.to_s << '/app/assets/javascripts/goalJS.js'
 	    FileUtils.cp goalJs, 'goalJS.js'
 
 	    Dir.chdir(rootEmpresa)
 
-	    # Crea la carpeta para los escenarios de objetivos:
+	    # ES: Crea la carpeta para los escenarios de objetivos:
+	    # EN: Creates the folder for the goals scenarios:
 	    folderName = 'goalEscenarios'
 	    FileUtils.mkdir_p(folderName)
 	    log.push("Directory created: goalEscenarios (Goal Assessment Scenarios)")
-	    Dir.chdir(actualFolder+"/"+folderName) # Ingresa a la carpeta goalEscenarios
+	    Dir.chdir(actualFolder+"/"+folderName) # ES: Ingresa a la carpeta goalEscenarios - EN: Enters the folder goalScenarios
 
 
-	    # Crea el archivo de cada escenario de evaluacion de objetivos:
-	    # Variables comunes a todos los escenarios:
+	    # ES: Crea el archivo de cada escenario de evaluacion de objetivos:
+	    # EN: Creates the file for each goal assessment scenario:
 
-	    # Objetivos de Negocio:
+	    # ES: Variables comunes a todos los escenarios:
+	    # EN: Common variables to all scenarios:
+
+	    # ES: Objetivos de Negocio:
+	    # EN: Business Goals:
 	    bGoals = Goal.where("goal_type = ? AND scope = ?", GENERIC_TYPE, B_GOAL)
-	    # Objetivos de TI:
+	    # ES: Objetivos de TI:
+	    # EN: IT Goals:
 	    itGoals = Goal.where("goal_type = ? AND scope = ?", GENERIC_TYPE, IT_GOAL)
-	    # Dimensiones:
+	    # ES: Dimensiones:
+	    # EN: Dimensions:
 	    it_dims = itGoals.map { |goal| goal.dimension }.uniq
 	    b_dims = bGoals.map { |goal| goal.dimension }.uniq
-	    # Especificos:
+	    # ES: Especificos:
+	    # EN: Specific:
 	    especificos = Goal.where("goal_type = ? AND enterprise_id = ?", SPECIFIC_TYPE, empresa.id)
 
-	    # Genera el archivo de cada escenario de evaluacion de objetivos
+	    # ES: Genera el archivo de cada escenario de evaluacion de objetivos
+	    # EN: Generates the file for each goal assessment scenario
 	    escenarios.each do |esc|
 	    	cals = esc.goal_califications
 			nameFile = 'escG' << esc.id.to_s << '.html'
@@ -412,7 +449,8 @@ module Escenarios
 			lineHtml = '<div id="business_goals" style="border:solid 1px #DDD;min-height:500px;padding:10px;overflow:auto;">'
 			fileHtml.puts lineHtml
 
-			# Recorre las dimensiones de negocio:
+			# ES: Recorre las dimensiones de negocio:
+			# EN: Go over business dimensions:
 			b_dims.each do |dim|
 
 				lineHtml = '<div class="alert alert-info"><span style="text-align:center;font-size:18px;">'
@@ -463,7 +501,8 @@ module Escenarios
 
 				    end # myCal.nil?
 
-				    # Renderiza sus hijos:
+				    # ES: Renderiza sus hijos:
+				    # EN: Renders their sons:
 				    hijos = especificos.select{|esp| esp.parent_id == goal.id}
 				    hijos.each do |hijo|
 				      lineHtml = '<p style="margin-left:1%;color:#AAA;"><i>- ' << hijo.description << '</i>'
@@ -473,9 +512,9 @@ module Escenarios
 				    lineHtml = '</div>'
 				    fileHtml.puts lineHtml
 
-				  end # Objetivos bajo esa dimension
-				end # tiene objetivos bajo esta dimension?
-			end # Dimensiones de negocio
+				  end # ES: Objetivos bajo esa dimension - EN: Goals under that dimension
+				end # ES: tiene objetivos bajo esta dimension? - EN: is there goals under this dimension?
+			end # ES: Dimensiones de negocio - EN: Business dimensions
 
 			lineHtml = '</div>'
 			fileHtml.puts lineHtml 
@@ -483,7 +522,8 @@ module Escenarios
 			lineHtml = '<div id="it_goals" style="display:none;border:solid 1px #DDD;min-height:500px;padding:10px;overflow:auto;">'
 			fileHtml.puts lineHtml
 
-			# Agrupa por dimension:
+			# ES: Agrupa por dimension:
+			# EN: Groups by dimension:
 			it_dims.each do |dim|
 				lineHtml = '<div class="alert alert-info"><span style="text-align:center;font-size:18px;">'
 				fileHtml.puts lineHtml 
@@ -536,7 +576,8 @@ module Escenarios
 
 				    end # myCal.nil?
 
-				    # Renderiza sus hijos:
+				    # ES: Renderiza sus hijos:
+				    # EN: Renders their sons:
 				    hijos = especificos.select{|esp| esp.parent_id == goal.id}
 				    hijos.each do |hijo|
 				      lineHtml = '<p style="margin-left:1%;color:#AAA;"><i>- ' << hijo.description << '</i>'
@@ -546,9 +587,9 @@ module Escenarios
 				    lineHtml = '</div>'
 				    fileHtml.puts lineHtml
 				    
-				  end # Objetivos
-				end # Objetivos de TI bajo esta dimension?
-			end # Dimensiones de TI
+				  end # ES: Objetivos - EN: Goals
+				end # ES: Objetivos de TI bajo esta dimension? - EN: IT Goals under this dimension?
+			end # ES: Dimensiones de TI - EN: IT dimensions
 
 			lineHtml = '</div>'
 			fileHtml.puts lineHtml
@@ -559,26 +600,31 @@ module Escenarios
 	    end
 	    # ---- escenarios.each do
 
-	    # Devuelve el log actualizado
+	    # ES: Devuelve el log actualizado
+	    # EN: Returns the updated log
 	    return log
 
   	end
   	# ------ escenariosGenerateGoalsHTML
 
-  	# Helper que genera el contenido HTML de los escenarios de priorizacion:
+  	# ES: Helper que genera el contenido HTML de los escenarios de priorizacion:
+  	# EN: Helper that generates the HTML content of the prioritization scenarios
   	def escenariosGeneratePriorsHTML(empresa, priorIds, log)
   		escenarios = PriorizationEscenario.where(id: priorIds)
-  		# Directorio actual: (El de la empresa)
+  		# ES: Directorio actual: (El de la empresa)
+  		# EN: Current directory: (owned by the enterprise)
 	  	actualFolder = Rails.root.to_s << "/HTML_CONTENT/" << '[' << empresa.id.to_s << '] ' << empresa.name
 	  	Dir.chdir(actualFolder)
 	  	rootEmpresa = actualFolder
 
-	  	# Crea la carpeta para los escenarios de priorización y su respectivo archivo index:
+	  	# ES: Crea la carpeta para los escenarios de priorización y su respectivo archivo index:
+	  	# EN: Creates the folder for the prioritization scenarios and its index file
 	  	folderName = 'priorizationEscenarios'
 	  	FileUtils.mkdir_p(folderName)
 	  	log.push("Directory created: prioriozationEscenarios (Prioritization Scenarios)")
-	  	Dir.chdir(actualFolder+"/"+folderName) # Ingresa a la carpeta priorizationEscenarios
-	  	# Crea el archivo index para los escenarios de priorizacion:
+	  	Dir.chdir(actualFolder+"/"+folderName) # ES: Ingresa a la carpeta priorizationEscenarios - EN: Enters into the foler prioritizationScenarios
+	  	# ES: Crea el archivo index para los escenarios de priorizacion:
+	  	# EN: Creates the index file for the prioritization scenarios:
 	  	fileHtml = File.new("indexPriorizationEscenarios.html", "w")
 	  	lineHtml = '<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	    <link rel="stylesheet" type="text/css" href="../css/styles.css"/>'
@@ -619,7 +665,8 @@ module Escenarios
 		fileHtml.close()
 		log.push("File created: indexPriorizationEscenarios.html")
 
-		# CRea el archivo de estilos para los mapas de decision:
+		# ES: CRea el archivo de estilos para los mapas de decision:
+		# EN: Creates the css file for the decision maps:
 		Dir.chdir(rootEmpresa+"/css")
 		priorizationStyles = 'priorizationStyles.css'
 		fileHtml = File.new(priorizationStyles, "w")
@@ -637,9 +684,10 @@ module Escenarios
 		fileHtml.close()
 		log.push("File created: priorizationStyles.css")
 
-		Dir.chdir(actualFolder+"/"+folderName) # Ingresa a la carpeta priorizationEscenarios
+		Dir.chdir(actualFolder+"/"+folderName) # ES: Ingresa a la carpeta priorizationEscenarios - EN: Enters into the folder prioritizationEscenarios
 
-		# Crea el archivo de la priorizacion de cada escenario:
+		# ES: Crea el archivo de la priorizacion de cada escenario:
+		# EN: Creates the file for each prioritization scenarios:
 		escenarios.each do |esc|
 			nameFile = 'escP' << esc.id.to_s << '.html'
 		    fileHtml = File.new(nameFile, "w")
@@ -653,26 +701,28 @@ module Escenarios
 			fileHtml.puts lineHtml
 			lineHtml = '<div><ol class="breadcrumb"><li><a href="../index.html">Home</a></li>'
 			fileHtml.puts lineHtml
-			#lineHtml = '<li><a href="indexPriorizationEscenarios.html">Escenarios de priorización</a></li>'
-			#fileHtml.puts lineHtml
 			lineHtml = '<li class="active">[' << empresa.name << '] Prioritization: ' << esc.name << '</li></ol></div>'
 			fileHtml.puts lineHtml
 			lineHtml = '<h2>Scenario: ' << esc.name << '    [ ' << esc.fecha_ejecucion.to_s << ' ]' << '</h2>'
 			fileHtml.puts lineHtml
 		    toFormat = esc.stats.split("_$$_")
 		    stats = []
-		    # Primera posicion, el nombre del escenario:
+		    # ES: Primera posicion, el nombre del escenario:
+		    # EN: First position, scenario's name
 		    stats[0] = esc.name << '    [ ' << esc.fecha_ejecucion.to_s << ' ]'
-		    # Segunda posicion, el peso de los riesgos:
+		    # ES: Segunda posicion, el peso de los riesgos:
+		    # EN: Second position, risks weight
 		    stats[1] = esc.risksWeight.to_s
-		    # Tercera posicion, el peso de los objetivos:
+		    # ES: Tercera posicion, el peso de los objetivos:
+		    # EN: Third position, goals weight:
 		    stats[2] = esc.goalsWeight.to_s
 
-		    # Formatea todos los stats, obteniendo la informacion adicional requerida de los procesos:
+		    # ES: Formatea todos los stats, obteniendo la informacion adicional requerida de los procesos:
+		    # EN: Format all the stats, getting required additional info from the processes:
 		    procesos = ItProcess.all
 
-		    # Cada linea debe ir:
-		    # # ID_Proceso_Fuente|Descripcion|importancia_riesgos|importancia_objetivos|importancia_total
+		    # ES: Cada linea debe ir: ID_Proceso_Fuente|Descripcion|importancia_riesgos|importancia_objetivos|importancia_total
+		    # EN: Each line must go: Source_Process_ID|Description|risks_importance|goals_importance|total_importance
 		    toFormat.each do |line|
 		      split = line.split("|")
 		      idProceso = split[0].to_i
@@ -681,7 +731,8 @@ module Escenarios
 		      stats.push(newLine)
 		    end
 
-		    # Imprime la tabla:
+		    # ES: Imprime la tabla:
+		    # EN: Prints the table:
 			lineHtml = '<table style="font-size:13px;"><tr><th>Process ID</th><th>Description</th>'
 			fileHtml.puts lineHtml
 			escalaRisk = ( ( esc.risksWeight / 100.0 ) * 5.0).round(2).to_s
@@ -718,17 +769,17 @@ module Escenarios
 		end
 		# --- escenarios.each do
 
-		# Devuelve el log actualizado:
-		log
+		# ES: Devuelve el log actualizado:
+		# EN: Returns the updated log
+		return log
   	end
   	# ----- escenariosGeneratePriorsHTML
 
-  	# Metodo que calcula el porcentaje de completitud de un escenario de riesgos
+  	# ES: Metodo que calcula el porcentaje de completitud de un escenario de riesgos
+  	# EN: Method that calculates the completeness percentage of a risk assessment scenarios
 	def getPorcentajeRiesgos(riskEscenario)
-		#totalGenericos = Risk.where("nivel = ?", 'GENERICO').size
 		totalHijos = Risk.where("nivel = ? AND enterprise_id = ?", SPECIFIC_TYPE, riskEscenario.enterprise.id).map{|h| h.id}
-		total = totalHijos.size # + totalGenericos
-		#calificados = riskEscenario.califications.size
+		total = totalHijos.size
 		calificados = RiskCalification.where(risk_escenario_id: riskEscenario.id, risk_id: totalHijos).size
 
 		if total == 0
@@ -741,7 +792,8 @@ module Escenarios
 	end
 	# ------
 
-	# Metodo que calcula el porcentaje de completitud de un escenario de objetivos
+	# ES: Metodo que calcula el porcentaje de completitud de un escenario de objetivos
+	# EN: Method that calculates the completeness percentage of a goal assessment scenario
 	def getPorcentajeObjetivos(goalEscenario)
 		total = Goal.where("goal_type = ?", GENERIC_TYPE).size  	
 		calificados = goalEscenario.goal_califications.size
@@ -756,10 +808,9 @@ module Escenarios
 	end
 	# -------
 
-	 private :getPorcentajeRiesgos, :getPorcentajeObjetivos # Se declaran privados, porque estan replicados en el priorizationHelper!
-
-
-
+	 # ES: Se declaran privados, porque estan replicados en el priorizationHelper!
+	 # EN: Declared as private, because are replicated in the helper: PrioritizationHelper!
+	 private :getPorcentajeRiesgos, :getPorcentajeObjetivos 
 
 
   end # --- module SharedHelper

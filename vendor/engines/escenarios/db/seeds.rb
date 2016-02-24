@@ -1,7 +1,12 @@
 #encoding: utf-8
 
-# Carga los riesgos genericos:
+# ES: Carga los riesgos genericos:
 # (Aunque debe verificar si no estan cargados ya, mediante la existencia de las categorias de riesgo)
+
+# EN: Load the generic risks:
+# (Although it must verify if those risks are not loaded already, through the risk categories existence)
+
+
 RiskCategory.all.size > 0 ? cargados = true : false
 
 if !cargados
@@ -88,7 +93,8 @@ if !cargados
 
 		
 
-	# Carga las categorias y escenarios de riesgo genericos:
+	# ES: Carga las categorias y escenarios de riesgo genericos:
+	# EN: Load the categories and generic risk scenarios:
 	categories = RiskCategory.create([
 	{description: 'Benefit/value enablement risk'},
 	{description: 'Programme/project delivery risk'},
@@ -138,7 +144,8 @@ end
 
 
 
-# Carga los objetivos de negocio:
+# ES: Carga los objetivos de negocio:
+# EN: Load the business goals:
 
 bGoals = Escenarios::Goal.create([
 {description: 'Stakeholder value of business investments', goal_type: GENERIC_TYPE, scope: B_GOAL, dimension: FINANCIAL},
@@ -160,7 +167,8 @@ bGoals = Escenarios::Goal.create([
 {description: 'Product and business innovation culture', goal_type: GENERIC_TYPE, scope: B_GOAL, dimension: L_AND_G}
 ])
 
-# Carga los objetivos de TI:
+# ES: Carga los objetivos de TI:
+# EN: Load the IT goals:
 
 ITGoals = Escenarios::Goal.create([
 {description: 'Alignment of IT and business strategy', goal_type: GENERIC_TYPE, scope: IT_GOAL, dimension: FINANCIAL},
@@ -182,7 +190,8 @@ ITGoals = Escenarios::Goal.create([
 {description: 'Knowledge, expertise and initiatives for business innovation', goal_type: GENERIC_TYPE, scope: IT_GOAL, dimension: L_AND_G}
 ])
 
-# Carga los procesos de TI:
+# ES: Carga los procesos de TI:
+# EN: Load the IT Processes
 
 myProcs =  Escenarios::ItProcess.create([
 {description: 'Ensure Governance Framework Setting and Maintenance', domain: PROCESS_D_EDM, fuente: COBIT, id_fuente: 'EDM01'},
@@ -225,9 +234,14 @@ myProcs =  Escenarios::ItProcess.create([
 ])
 
 
-
+# ES:
 # Carga la matriz de relacion Riesgos VS Procesos:
 # PRE: Las categorías de riesgo deben estar cargadas en orden:
+
+# EN:
+# Load the relationship matrix Risks VS Processes
+# PRE: The risk categories must be previously loaded in the next order:
+
 # 1: Benefit/value enablement risk
 # 10: Architectural agility and flexibility
 # 20: Destruction of infrastructure
@@ -273,16 +287,22 @@ matrixRisks = Escenarios::RiskProcessMatrix.create([
 ])
 
 
+# ES:
 # Carga la matriz de relacion Objetivos de Negocio VS Objetivos de TI:
 # PRE: Los objetivos deben estar cargados en orden (y por bloques):
-# 1-5: Negocio/Financial
-# 6-10: Negocio/Customer
-# 11-15: Negocio/Internal
-# 16-17: Negocio/Learning and Growth
-# 18-23: TI/Financial
-# 24-25: TI/Customer
-# 26-32: TI/Internal
-# 33-34: TI/Learning and Growth
+
+# EN:
+# Load the relationship matrix Business Goals VS IT Goals:
+# PRE: The goals must be loaded in order (and by blocks)
+
+# 1-5: Business/Financial
+# 6-10: Business/Customer
+# 11-15: Business/Internal
+# 16-17: Business/Learning and Growth
+# 18-23: IT/Financial
+# 24-25: IT/Customer
+# 26-32: IT/Internal
+# 33-34: IT/Learning and Growth
 
 matrixBus = Escenarios::BusinessGoalItMatrix.create([
 {it_goal_id: 18, business_goal_id: 1,  value: 'P'},
@@ -577,27 +597,33 @@ matrixBus = Escenarios::BusinessGoalItMatrix.create([
 ])
 
 
-
+# ES:
 # Carga la matriz de relacion Objetivos de TI VS Procesos:
 # PRE: Los procesos deben estar cargados en orden (1-37):
 
-# Un ciclo por cada proceso:
+# EN: 
+# Load the relationship matrix IT Goals VS Processes
+# PRE: The processes must be loaded and ordered (1-37)
 
-# Proceso 1:
+
+# ES: Un ciclo por cada proceso:
+# EN: A cycle for each process
+
+# Process 1:
 line = 'P|S|P|S|S|S|P|N|S|S|S|S|S|S|S|S|S'
 partes = line.split('|')
 for i in 18..34
 	registro = Escenarios::ItGoalsProcessesMatrix.create(process_id: 1, it_goal_id: i, value: partes[i-18])
 end
 
-# Proceso 2:
+# Process 2:
 line = 'P|N|S|N|P|P|P|S|N|N|S|S|S|S|N|S|P'
 partes = line.split('|')
 for i in 18..34
 	registro = Escenarios::ItGoalsProcessesMatrix.create(process_id: 2, it_goal_id: i, value: partes[i-18])
 end
 
-# Proceso 3:
+# Process 3:
 line = 'S|S|S|P|N|P|S|S|N|P|N|N|S|S|P|S|S'
 partes = line.split('|')
 for i in 18..34
@@ -605,7 +631,7 @@ for i in 18..34
 end
 
 
-# Proceso 4:
+# Process 4:
 line = 'S|N|S|S|S|S|S|S|P|N|P|N|S|N|N|P|S'
 partes = line.split('|')
 for i in 18..34
@@ -613,7 +639,7 @@ for i in 18..34
 end
 
 
-# Proceso 5:
+# Process 5:
 line = 'S|S|P|N|N|P|P|N|N|N|N|N|S|S|S|N|S'
 partes = line.split('|')
 for i in 18..34
@@ -621,7 +647,7 @@ for i in 18..34
 end
 
 
-# Proceso 6:
+# Process 6:
 line = 'P|P|S|S|N|N|S|N|P|S|P|S|S|S|N|N|N'
 partes = line.split('|')
 for i in 18..34
@@ -629,7 +655,7 @@ for i in 18..34
 end
 
 
-# Proceso 7:
+# Process 7:
 line = 'P|N|S|S|S|N|P|S|S|N|S|S|S|S|P|P|P'
 partes = line.split('|')
 for i in 18..34
@@ -637,7 +663,7 @@ for i in 18..34
 end
 
 
-# Proceso 8:
+# Process 8:
 line = 'P|N|S|S|S|S|S|S|P|S|P|S|N|S|S|S|P'
 partes = line.split('|')
 for i in 18..34
@@ -645,7 +671,7 @@ for i in 18..34
 end
 
 
-# Proceso 9:
+# Process 9:
 line = 'S|N|N|S|P|N|N|P|P|N|P|S|N|S|N|N|S'
 partes = line.split('|')
 for i in 18..34
@@ -653,7 +679,7 @@ for i in 18..34
 end
 
 
-# Proceso 10:
+# Process 10:
 line = 'P|N|S|S|P|S|S|S|S|N|S|N|P|N|N|N|P'
 partes = line.split('|')
 for i in 18..34
@@ -661,7 +687,7 @@ for i in 18..34
 end
 
 
-# Proceso 11:
+# Process 11:
 line = 'S|N|S|S|P|P|S|S|N|N|S|N|S|N|N|N|S'
 partes = line.split('|')
 for i in 18..34
@@ -669,7 +695,7 @@ for i in 18..34
 end
 
 
-# Proceso 12:
+# Process 12:
 line = 'P|S|S|S|N|N|S|S|S|S|P|N|P|N|N|N|N'
 partes = line.split('|')
 for i in 18..34
@@ -677,7 +703,7 @@ for i in 18..34
 end
 
 
-# Proceso 13:
+# Process 13:
 line = 'P|N|S|S|S|S|P|S|N|N|S|P|S|N|S|P|P'
 partes = line.split('|')
 for i in 18..34
@@ -685,7 +711,7 @@ for i in 18..34
 end
 
 
-# Proceso 14:
+# Process 14:
 line = 'S|N|N|S|S|S|P|S|S|S|S|N|S|P|S|S|P'
 partes = line.split('|')
 for i in 18..34
@@ -693,7 +719,7 @@ for i in 18..34
 end
 
 
-# Proceso 15:
+# Process 15:
 line = 'N|S|N|P|S|S|P|S|P|S|S|N|S|S|S|N|N'
 partes = line.split('|')
 for i in 18..34
@@ -701,7 +727,7 @@ for i in 18..34
 end
 
 
-# Proceso 16:
+# Process 16:
 line = 'S|S|N|S|P|N|P|S|S|N|S|N|P|S|S|N|S'
 partes = line.split('|')
 for i in 18..34
@@ -709,7 +735,7 @@ for i in 18..34
 end
 
 
-# Proceso 17:
+# Process 17:
 line = 'N|P|N|P|N|P|S|S|S|P|N|N|P|S|S|S|S'
 partes = line.split('|')
 for i in 18..34
@@ -717,7 +743,7 @@ for i in 18..34
 end
 
 
-# Proceso 18:
+# Process 18:
 line = 'N|P|N|P|N|P|S|S|N|P|N|N|N|P|S|S|S'
 partes = line.split('|')
 for i in 18..34
@@ -725,7 +751,7 @@ for i in 18..34
 end
 
 
-# Proceso 19:
+# Process 19:
 line = 'P|N|S|P|P|S|S|S|N|N|S|N|P|N|N|S|S'
 partes = line.split('|')
 for i in 18..34
@@ -733,7 +759,7 @@ for i in 18..34
 end
 
 
-# Proceso 20:
+# Process 20:
 line = 'P|S|S|S|S|N|P|S|S|S|S|P|S|S|N|N|S'
 partes = line.split('|')
 for i in 18..34
@@ -741,7 +767,7 @@ for i in 18..34
 end
 
 
-# Proceso 21:
+# Process 21:
 line = 'S|N|N|S|S|N|P|S|N|N|S|S|S|S|N|N|S'
 partes = line.split('|')
 for i in 18..34
@@ -749,7 +775,7 @@ for i in 18..34
 end
 
 
-# Proceso 22:
+# Process 22:
 line = 'N|N|N|S|S|N|P|S|S|N|P|N|S|P|N|N|S'
 partes = line.split('|')
 for i in 18..34
@@ -757,7 +783,7 @@ for i in 18..34
 end
 
 
-# Proceso 23:
+# Process 23:
 line = 'S|N|S|N|S|N|S|P|S|N|S|N|P|N|N|N|P'
 partes = line.split('|')
 for i in 18..34
@@ -765,7 +791,7 @@ for i in 18..34
 end
 
 
-# Proceso 24:
+# Process 24:
 line = 'N|N|S|P|S|N|P|S|S|P|S|N|S|S|S|N|S'
 partes = line.split('|')
 for i in 18..34
@@ -773,7 +799,7 @@ for i in 18..34
 end
 
 
-# Proceso 25:
+# Process 25:
 line = 'N|N|N|S|S|N|S|P|S|N|N|N|S|S|S|N|S'
 partes = line.split('|')
 for i in 18..34
@@ -781,7 +807,7 @@ for i in 18..34
 end
 
 
-# Proceso 26:
+# Process 26:
 line = 'S|N|N|N|S|N|S|S|P|S|S|N|N|S|N|S|P'
 partes = line.split('|')
 for i in 18..34
@@ -789,7 +815,7 @@ for i in 18..34
 end
 
 
-# Proceso 27:
+# Process 27:
 line = 'N|S|N|S|N|P|S|N|S|S|P|N|N|S|S|N|N'
 partes = line.split('|')
 for i in 18..34
@@ -797,7 +823,7 @@ for i in 18..34
 end
 
 
-# Proceso 28:
+# Process 28:
 line = 'N|P|N|S|N|S|N|S|S|S|P|N|N|P|S|N|N'
 partes = line.split('|')
 for i in 18..34
@@ -805,7 +831,7 @@ for i in 18..34
 end
 
 
-# Proceso 29:
+# Process 29:
 line = 'N|S|N|P|S|N|P|S|S|S|P|N|N|S|S|S|S'
 partes = line.split('|')
 for i in 18..34
@@ -813,7 +839,7 @@ for i in 18..34
 end
 
 
-# Proceso 30:
+# Process 30:
 line = 'N|N|N|P|N|N|P|S|N|S|N|N|N|S|S|N|S'
 partes = line.split('|')
 for i in 18..34
@@ -821,7 +847,7 @@ for i in 18..34
 end
 
 
-# Proceso 31:
+# Process 31:
 line = 'N|S|N|P|S|N|P|S|S|N|P|S|N|P|S|N|S'
 partes = line.split('|')
 for i in 18..34
@@ -829,7 +855,7 @@ for i in 18..34
 end
 
 
-# Proceso 32:
+# Process 32:
 line = 'S|S|N|P|S|N|P|S|S|S|S|S|N|P|S|S|S'
 partes = line.split('|')
 for i in 18..34
@@ -837,7 +863,7 @@ for i in 18..34
 end
 
 
-# Proceso 33:
+# Process 33:
 line = 'S|P|N|P|N|N|S|S|N|P|S|S|N|S|S|N|N'
 partes = line.split('|')
 for i in 18..34
@@ -845,7 +871,7 @@ for i in 18..34
 end
 
 
-# Proceso 34:
+# Process 34:
 line = 'N|S|N|P|N|N|P|S|N|S|S|S|N|S|S|S|S'
 partes = line.split('|')
 for i in 18..34
@@ -853,7 +879,7 @@ for i in 18..34
 end
 
 
-# Proceso 35:
+# Process 35:
 line = 'S|S|S|P|S|S|P|S|S|S|P|N|S|S|P|S|S'
 partes = line.split('|')
 for i in 18..34
@@ -861,7 +887,7 @@ for i in 18..34
 end
 
 
-# Proceso 36:
+# Process 36:
 line = 'N|P|N|P|N|S|S|S|N|S|N|N|N|S|P|N|S'
 partes = line.split('|')
 for i in 18..34
@@ -869,7 +895,7 @@ for i in 18..34
 end
 
 
-# Proceso 37:
+# Process 37:
 line = 'N|P|N|P|S|N|S|N|N|S|N|N|N|N|S|N|S'
 partes = line.split('|')
 for i in 18..34

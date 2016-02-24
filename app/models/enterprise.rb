@@ -7,7 +7,4 @@ class Enterprise < ActiveRecord::Base
 	has_attached_file :logo, 
 	:path => "public/system/logos/:id/:filename"
 
-	#validates_attachment :logo,
-  	#:content_type => { :content_type => ["image/jpeg", "image/png", "image/jpg"] }
-
 end

@@ -1,19 +1,19 @@
 <%
 
 myDec = decision
-myDivs = divs # Número de <td>, por los arquetipos
+myDivs = divs # Number of <td>, because the archetypes
 hijos = darHijosD(myDec)
 myLvl = lvl
 
 %>
 
-<% # Renderiza la decision: %>
+<% # Renders the decision: %>
 
 <tr>
 	<% idSpan = 'span_' << myDec.id.to_s %>
 	<% classTd = 'cell_finding' %>
 	<% classSpan = 'span_finding' %>
-	<% if myLvl > 0 # Debe enfatizar la jerarquia: %>
+	<% if myLvl > 0 # Needs to enphasize the hierarchy: %>
 	    <% margen = myLvl * 15 %> 
 		<td style="background-color:#f5f5f5;border:solid 1px #cacaca;width:30%;" class="<%= classTd %>">
 			<div style="width:100%;text-align:right;">
@@ -34,7 +34,7 @@ myLvl = lvl
 		</td>
 	<% end %>
 
-	<% for i in 1..myDivs # i: ID del tipo de responsabilidad %>
+	<% for i in 1..myDivs # i: Responsibility type ID %>
 	<% seleccionadas = @details.select { |d|  d.governance_decision.id == myDec.id && d.responsability_type == @resps[i-1] }     %>
 	<% idCell = 'cell_' << myDec.id.to_s << '_' << i.to_s %>
 	<% idSpan = 'span_' << myDec.id.to_s << '_' << i.to_s %>
@@ -42,21 +42,21 @@ myLvl = lvl
 	<% classSpan = 'cell_span' %>
 	<% classCell = 'cell_map' %>
 	<% ids = '' %>
-	<!-- Si se está tratando la última columna, cambia la clase del span -->
+	<!-- If its the last column, change the span's class -->
 	<%
 	   if i == myDivs
 
-	   	# Última columna, para agregar mecanismos complementarios:
+	   	# Last column, to add complementary mechanisms:
 	   	classSpan = 'lastSpan'
 	   	classCell = 'lastCell'
-	   	# El input no interesa:
+	   	# The input doesn't matter:
 	   	idInput = ''
-	   	# Tampoco hay seleccionadas como estructuras, los hay como mecanismos:
+	   	# Also there are not structures selected, there are as mechanisms:
 	   	mech = seleccionadas.first
 	   	if !mech.nil?
 	   		mechs = mech.complementary_mechanisms
 	   		if !mechs.nil? && mechs != ''
-		   		# Hay mecanismos cargados
+		   		# There are loaded mechanisms
 		   		loadedMechs = mechs.split("|")
 	   	    end
 	   	end
@@ -71,7 +71,7 @@ myLvl = lvl
 	<td class="<%= classCell %>" id="<%= idCell %>">
 		<span id="<%= idSpan %>" class="<%= classSpan %>" style="color:#428bca;cursor:pointer;margin:3px 0 3px 0;text-align:center;">
 		</span>
-		<!-- Renderiza los mecanismos igual que las estructuras: -->
+		<!-- Renders the mechanisms just the same as the structures: -->
 		<% if !loadedMechs.nil? %>
 		    <% myMechs = Mapas::ComplementaryMechanism.where(id: loadedMechs) %>
 		    <% myMechs.each do |mech| %>
@@ -98,7 +98,7 @@ myLvl = lvl
 	<% end %>
 </tr>
 
-<% # Renderiza los hijos: %>
+<% # Renders the sons: %>
 
 <% if hijos.size > 0 %>
 <% myLvl = lvl + 1 %>

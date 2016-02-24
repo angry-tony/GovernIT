@@ -1,16 +1,16 @@
 <%
 
 myDec = decision
-myDivs = divs # Número de <td>, por los arquetipos
+myDivs = divs # Number of <td>, because the archetypes
 hijos = darHijosD(myDec)
 myLvl = lvl
 
 %>
 
-<% # Renderiza la decision: %>
+<% # Renders the decision: %>
 
 <tr>
-	<% if myLvl > 0 # Debe enfatizar la jerarquia: %>
+	<% if myLvl > 0 # Needs to emphasize the hierarchy: %>
 	    <% margen = myLvl * 15 %> 
 		<td style="background-color:#f5f5f5;border:solid 1px #cacaca;">
 			<img src="/assets/right.png" style="margin-left:<%= margen %>px;"> <%= myDec.description %>
@@ -19,7 +19,7 @@ myLvl = lvl
 		<td style="background-color:#f5f5f5;border:solid 1px #cacaca;"><%= myDec.description %></td>
 	<% end %>
 
-	<% for i in 1..myDivs # i: ID del arquetipo %>
+	<% for i in 1..myDivs # i: Archetype's ID %>
 	<% seleccionadas = @details.select { |d|  d.governance_decision.id == myDec.id && d.decision_archetype.id == i }     %>
 	<% idCell = 'cell_' << myDec.id.to_s << '_' << i.to_s %>
 	<% idSpan = 'span_' << myDec.id.to_s << '_' << i.to_s %>
@@ -46,7 +46,7 @@ myLvl = lvl
 	<% end %>
 </tr>
 
-<% # Renderiza los hijos: %>
+<% # Renders the sons: %>
 
 <% if hijos.size > 0 %>
 <% myLvl = lvl + 1 %>

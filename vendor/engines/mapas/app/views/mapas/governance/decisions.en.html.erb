@@ -1,11 +1,11 @@
 <script>
 
-// ACTUALIZA LAS DECISIONES SEGÚN EL CAMBIO DE LA DIMENSIÓN:
+// UPDATE THE DECISIONS ACCORDING THE CHANGES IN THE DIMENSION:
 $(document).on('change', "select.editDim", function() {
 	var id = this.id;
 	id = id.replace("selEditDim_", "").trim(); 
 	var dim = $("#selEditDim_"+id+ "> option:selected").text();
-	// Obtiene la información de las decisiones de dicha dimension:
+	// Get the information of the decisions from that dimension:
 	$.post('./get_decisions_by_dim', {'dim' : dim, 'me' : id}, function(data)
     {
     	var html= 
@@ -16,47 +16,47 @@ $(document).on('change', "select.editDim", function() {
     		html+= '<option value="'+ data[i].id +'">' + data[i].description + '</option>';
     	};
 
-    	// Actualiza el valor del select de dimensiones:
+    	// Updates the value of the dimensions' select:
     	$("#selEditPadre_"+id).html(html);
     
     });
 	
 });
 
-// DESCARTAR EDICIÓN:
+// DISCARD EDITION:
 $(document).on('click', "img.discard", function() {
 	var id = this.id;
 	id = id.replace("discard", "").trim(); 
-	// Elimina todo el div:
+	// Remove all the div:
 	$("#div_edit_"+id).remove();
 });
 
-// GUARDAR CAMBIOS DE EDICIÓN:
+// SAVE EDITION CHANGES:
 $(document).on('click', "img.update", function() {
 	var id = this.id;
 	id = id.replace("update", "").trim(); 
 
-	// Obtiene los nuevos valores:
+	// Get the new values:
 	var newDesc  = $("#inputEditDesc_"+id).val();
 	var newDim   = $("#selEditDim_"+id+"> option:selected").text();
 	var newPadre = $("#selEditPadre_"+id+"> option:selected").val();
 	var html; var idPadre; var margen;
 
-	// Realiza la actualización via AJAX:
+	// Perform an update through AJAX:
    	$.post('./update_decision', {'id' : id, 'newDesc' : newDesc, 'newDim' : newDim, 'newPadre' : newPadre}, function(data)
     {
     	if (data.id != null) 
     	{
-    		// Actualización exitosa:
-    		// Elimina el div de actualizacion:
+    		// Sucessfull update:
+    		// Remove the update div:
     		$("#div_edit_"+id).remove();
-    		// Elimina el <p> de la decision original, pues será reubicado:
+    		// Remove the <p> of the original decision, because will be relocated:
     		$("#par"+id).remove();
-    		// Crea el nuevo <p>, con la información actualizada para su reubicación:
+    		// Creates the new <p>, with the information updated to perform its relocation:
     		if (data.parent_id == null) 
     		{
-    			// GENERICA:
-    			// Inserta el registro después de su dimension:
+    			// GENERIC:
+    			// Inserts the record after its dimension:
     			idPadre = 'div_dim_' + data.dimension.toLowerCase().trim().substring(0,4);
 	    		html = '<p id="par' + data.id + '"  title="Add a new specific decision under this generic decision">' + 
 	    		'<img src="/assets/list_option.png" style="margin-right:6px;cursor:pointer;" class="new_dec" id="img' + data.id + '">'+
@@ -70,12 +70,12 @@ $(document).on('click', "img.update", function() {
     		} 
     		else
     		{
-    			// ESPECIFICA:
-    			// Inserta el registro después de su padre:
+    			// SPECIFIC:
+    			// Inserts the record after its father:
 	    		idPadre = 'par' + data.parent_id;
-	    		// Obtiene la margen del padre:
+	    		// Get the father's margin:
 	    		margen = $("#"+idPadre).css("margin-left");
-	    		// Le agrega 5 px, para construir el arbol:
+	    		// Add it 5 px, to build the hierarchy:
 	    		margen = parseInt(margen.replace("px", "").trim()) + 35;
 
 	    		html = '<p id="par' + data.id + '" style="margin-left:'+ margen +'px;" title="Add a new specific decision under this generic decision">' + 
@@ -99,28 +99,28 @@ $(document).on('click', "img.update", function() {
 });
 
 
-// EDITAR DECISIÓN:
+// EDIT DECISION:
 $(document).on('click', "span.update", function() {
-	var id = this.id; // update+ID Decision
-	id = id.replace("update", "").trim(); // -> ID Decision
+	var id = this.id; // update+Decision ID
+	id = id.replace("update", "").trim(); // -> Decision ID
 	var desc; var dim; var padre; var antEdit;
-	var idPar = "par" + id; // ID del parrafo, inserta contenido después de él
+	var idPar = "par" + id; // Paragraph ID, insert content after it
 	var margen = $("#"+idPar).css("margin-left").replace("px","").trim();
 	margen = parseInt(margen) + 35;
-	// Obtiene la información de la decision vía AJAX:
+	// Get the decision information through AJAX:
 	$.post('./get_decision', {'id' : id}, function(data)
     {
     	desc = data.description;
     	dim = data.dimension;
     	padre = data.parent_id;
 
-    	// Obtiene las demás decisiones de dicha dimension
+    	// Get the rest of decisions of that dimension
     	$.post('./get_decisions_by_dim', {'dim' : dim, 'me' : id}, function(data)
         {
-        	// Genera el div de edicion, si no había uno antes (de creación o edición):
-       		// Es una decisión generica
+        	// Generates the edition div, if wasn't one before (creation or update):
+       		// Is a generic decision
       		antEdit = document.getElementById("div_edit_"+ id);
-       		// Sólo crea el div de edición, si no había uno antes:
+       		// Only creates the edition div, if wasn't one before:
        		if (antEdit == null) 
        		{
        			var html = 
@@ -217,7 +217,7 @@ $( document ).ready(function() {
 		      },
 		      "Cancel": function() {
 		        $(this).dialog( "close" );
-		        // Elimina el contenido de la instanciacion:
+		        // Remove the instantiation content:
 		        $("#instantiate").remove();
 		      }
 		    }
@@ -229,13 +229,13 @@ $( document ).ready(function() {
 	};
 
 
-	// Agregar decisiones genéricas:
+	// Add generic decisions:
 	$(".new_dec_gen").click(function(){
-		var id = this.id; // ID del span del div al que se hizo click, inserta contenido después de él -> span_dim_[aplic]
+		var id = this.id; // Clicked-span ID, insert content after it -> span_dim_[aplic]
 		id = id.replace("span", "div").trim(); // -> div_dim_[aplic]
 		var dim = id.split("_")[2].trim();
 
-		// Sólo lo agrega, si no hay uno antes:
+		// Only add it, if wasn't one before:
 	    var anterior = document.getElementById("div_"+dim);
 
 	    if (anterior == null) 
@@ -257,23 +257,23 @@ $( document ).ready(function() {
 
 });
 
-// DESCARTAR ESPECIFICA:
+// DISCARD SPECIFIC:
 $(document).on('click', "img.del_new", function() {
 	var id = this.id;
 	id = id.replace("del", "div"); // -> div_par1_1
-	// Elimina todo el div:
+	// Remove all the div:
 	$("#"+id).remove();
 });
 
-// DESCARTAR GENERICA:
+// DISCARD GENERIC:
 $(document).on('click', "img.del_new_gen", function() {
 	var id = this.id;
 	id = id.replace("del", "div"); // -> div_par1
-	// Elimina todo el div:
+	// Remove all the div:
 	$("#"+id).remove();
 });
 
-// ELIMINAR DECISIÓN:
+// DELETE DECISION:
 $(document).on('click', "span.delete", function() {
 	var id = this.id;
 	id = id.replace("delete", "").trim(); 
@@ -281,8 +281,8 @@ $(document).on('click', "span.delete", function() {
 
 	$.post('./get_info_to_delete', {'idDec' : id}, function(data)
     {
-    	// Consulta que más se borrará en caso de aceptar:
-		// Decisiones hijas[1], detalles de mapas[2] y hallazgos[3]:
+    	// Search any information related that could be deleted with the decision:
+		// Sons[1], Map details[2] and findings[3]:
 		var html = '<p>Do you really want to delete the following decision? </p><span style="color:green;font-weight:bold;font-size:12px;">' + data[0] + '</span><br>';
 
 		if (data[1] != '0' || data[2] != '0' || data[3] != '0') 
@@ -307,7 +307,7 @@ $(document).on('click', "span.delete", function() {
 		$("#dialog-confirm").html(html);
 		$("#dialog-confirm").dialog("option", "width", 450);
 		$("#dialog-confirm").dialog("option", "height", 400);
-		// Pasa el id del riesgo, como parametro al dialogo:
+		// Pass the decision id, as a dialog parameter:
 		$("#dialog-confirm").data('idDecision', id);
 		$("#dialog-confirm").data('confirmable', confirmable);
 		$("#dialog-confirm").dialog("open");
@@ -318,9 +318,9 @@ $(document).on('click', "span.delete", function() {
 });
 
 
-// AGREGAR ESPECIFICA:
+// ADD SPECIFIC:
 $(document).on('click', "img.new_dec", function() {
-	var id = this.id; // ID de la imagen del parrafo al que se hizo click, inserta contenido después de él
+	var id = this.id; // Clicked-paragraph ID, insert content after it
 	var idGen = id.replace("img", "").trim();
 	id = id.replace("img", "par");
 	var margen = $("#"+id).css("margin-left").replace("px","").trim();
@@ -348,30 +348,30 @@ $(document).on('click', "img.new_dec", function() {
 
 
 
-// GUARDAR ESPECIFICA:
+// SAVE SPECIFIC:
 $(document).on('click', "img.add_new", function() {
 	var id = this.id; // Original -> add_par1_1
 	var idDiv = id.replace("add", "div"); // -> div_par1_1
 	var idInput = id.replace("add", "new"); // new_par1_1
 	var desc = $("#"+idInput).val();
 	var idPadre = id.split("_")[1].replace("par","").trim(); 
-	// Realiza la petición AJAX:
+	// Performs an AJAX request:
 	
 	var html = ''; var margen = 0; var funcion = '';
-	// Envia una peticion AJAX para obtener el texto de la implicacion:
+	// Send an AJAX request to add a specific decision:
     $.post('./add_specific', {'description' : desc, 'id_padre' : idPadre}, function(data)
     {
     	
-    	// En data viene la decision recien creada:
+    	// Data contains the just-created decision:
     	if (data.id != null) 
     	{
-    		// OK - Creado con éxito, elimina el div que lo contenía:
+    		// OK - Succesfully created, remove the container div:
     		$("#"+idDiv).remove();
-    		// Inserta el registro después de su padre:
+    		// Inserts the record after its father:
     		idPadre = 'par' + data.parent_id;
-    		// Obtiene la margen del padre:
+    		// Get the father's margin:
     		margen = $("#"+idPadre).css("margin-left");
-    		// Le agrega 5 px, para construir el arbol:
+    		// Add 5px, to build the hierarchy:
     		margen = parseInt(margen.replace("px", "").trim()) + 35;
     		funcion = '<img src="/assets/list_option.png" style="margin-right:6px;cursor:pointer;" class="new_dec" id="img' + data.id + '">';
 
@@ -385,7 +385,7 @@ $(document).on('click', "img.add_new", function() {
     	} 
     	else
     	{
-    		// Informa el error:
+    		// Inform the error:
     		$("#"+idDiv).attr("class", "alert alert-danger");
     		$('<p style="color:red;">ERROR: Saving the record. Verify the entered information.</p>').insertAfter("#"+idInput);
     	};
@@ -394,7 +394,7 @@ $(document).on('click', "img.add_new", function() {
 
 });
 
-// GUARDAR GENERICA:
+// SAVE GENERIC:
 $(document).on('click', "img.add_new_gen", function() {
 	var id = this.id; // Original -> add_[dim]_[cont]
 	var dim = id.split("_")[1].trim();
@@ -411,19 +411,19 @@ $(document).on('click', "img.add_new_gen", function() {
 	dimension = dimension.replace(textoEN_ES+": ", "").trim(); // par_[dim]
 
 	dimension = dimension.replace("[+]","").trim();
-	// Realiza la petición AJAX:
+	// Performs an AJAX request:
 	
 	var html = ''; 
-	// Envia una peticion AJAX para obtener el texto de la implicacion:
+	// Send an AJAX request to add the generic decision:
     $.post('./add_generic', {'description' : desc, 'dimension' : dimension}, function(data)
     {
     	
-    	// En data viene la decision recien creada:
+    	// Data contains the object that represents the just-created decision:
     	if (data.id != null) 
     	{
-    		// OK - Creado con éxito, elimina el div que lo contenía:
+    		// OK - Succesfully created, remove the container div:
     		$("#"+idDiv).remove();
-    		// Inserta el registro después de su dimension:
+    		// Inserts the record after its dimension:
     		idPadre = 'div_dim_' + dim;
     		funcion = '<img src="/assets/list_option.png" style="margin-right:6px;cursor:pointer;" class="new_dec" id="img' + data.id + '">';
 
@@ -436,7 +436,7 @@ $(document).on('click', "img.add_new_gen", function() {
     	} 
     	else
     	{
-    		// Informa el error:
+    		// Informs the error:
     		$("#"+idDiv).attr("class", "alert alert-danger");
     		$('<p style="color:red;">ERROR: Saving the record. Verify the entered information.</p>').insertAfter("#"+idInput);
     	};
@@ -457,25 +457,25 @@ $(function() {
     buttons: {
       "Delete": function() 
       {
-      	// Valida si es la pantalla inicial o la confirmacion:
+      	// Verify if its the initial screen or the confirmation one:
       	var debeConfirmar = $("#dialog-confirm").data('confirmable');
 
       	if (!debeConfirmar) 
       	{
-      		// Puede borrarla de una!
-      		// Debe borrar el riesgo, en cascada, es decir borra tambien sus calificaciones, y la de su padre:
+      		// Can delete it now!
+      		// Should delete the risk, on cascade, deleting also its scores and its father information:
 	        var idDecision = $("#dialog-confirm").data('idDecision');
 	        $.post('./delete_decision', {'idDecision' : idDecision}, function(data)
 	    	{
-	    		// En data viene un arreglo con los ids de las decisiones que fueron borradas, para eliminarlas del listado:
+	    		// Data is an array that contains the decision ids of the just-deleted decisions, to remove them from the list:
 	    		for (var i = 0; i < data.length; i++) 
 	    		{
 	    			$("#par"+data[i]).html('<span style="color:red;font-size:12px;">Deleted record!</span>');
-	    			// Al cabo de 5 segundos lo remueve:
+	    			// After 5 seconds, remove it:
 	    			setTimeout( "jQuery('#par"+data[i]+"').remove();" , 3000 );
 	    		};
 
-	    		// Elimina el contenido del dialogo
+	    		// Remove the dialog's content
 		        $("#dialog-confirm").dialog( "close" );
 		        $("#dialog-confirm").html("");
 
@@ -483,7 +483,7 @@ $(function() {
       	} 
       	else
       	{
-      		// Construye el texto de re-confirmación:
+      		// Build the text to re-confirm the deleting:
       		var html = $("#dialog-confirm").html() + "<br><span style='color:red;font-size:16px;'>Do you really want to confirm the elimination (this operation CAN'T be undone)? : </span><br>";
 
       		$("#dialog-confirm").html(html);
@@ -495,7 +495,7 @@ $(function() {
       },
       "Cancel": function() {
         $(this).dialog( "close" );
-        // Elimina el contenido del dialogo:
+        // Remove the dialog's content:
         $("#dialog-confirm").html("");
       }
     }
@@ -543,13 +543,13 @@ th
 
 
 <div style="width:100%;min-height:500px;">
-	<!-- Crear nuevas decisiones específicas -->
+	<!-- Create new specific decisions -->
 	<div>
 		<h2>Decisions:</h2>
-		<!-- F3: Decisión Específica En Masa-->
+		<!-- F3: Mass Specific Decision-->
 		<div style="width:100%;padding:15px;border:1px solid #DDD;"> 
 			<p>Below are presented generic and specific decisions, separated by their dimension:</p>
-			<% # Ciclo 1: DIMENSION: %>
+			<% # Loop 1: DIMENSION: %>
 			<% @dims.each do |dim| %>
 			<%
 			   id = 'div_dim_' << dim.downcase[0..3]
@@ -559,24 +559,24 @@ th
 				   id_par = 'par_' << dim.downcase[0..3] %>
 				<p style="font-size:18px;" id="<%= id_par %>"><span title="Add a new generic decision under this dimension" style="cursor:pointer;margin-right:15px;" class="new_dec_gen" id="<%= id_span %>">[+]</span>Dimension: <%= translateDimension(dim) %></p>
 			</div>
-			  <% # Ciclo 2: GENERICAS: %>
+			  <% # Loop 2: GENERICS: %>
 			  <% gens = @genericas.select {|g| g.dimension == dim} 
-			     @genericas = @genericas - gens # Depura el arreglo de genericas %>
+			     @genericas = @genericas - gens # Flter the generic array %>
 			  <% gens.each do |gen| %>
 			     <%= render :partial => 'decision', :locals => {:decision => gen, :nivel => 0} %>
-			  <% end %> <!-- Cierra Ciclo 2 -->
-			<% end %> <!-- Cierra Ciclo 1 -->			
+			  <% end %> <!-- Close loop 2 -->
+			<% end %> <!-- Close loop 1 -->			
 		</div>
-		<!-- Cierra F3 -->
+		<!-- Close F3 -->
 	</div>
 </div>
 
-<!-- Dialogo para confirmar la eliminación de una decisión -->
+<!-- Dialog to confirm a decision deleting -->
 <div id="dialog-confirm" title="Decision Elimination Confirmation">
 </div>
 
 
-<!-- Si la empresa no tiene decisiones genericas, genera un dialogo para que pueda instanciar un grupo -->
+<!-- If the enterprise has no generic decisions, generate a dialog to instantiate a group of them -->
 <% if !@tieneDecisiones %>
 <div id="instantiate">
 
