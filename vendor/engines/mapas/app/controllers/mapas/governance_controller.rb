@@ -207,8 +207,14 @@ module Mapas
 
 	def get_decisions_by_dim
 		myDec = GovernanceDecision.find(params[:me].to_i)
-		decsGen = GovernanceDecision.where("decision_type = ? AND dimension = ?", GENERIC_TYPE, params[:dim])
-		decsEsp = GovernanceDecision.where("decision_type = ? AND dimension = ? AND enterprise_id = ?", SPECIFIC_TYPE, params[:dim], view_context.getMyEnterprise.id)
+		# Modifica la dimension, debe tener en cuenta el idioma:
+		dimension = params[:dim]
+		if I18n.default_locale.to_s.eql?("en")
+			dimension = view_context.translateDimensionToES(params[:dim])		
+		end
+		decsGen = GovernanceDecision.where("decision_type = ? AND dimension = ? AND enterprise_id = ?", GENERIC_TYPE, dimension, view_context.getMyEnterprise.id)
+		decsEsp = GovernanceDecision.where("decision_type = ? AND dimension = ? AND enterprise_id = ?", SPECIFIC_TYPE, dimension, view_context.getMyEnterprise.id)
+ 		
 		decs = decsEsp + decsGen
 	    # ES: Remueve la propia decisión que se está tratando:
 	    # EN: Removes the decision sent as a parameter:
@@ -226,6 +232,9 @@ module Mapas
 		dec = GovernanceDecision.find(params[:id].to_i)
 		newDesc = params[:newDesc]
 		newDim = params[:newDim]
+		if I18n.default_locale.to_s.eql?("en")
+			newDim = view_context.translateDimensionToES(newDim)		
+		end
 		newPadre = params[:newPadre]
 		if newPadre == 'NA'
 			# ES: SIN PADRE
