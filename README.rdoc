@@ -17,7 +17,7 @@
   
   For detailed deployment instructions go to: https://github.com/governit/GovernIT/wiki/2.1-Step-by-Step-Configuration
   
-  For detailed information and software documentation go to: https://github.com/governit/GovernIT/wiki/1.-Home
+  For detailed information and software documentation go to: https://github.com/governit/GovernIT/wiki/Home
 
 * Digital Object Identifier: https://zenodo.org/badge/latestdoi/18809/governit/GovernIT
 
