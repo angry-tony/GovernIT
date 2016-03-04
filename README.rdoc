@@ -15,7 +15,9 @@
   6. Load the data into the database: Run 'rake db:seed' or 'bundle exec rake db:seed' (if the first one triggers a version conflict)
   7. Start using InvestIT: Run 'rails s' to start the application server and start using InvestIT in the route 'localhost:3000' in your prefered web browser.
   
-  For detailed deployment instructions go to: https://github.com/governit/GovernIT/wiki/Step-by-Step-Configuration
+  For detailed deployment instructions go to: https://github.com/governit/GovernIT/wiki/2.1-Step-by-Step-Configuration
+  
+  For detailed information and software documentation go to: https://github.com/governit/GovernIT/wiki/1.-Home
 
 * Digital Object Identifier: https://zenodo.org/badge/latestdoi/18809/governit/GovernIT
 
