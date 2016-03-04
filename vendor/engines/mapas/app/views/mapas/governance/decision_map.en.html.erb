@@ -31,7 +31,7 @@ $(function () {
     autoOpen: false,
     modal: true,
     buttons: {
-      "Guardar cambios": function(){
+      "Save changes": function(){
       	// Needs to pass the selected elements, to the just-clicked cell:
       	var celda = $("#dialog_addr").data('idCell');
         var idDec = celda.split("_")[1].trim();
@@ -94,7 +94,7 @@ $(function () {
 
       	$(this).dialog("close");
       },
-      "Cerrar": function () {
+      "Close": function () {
       	// Restart all the checkboxes of all the responsibles
       	$('.check_dialog').each(function(){
       		$(this).prop("checked",false);
