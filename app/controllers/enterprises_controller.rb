@@ -14,7 +14,7 @@ class EnterprisesController < ApplicationController
   def update
     empresa = Enterprise.find(params[:idEmpresa].to_i)
     # ES: Actualiza todo lo que encuentre:
-    # EN: Updates anything founded
+    # EN: Updates anything found
     empresa.name = params[:nombre]
     empresa.description = params[:desc]
     if !params[:logo].nil?

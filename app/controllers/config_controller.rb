@@ -12,7 +12,7 @@ class ConfigController < ApplicationController
       @riskmap = @empresa.configuracion
 
       # ES: Si no encuentra la configuracion, la envía vacía
-      # EN: If the configuration is not founded, send it empty
+      # EN: If the configuration is not found, send it empty
       if @riskmap.nil?
         # ES: Envía en los niveles, los valores por defecto
         # EN: Send in the levels, the default values
@@ -20,7 +20,7 @@ class ConfigController < ApplicationController
         @niveles = @default.split('|')      
       else
         # ES: Si no encuentra la configuración, la envía vacía:
-        # EN: If the configuration is not founded, send it empty
+        # EN: If the configuration is not found, send it empty
         if @riskmap.riskmap.nil? or @riskmap.riskmap.empty?
           # ES: Envía en los niveles, los valores por defecto
           # EN: Send in the levels, the default values
@@ -47,7 +47,7 @@ class ConfigController < ApplicationController
       string = params[:niveles]
       config = emp.configuracion
       # ES: Si no encuentra la configuracion, crea una nueva
-      # EN: If the configuration is not founded, create a new one
+      # EN: If the configuration is not found, create a new one
       if config == nil
         config = Configuracion.new
         config.enterprise_id = emp.id

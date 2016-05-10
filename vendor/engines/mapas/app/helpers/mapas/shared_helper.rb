@@ -462,7 +462,7 @@ module Mapas
 	        			# EN: Verify that is not the separator record
 	        			if f == '#$%&/()='
 	        				error = true
-							lineHtml = '<h3 style="color:red;">Conflicts founded:</h3>'
+							lineHtml = '<h3 style="color:red;">Conflicts found:</h3>'
 							fileHtml.puts lineHtml
 							next
 	        			end
